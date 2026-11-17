@@ -1,6 +1,7 @@
 {
 	"domain": "arpa_piemonte",
 	"name": "ARPA Piemonte",
+	"categories": ["weather_alerts"],
 	"codeowners": ["@webysther"],
 	"config_flow": true,
 	"documentation": "https://github.com/webysther/ha-arpa-piemonte",
