@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Release ARPA Piemonte: a GitHub release whose notes come from CHANGELOG.md.
 # Publishing it runs .github/workflows/release.yml, which writes the version in
-# the integration and attaches arpa_piemonte.zip, the file HACS installs.
+# the integration and attaches arpa_piemonte.zip, the file the Marketplace
+# installs.
 #
 # Usage: ./release.sh VERSION [--dry-run]
 #
@@ -11,9 +12,10 @@
 #   ./release.sh 2026.11.0              the release exists: only update its notes
 #
 # A beta (bN) is published as a pre-release with the notes of "## [Unreleased]":
-# HACS offers it only to those who turn on pre-releases for ARPA Piemonte. A
-# release turns "## [Unreleased]" into "## [VERSION] - <today>", updates the
-# links at the end of the changelog, commits it to main and pushes it.
+# the Marketplace offers it only to those who turn on the Pre-release switch of
+# ARPA Piemonte. A release turns "## [Unreleased]" into "## [VERSION] - <today>",
+# updates the links at the end of the changelog, commits it to main and pushes
+# it.
 #
 # The version is in the tag only: manifest.json and version.py stay as they
 # are in the repository. The Tests and Validate workflows must have passed on
@@ -142,8 +144,10 @@ changelog_file=$CHANGELOG
 
 if $beta; then
   {
-    echo "Beta of ${version%%b*}, for testing. In HACS, turn on the pre-releases"
-    echo "of ARPA Piemonte to install it."
+    echo "Beta of ${version%%b*}, for testing. To install it, turn on the"
+    echo "**Pre-release** switch of ARPA Piemonte in **Settings → Devices &"
+    echo "services → Marketplace** (the switch is disabled by default: enable it"
+    echo "first)."
     echo
     section Unreleased "$CHANGELOG"
   } >"$notes_file"
@@ -241,12 +245,12 @@ done
 gh run watch "$run_id" --repo "$REPO" --exit-status ||
   die "the Release workflow failed: fix it, then 'gh run rerun $run_id --repo $REPO --failed'"
 gh release view "$tag" --repo "$REPO" --json assets --jq '.assets[].name' | grep -qx "$ASSET" ||
-  die "$tag has no $ASSET: HACS cannot install it"
+  die "$tag has no $ASSET: the Marketplace cannot install it"
 
 echo
 echo "Published: $(gh release view "$tag" --repo "$REPO" --json url --jq .url)"
 if $beta; then
-  echo "HACS offers it to those who turn on the pre-releases of ARPA Piemonte."
+  echo "The Marketplace offers it to those who turn on the Pre-release switch of ARPA Piemonte."
 else
-  echo "HACS offers it as an update at its next refresh."
+  echo "The Marketplace offers it as an update at its next check, within 48 hours."
 fi

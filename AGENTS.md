@@ -4,7 +4,7 @@ Guidance for AI coding agents and contributors working on this repository.
 `CLAUDE.md` imports this file.
 
 ARPA Piemonte is a Home Assistant custom integration (domain `arpa_piemonte`),
-installed through HACS. It turns a station of the Piedmont network of Arpa
+installed from the Marketplace of Home Assistant. It turns a station of the Piedmont network of Arpa
 Piemonte into a device with the sensors the station has: water level and its
 status against the thresholds, rain, temperature, humidity, wind, snow.
 
@@ -70,9 +70,9 @@ pytest --cov --cov-report=term-missing
 npx prettier --check .                 # the YAML
 ```
 
-CI runs them (`tests.yaml`), with hassfest and the HACS action
-(`validate.yaml`). Keep the coverage of `custom_components/arpa_piemonte` at
-100%.
+CI runs them (`tests.yaml`), with hassfest and the checks of the Marketplace
+(`hacs/action`, in `validate.yaml`). Keep the coverage of
+`custom_components/arpa_piemonte` at 100%.
 
 ## The sources
 
@@ -111,7 +111,8 @@ Users' automations and dashboards depend on what the integration exposes.
   `async_migrate_entry` and a new `MINOR_VERSION` (or `VERSION` when older
   releases cannot load it).
 - Supported Home Assistant: from the `homeassistant` version in `hacs.json`
-  (2025.4.0, the first with `MEASUREMENT_ANGLE`) to the latest. Import the
+  (the file the Marketplace reads, under that name; 2025.4.0, the first with
+  `MEASUREMENT_ANGLE`) to the latest. Import the
   validation library both ways (`probatio` from 2026.9, `voluptuous` before).
 
 ## Home Assistant conventions
@@ -123,8 +124,8 @@ Users' automations and dashboards depend on what the integration exposes.
 - Every entity has an icon in `icons.json`, and the enum states have theirs.
 - `quality_scale.yaml` states each rule of the integration quality scale. Keep
   it true when a change affects a rule.
-- The README is the HACS store page and holds the sections the quality scale
-  asks for: keep them current.
+- The README is the page users install from, through the Marketplace, and
+  holds the sections the quality scale asks for: keep them current.
 - Credit the data: every entity has the attribution of Arpa Piemonte, and the
   device links to the page of its station.
 - `brand/` holds the icon and logo of Arpa Piemonte, as Home Assistant 2026.3
@@ -157,7 +158,7 @@ PyPI.
 - The maintainer releases with `./release.sh VERSION [--dry-run]`. The version
   lives in the git tag only: leave `"version": "0.0.0"` in `manifest.json` and
   `"develop"` in `version.py`; the release workflow writes them and attaches
-  `arpa_piemonte.zip`, the file HACS installs.
+  `arpa_piemonte.zip`, the file the Marketplace installs.
 
 ## Code style
 

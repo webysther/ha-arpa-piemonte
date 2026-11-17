@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/webysther/ha-arpa-piemonte/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/webysther/ha-arpa-piemonte?label=release&color=41BDF5"></a>
-  <a href="https://hacs.xyz/"><img alt="HACS custom repository" src="https://img.shields.io/badge/HACS-custom-41BDF5?logo=homeassistantcommunitystore&logoColor=white"></a>
+  <a href="https://www.home-assistant.io/integrations/marketplace/"><img alt="Marketplace custom repository" src="https://img.shields.io/badge/Marketplace-custom-41BDF5?logo=homeassistant&logoColor=white"></a>
   <a href="https://github.com/webysther/ha-arpa-piemonte/actions/workflows/tests.yaml"><img alt="Tests" src="https://github.com/webysther/ha-arpa-piemonte/actions/workflows/tests.yaml/badge.svg"></a>
   <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/LICENSE.md"><img alt="License" src="https://img.shields.io/github/license/webysther/ha-arpa-piemonte?color=41BDF5"></a>
 </p>
@@ -46,11 +46,14 @@ stations of the Piedmont network.
 
 ## Installation
 
-With [HACS](https://hacs.xyz):
+From the [Marketplace](https://www.home-assistant.io/integrations/marketplace/)
+of Home Assistant:
 
-1. **HACS → ⋮ → Custom repositories**: add
-   `https://github.com/webysther/ha-arpa-piemonte`, type **Integration**.
-2. Search **ARPA Piemonte**, **Download**, and restart Home Assistant.
+[![Open your Home Assistant instance and open ARPA Piemonte in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=webysther&repository=ha-arpa-piemonte&category=integration)
+
+1. Open the link above, or **Settings → Marketplace → Add from link**, and
+   add `https://github.com/webysther/ha-arpa-piemonte`.
+2. Open **ARPA Piemonte** and install it.
 
 Home Assistant 2025.4 or newer.
 
@@ -70,7 +73,7 @@ The integration has no options.
 
 **Settings → Devices & services → ARPA Piemonte**, the three dots of the
 station, **Delete**. To remove the integration, delete every station, then
-remove it from HACS.
+uninstall it from the Marketplace.
 
 ## How the data is updated
 

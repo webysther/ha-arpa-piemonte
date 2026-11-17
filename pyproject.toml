@@ -1,6 +1,6 @@
 [project]
-# Metadata of the repository. The integration is installed by HACS, not from
-# PyPI: its requirements are in custom_components/arpa_piemonte/manifest.json,
+# Metadata of the repository. The integration is installed from the Marketplace
+# of Home Assistant, not from PyPI: its requirements are in custom_components/arpa_piemonte/manifest.json,
 # and its version comes from the git tag of each release (see release.sh).
 name = "ha-arpa-piemonte"
 version = "0.0.0"
@@ -12,11 +12,11 @@ authors = [{ name = "Webysther Sperandio" }]
 requires-python = ">=3.13"
 keywords = [
   "arpa piemonte",
-  "hacs",
   "home assistant",
   "hydrometer",
   "idrometro",
   "italy",
+  "marketplace",
   "meteo 3r",
   "piemonte",
   "river level",

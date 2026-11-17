@@ -21,14 +21,15 @@ jobs:
       - name: Hassfest validation
         uses: "home-assistant/actions/hassfest@master"
 
-  validate-hacs:
+  validate-marketplace:
     runs-on: "ubuntu-26.04"
-    name: With HACS Action
+    name: With the Marketplace checks
     steps:
       - name: Checkout the repository
         uses: "actions/checkout@v7"
 
-      - name: HACS validation
+      # The checks of the Marketplace catalog are still those of the HACS action.
+      - name: Marketplace validation
         uses: "hacs/action@main"
         with:
           category: "integration"
