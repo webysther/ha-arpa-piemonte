@@ -11,7 +11,7 @@ newer reading than the one shown, and not more often than their pace.
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Iterable
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from functools import partial
@@ -116,29 +116,33 @@ class SourceTracker:
 
 
 class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
-    """Keep the latest readings of the station of a config entry."""
+    """Keep the latest readings of a station."""
 
     config_entry: ArpaPiemonteConfigEntry
 
     def __init__(
-        self, hass: HomeAssistant, entry: ConfigEntry, sources: ArpaSources
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        station: StationConfig,
+        sources: ArpaSources,
     ) -> None:
-        """Initialize the coordinator of a station."""
-        self.station = StationConfig.of(entry)
+        """Initialize the coordinator of a station of the entry of its municipality."""
+        self.station = station
         self._sources = sources
-        self.meteo3r = SourceTracker(entry.title, Source.METEO3R, timedelta(0))
+        self.meteo3r = SourceTracker(station.name, Source.METEO3R, timedelta(0))
         self.website = SourceTracker(
-            entry.title, Source.ARPA_WEBSITE, WEBSITE_MIN_INTERVAL
+            station.name, Source.ARPA_WEBSITE, WEBSITE_MIN_INTERVAL
         )
         self.realtime = SourceTracker(
-            entry.title, Source.ARPA_REALTIME, REALTIME_MIN_INTERVAL
+            station.name, Source.ARPA_REALTIME, REALTIME_MIN_INTERVAL
         )
         self._shown: dict[Quantity, Measurement] = {}
         super().__init__(
             hass,
             LOGGER,
             config_entry=entry,
-            name=f"{DOMAIN} {entry.title}",
+            name=f"{DOMAIN} {station.name}",
             update_interval=UPDATE_INTERVAL,
             # The snapshot compares by value: an update without new readings
             # (a 304 of Meteo 3R) writes nothing
@@ -250,4 +254,12 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
         return SourceResult(from_realtime(data))
 
 
-type ArpaPiemonteConfigEntry = ConfigEntry[ArpaPiemonteCoordinator]
+@dataclass(frozen=True, slots=True)
+class ArpaPiemonteData:
+    """What the entry of a municipality keeps while it is loaded."""
+
+    stations: Mapping[str, ArpaPiemonteCoordinator]
+    """The coordinator of each station, by the ID of its subentry."""
+
+
+type ArpaPiemonteConfigEntry = ConfigEntry[ArpaPiemonteData]

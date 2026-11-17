@@ -30,6 +30,8 @@ stations of the Piedmont network.
 - One device per station, with the sensors it has: a hydrometer gets its water
   level and its status against the thresholds (normal, pre-alarm, guard,
   danger); a weather station its rain, temperature, humidity, wind and snow.
+- The stations grouped by municipality: one entry per municipality, with its
+  stations under it.
 - The freshest readings: those of the Meteo 3R app of Arpa Piemonte, every 30
   minutes.
 - When Meteo 3R does not answer, or a reading of it is too old, the official
@@ -60,20 +62,28 @@ Home Assistant 2025.4 or newer.
 ## Configuration
 
 **Settings → Devices & services → Add integration → ARPA Piemonte**, then
-choose the station: they are listed by name, river and municipality. Choose
-the point of the river that matters to you, not necessarily the nearest one.
+type the municipality of the station: the list has the 278 municipalities of
+Piedmont with a station, and finds "Mondovì" as Arpa Piemonte writes it,
+"Mondovi'". When the municipality has several stations, choose one: the
+rivers first, then the weather stations. Choose the point of the river that
+matters to you, not necessarily the nearest one.
 
-Add the integration again for each station. To read the sensors and
-thresholds of a station again from Arpa Piemonte, choose **Reconfigure** on
-its entry.
+Each municipality is an entry, with its stations under it. To add another
+station of a municipality, choose **Add station** on its entry, or add the
+integration again and choose the same municipality.
+
+To read the sensors and thresholds of a station again from Arpa Piemonte,
+choose **Read the station again** on the station. **Reconfigure** on the
+entry of a municipality reads all its stations again.
 
 The integration has no options.
 
 ## Removal
 
-**Settings → Devices & services → ARPA Piemonte**, the three dots of the
-station, **Delete**. To remove the integration, delete every station, then
-uninstall it from the Marketplace.
+**Settings → Devices & services → ARPA Piemonte**: **Delete** in the three
+dots of a station removes it; in those of a municipality, it removes the
+municipality with its stations. To remove the integration, delete every
+municipality, then uninstall it from the Marketplace.
 
 ## How the data is updated
 
@@ -117,8 +127,9 @@ unavailable.
   goes back to it as soon as it does.
 - **The station cannot be added**: Arpa Piemonte did not answer; try again
   later.
-- Otherwise, download the diagnostics (the three dots of the station on the
-  page of the integration) and open an
+- Otherwise, download the diagnostics (the three dots of the municipality on
+  the page of the integration, or the page of the device of the station) and
+  open an
   [issue](https://github.com/webysther/ha-arpa-piemonte/issues) with them and a
   debug log.
 

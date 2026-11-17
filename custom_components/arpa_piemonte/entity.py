@@ -33,13 +33,12 @@ class ArpaPiemonteEntity(CoordinatorEntity[ArpaPiemonteCoordinator]):
     def __init__(self, coordinator: ArpaPiemonteCoordinator, key: str) -> None:
         """Initialize an entity of the station, with its key."""
         super().__init__(coordinator)
-        entry = coordinator.config_entry
         station = coordinator.station
-        self._attr_unique_id = f"{entry.unique_id}-{key}"
+        self._attr_unique_id = f"{station.unique_id}-{key}"
         self._attr_translation_key = key
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, str(entry.unique_id))},
-            name=entry.title,
+            identifiers={(DOMAIN, station.unique_id)},
+            name=station.name,
             manufacturer=MANUFACTURER,
             model=station.sensor_letters or None,
             model_id=station.station_code,
@@ -48,7 +47,7 @@ class ArpaPiemonteEntity(CoordinatorEntity[ArpaPiemonteCoordinator]):
             configuration_url=_page_url(station.sensor_id, station.sensor_letters),
         )
         # English IDs whatever the language: sensor.arpa_piemonte_pray_sessera_level
-        self.entity_id = f"sensor.{DOMAIN}_{slugify(entry.title)}_{key}"
+        self.entity_id = f"sensor.{DOMAIN}_{slugify(station.name)}_{key}"
 
 
 def _page_url(sensor_id: str | None, letters: str) -> str | None:

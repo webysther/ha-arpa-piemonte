@@ -43,8 +43,9 @@ ETAG = 'W/"6afbb104-3838"'
 
 
 def coordinator_of(entry: MockConfigEntry) -> ArpaPiemonteCoordinator:
-    """Return the coordinator of a config entry."""
-    coordinator: ArpaPiemonteCoordinator = entry.runtime_data
+    """Return the coordinator of the station of an entry."""
+    (coordinator,) = entry.runtime_data.stations.values()
+    assert isinstance(coordinator, ArpaPiemonteCoordinator)
     return coordinator
 
 

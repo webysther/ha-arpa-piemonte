@@ -6,17 +6,17 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Final
+from typing import Any, Final
 
 from .const import (
     CONF_SENSOR_ID,
     CONF_SENSOR_LETTERS,
     CONF_STATION_CODE,
+    CONF_STATION_NAME,
     CONF_THRESHOLDS,
+    MUNICIPALITY_ID_PREFIX,
+    STATION_ID_PREFIX,
 )
-
-if TYPE_CHECKING:
-    from homeassistant.config_entries import ConfigEntry
 
 
 class Quantity(StrEnum):
@@ -167,24 +167,51 @@ class StationSnapshot:
         return self.thresholds.status(level.value)
 
 
+def municipality_unique_id(municipality_code: str) -> str:
+    """Return the unique ID of the entry of a municipality ("ISTAT_096050")."""
+    return f"{MUNICIPALITY_ID_PREFIX}{municipality_code}"
+
+
+def station_unique_id(station_code: str) -> str:
+    """Return the unique ID of a station ("PIE_188"), of its device and entities."""
+    return f"{STATION_ID_PREFIX}{station_code}"
+
+
 @dataclass(frozen=True, slots=True)
 class StationConfig:
-    """A station, as its config entry stores it."""
+    """A station, as its config subentry stores it."""
 
     station_code: str
+    name: str
     sensor_id: str | None
     sensor_letters: str
     thresholds: Thresholds
 
     @classmethod
-    def of(cls, entry: ConfigEntry) -> StationConfig:
-        """Return the station of a config entry."""
+    def from_data(cls, data: Mapping[str, Any]) -> StationConfig:
+        """Return the station of the data of its config subentry."""
         return cls(
-            station_code=entry.data[CONF_STATION_CODE],
-            sensor_id=entry.data.get(CONF_SENSOR_ID),
-            sensor_letters=entry.data.get(CONF_SENSOR_LETTERS, ""),
-            thresholds=Thresholds.from_dict(entry.data.get(CONF_THRESHOLDS)),
+            station_code=data[CONF_STATION_CODE],
+            name=data[CONF_STATION_NAME],
+            sensor_id=data.get(CONF_SENSOR_ID),
+            sensor_letters=data.get(CONF_SENSOR_LETTERS, ""),
+            thresholds=Thresholds.from_dict(data.get(CONF_THRESHOLDS)),
         )
+
+    def as_data(self) -> dict[str, Any]:
+        """Return the station as the data of its config subentry."""
+        return {
+            CONF_STATION_CODE: self.station_code,
+            CONF_STATION_NAME: self.name,
+            CONF_SENSOR_ID: self.sensor_id,
+            CONF_SENSOR_LETTERS: self.sensor_letters,
+            CONF_THRESHOLDS: self.thresholds.as_dict(),
+        }
+
+    @property
+    def unique_id(self) -> str:
+        """Return the unique ID of the station, of its device and entities."""
+        return station_unique_id(self.station_code)
 
     @property
     def quantities(self) -> tuple[Quantity, ...]:

@@ -171,9 +171,16 @@ async def async_setup_entry(
     entry: ArpaPiemonteConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the sensors of a station: those of the quantities it measures."""
+    """Set up the sensors of each station, in its subentry."""
     del hass
-    coordinator = entry.runtime_data
+    for subentry_id, coordinator in entry.runtime_data.stations.items():
+        async_add_entities(
+            _station_sensors(coordinator), config_subentry_id=subentry_id
+        )
+
+
+def _station_sensors(coordinator: ArpaPiemonteCoordinator) -> list[SensorEntity]:
+    """Return the sensors of a station: those of the quantities it measures."""
     quantities = coordinator.station.quantities
     entities: list[SensorEntity] = [
         MeasurementSensor(coordinator, description)
@@ -185,7 +192,7 @@ async def async_setup_entry(
         for description in STATION_SENSORS
         if coordinator.station.has_level or not description.level_only
     )
-    async_add_entities(entities)
+    return entities
 
 
 class MeasurementSensor(ArpaPiemonteEntity, SensorEntity):

@@ -14,17 +14,16 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
 )
 
-from custom_components.arpa_piemonte.const import DOMAIN
-
 from . import (
     NOW,
     PRAY_DATA,
-    TITLE,
-    UNIQUE_ID,
+    PRAY_MUNICIPALITY,
+    municipality_entry,
     serve_meteo3r,
     serve_realtime,
     serve_website,
     setup_integration,
+    station_subentry,
 )
 
 
@@ -42,20 +41,15 @@ def frozen_time(freezer: FrozenDateTimeFactory) -> FrozenDateTimeFactory:
 
 @pytest.fixture
 def entry_data() -> dict[str, Any]:
-    """Return the data of the config entry; parametrize it to change it."""
+    """Return the data of the station of Pray; parametrize it to change it."""
     return PRAY_DATA
 
 
 @pytest.fixture
 def mock_config_entry(entry_data: dict[str, Any]) -> MockConfigEntry:
-    """Return the config entry of Pray Sessera."""
-    return MockConfigEntry(
-        domain=DOMAIN,
-        title=TITLE,
-        version=1,
-        minor_version=1,
-        unique_id=UNIQUE_ID,
-        data=entry_data,
+    """Return the entry of the municipality of Pray, with its station."""
+    return municipality_entry(
+        PRAY_MUNICIPALITY, "Pray", station_subentry(entry_data, "Sessera")
     )
 
 

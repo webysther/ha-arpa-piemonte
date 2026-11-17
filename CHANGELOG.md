@@ -6,6 +6,25 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A station is found by its municipality: type the name, with or without its
+  accent ("Mondovì" finds "Mondovi'"), then choose the station when the
+  municipality has several, the rivers first.
+- The stations are grouped by municipality: each municipality is an entry,
+  with its stations under it. **Add station** on the entry adds another
+  station of the same municipality.
+- Diagnostics of each station, on its device.
+
+### Changed
+
+- At the first start, the stations added before move to the entry of their
+  municipality, with their devices, entities, entity IDs and history. A
+  station disabled with its entry stays disabled. Going back to 2026.11.0
+  afterwards needs the stations added again.
+- **Reconfigure** on a municipality reads all its stations again; **Read the
+  station again** reads one.
+
 ## [2026.11.0] - 2026-11-17
 
 First release.

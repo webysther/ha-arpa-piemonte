@@ -4,26 +4,73 @@
         "step": {
             "user": {
                 "title": "Aggiungi una stazione",
-                "description": "Le misure di una stazione di Arpa Piemonte: livello idrometrico, pioggia, temperatura, umidità, vento e neve, secondo i sensori della stazione. Non è un'app ufficiale di Arpa Piemonte.",
+                "description": "Le misure delle stazioni di Arpa Piemonte: livello idrometrico, pioggia, temperatura, umidità, vento e neve, secondo i sensori di ogni stazione. Non è un'app ufficiale di Arpa Piemonte.",
+                "data": {
+                    "municipality": "Comune"
+                },
+                "data_description": {
+                    "municipality": "Scrivi per cercare tra i comuni del Piemonte con una stazione. Le sue stazioni sono raggruppate sotto di esso."
+                }
+            },
+            "station": {
+                "title": "Stazioni di {municipality}",
+                "description": "Prima i corsi d'acqua, poi le stazioni meteo.",
                 "data": {
                     "station_code": "Stazione"
                 },
                 "data_description": {
-                    "station_code": "Nome, corso d'acqua e comune della stazione. Il punto del fiume che ti interessa, non per forza il più vicino."
+                    "station_code": "Il punto del fiume che ti interessa, non per forza il più vicino."
                 }
             },
             "reconfigure": {
-                "title": "Rileggi {station}",
-                "description": "Rileggi da Arpa Piemonte i sensori, le soglie e gli identificativi di {station}."
+                "title": "Rileggi {municipality}",
+                "description": "Rileggi da Arpa Piemonte i sensori, le soglie e gli identificativi di ogni stazione di {municipality}."
             }
         },
         "error": {
-            "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi."
+            "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi.",
+            "municipality_not_listed": "Nessuna stazione di Arpa Piemonte in questo comune. Scegline uno dall'elenco."
         },
         "abort": {
-            "already_configured": "Questa stazione è già stata aggiunta.",
+            "already_configured": "Tutte le stazioni di questo comune sono già state aggiunte.",
+            "already_in_progress": "Una stazione di questo comune è già in corso di aggiunta.",
             "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi.",
-            "reconfigure_successful": "La stazione è stata riletta."
+            "reconfigure_successful": "Le stazioni sono state rilette.",
+            "station_added": "{station} è stata aggiunta a {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Stazione",
+            "initiate_flow": {
+                "user": "Aggiungi stazione",
+                "reconfigure": "Rileggi la stazione"
+            },
+            "step": {
+                "user": {
+                    "title": "Aggiungi una stazione di {municipality}",
+                    "description": "Le stazioni di {municipality} non ancora aggiunte: prima i corsi d'acqua.",
+                    "data": {
+                        "station_code": "Stazione"
+                    },
+                    "data_description": {
+                        "station_code": "Il punto del fiume che ti interessa, non per forza il più vicino."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Rileggi {station}",
+                    "description": "Rileggi da Arpa Piemonte i sensori, le soglie e gli identificativi di {station}."
+                }
+            },
+            "error": {
+                "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi."
+            },
+            "abort": {
+                "already_configured": "Questa stazione è già stata aggiunta.",
+                "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi.",
+                "no_other_station": "Tutte le stazioni di {municipality} sono già state aggiunte.",
+                "reconfigure_successful": "La stazione è stata riletta."
+            }
         }
     },
     "entity": {

@@ -66,21 +66,24 @@ sectors.
 One phase at a time; the maintainer commits and approves between phases.
 
 0. **Document this study** in the three repositories (done: these files).
-1. **Municipality, then station, and subentries.**
+1. **Municipality, then station, and subentries** (done, unreleased).
    - The config flow picks the municipality with the DPC search model (a
-     dropdown with `custom_value`, matched without accents or apostrophes:
-     "Mondovì" finds "Mondovi'"), then the station, named by its river, and
-     skips that step when the municipality has one station.
+     dropdown with `custom_value`, matched without accents, apostrophes or
+     hyphens: "Mondovì" finds "Mondovi'"), then the station, the rivers
+     first, and skips that step when the municipality has one station.
    - One config entry per municipality (`ISTAT_<current ISTAT code>`, the key
-     of the widget JSON), one subentry per station (`PIE_<code>`). Devices
+     of the widget JSON), one subentry per station (`PIE_<code>`), titled by
+     its river or, without one, its name. Devices
      (`(arpa_piemonte, "PIE_<code>")`) and entity unique IDs
      (`PIE_<code>-<key>`) do not change.
-   - A two-step migration: offline into a subentry, then at setup, with the
-     station list, into the entry of its municipality (merging entries of the
-     same municipality).
-   - First check that Home Assistant 2025.4, the minimum, has every subentry
-     API used; the device registry moves devices with `new_config_entry_id`
-     in recent versions and with `add_`/`remove_` before.
+   - The migration is one step, in `async_setup`, before the entries load,
+     as Home Assistant does for OpenAI: no source is asked, the municipality
+     of each station comes from `station_places.py` (the Meteo 3R list of
+     2026-11-17, checked against the test fixture). The planned second step
+     at setup, with the network, was dropped: the network is often not up
+     yet when Home Assistant starts.
+   - Checked on Home Assistant 2025.4.0 (the whole test suite, in a scratch
+     venv) and 2026.10 (the pinned one): see "Home Assistant, checked" below.
 2. **A flood risk binary sensor derived from the level status** (the user's
    request: "derive a risk sensor" from
    `sensor.arpa_piemonte_pray_sessera_level_status`), like
@@ -140,13 +143,39 @@ One phase at a time; the maintainer commits and approves between phases.
 
 ### Home Assistant
 
-- Subentries in HA 2025.4, the minimum version.
 - Whether the native chart cards accept a colour per series (the frontend is
   not in the test venv).
 
 ### Session history
 
 - The session that created the integration is not on this machine.
+
+## Home Assistant, checked
+
+Read in the source of each version (2026-11-17), and run with the test suite
+on 2025.4.0 and 2026.10.
+
+- **Subentries:** 2025.4 has everything the integration uses:
+  `ConfigSubentryFlow` with `reconfigure`, `async_add_subentry`,
+  `async_update_subentry`, `async_create_entry(subentries=...)`, and
+  `config_subentry_id` in `async_add_entities` and both registries. Update
+  listeners fire when a subentry is added, changed or removed.
+- **Devices before 2026.8:** a device can belong to several entries. Moving
+  it takes two calls of `async_update_device`, `add_config_entry_id` then
+  `remove_config_entry_id`: in one call, the removal starts from the entries
+  the device had and loses the one just added, or removes the device
+  (2025.4 to 2026.7).
+- **Devices from 2026.8:** a device belongs to one entry and subentry, moved
+  with `new_config_entry_id` and `new_config_subentry_id`; `add_` and
+  `remove_` are deprecated (alone, `add_` does nothing and `remove_` deletes
+  the device). In 2026.10, `DeviceRegistry.async_get_device` and
+  `DeviceEntry.config_entries_subentries` are deprecated too, and raise in
+  the tests: use `dr.async_entries_for_config_entry`, which every version
+  has.
+- **Minimum version locally:** `pytest-homeassistant-custom-component==0.13.232`
+  pins Home Assistant 2025.4.0 (Python 3.13). There, the diagnostics tests
+  fail with `HAFakeDatetime` (freezegun in that harness), as they did before
+  this change.
 
 ## How this study was made
 

@@ -77,7 +77,9 @@ rules:
   docs-use-cases: done
   dynamic-devices:
     status: exempt
-    comment: A config entry is one station, with one device.
+    comment: >-
+      Each device is a station the user adds, as a subentry of its municipality;
+      the entry reloads with it.
   entity-category: done
   entity-device-class: done
   entity-disabled-by-default:
@@ -94,7 +96,9 @@ rules:
     comment: Nothing the user can repair; a source that fails is replaced by another.
   stale-devices:
     status: exempt
-    comment: A config entry is one station, with one device.
+    comment: >-
+      Each device is a station the user added, as a subentry: deleting the
+      subentry deletes its device and entities.
 
   # Platinum
   async-dependency: done

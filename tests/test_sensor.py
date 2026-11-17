@@ -12,7 +12,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
-import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
@@ -22,14 +21,30 @@ from custom_components.arpa_piemonte.const import (
     CONF_SENSOR_ID,
     CONF_SENSOR_LETTERS,
     CONF_STATION_CODE,
+    CONF_STATION_NAME,
     CONF_THRESHOLDS,
     DOMAIN,
 )
 
-from . import entity_id_of, fixture_text, setup_integration
+from . import (
+    entity_id_of,
+    fixture_text,
+    municipality_entry,
+    setup_integration,
+    station_subentry,
+    subentry_of_device,
+)
 
 COLLE_LOMBARDA = "001"
 COLLE_LOMBARDA_ID = f"PIE_{COLLE_LOMBARDA}"
+COLLE_LOMBARDA_DATA: dict[str, object] = {
+    CONF_STATION_CODE: COLLE_LOMBARDA,
+    CONF_STATION_NAME: "Colle Lombarda",
+    CONF_SENSOR_ID: None,
+    CONF_SENSOR_LETTERS: "HNPTV",
+    CONF_THRESHOLDS: {},
+}
+VINADIO = "004248"
 
 
 def state_of(hass: HomeAssistant, key: str, unique_id: str = "PIE_188") -> str:
@@ -66,13 +81,15 @@ async def test_sensors_of_a_hydrometer(
 
 
 async def test_device(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
-    """Test the device of the station, linked to its page on the Arpa website."""
+    """Test the device of the station, in its subentry, linked to its page."""
     devices = dr.async_entries_for_config_entry(
         dr.async_get(hass), init_integration.entry_id
     )
+    (subentry_id,) = init_integration.subentries
 
     assert len(devices) == 1
     device = devices[0]
+    assert subentry_of_device(device) == subentry_id
     assert device.identifiers == {(DOMAIN, "PIE_188")}
     assert device.name == "Pray Sessera"
     assert device.manufacturer == "Arpa Piemonte"
@@ -83,34 +100,19 @@ async def test_device(hass: HomeAssistant, init_integration: MockConfigEntry) ->
         er.async_get(hass), init_integration.entry_id
     )
     assert len(entities) == 11
+    assert {entity.config_subentry_id for entity in entities} == {subentry_id}
 
 
-@pytest.mark.parametrize(
-    "entry_data",
-    [
-        {
-            CONF_STATION_CODE: COLLE_LOMBARDA,
-            CONF_SENSOR_ID: None,
-            CONF_SENSOR_LETTERS: "HNPTV",
-            CONF_THRESHOLDS: {},
-        }
-    ],
-)
 async def test_sensors_of_a_weather_station(
-    hass: HomeAssistant,
-    entry_data: dict[str, object],
-    aioclient_mock: AiohttpClientMocker,
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
     """Test the sensors of Colle Lombarda: wind and snow, no level."""
     aioclient_mock.get(
         Host.PRIMARY.url(station_path(COLLE_LOMBARDA)),
         text=fixture_text("misure_PIE_001.json"),
     )
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        title="Colle Lombarda",
-        unique_id=COLLE_LOMBARDA_ID,
-        data=entry_data,
+    entry = municipality_entry(
+        VINADIO, "Vinadio", station_subentry(COLLE_LOMBARDA_DATA)
     )
 
     await setup_integration(hass, entry)

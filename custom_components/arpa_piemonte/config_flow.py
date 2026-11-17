@@ -1,18 +1,35 @@
-"""Config flow of ARPA Piemonte: a station of the Piedmont network."""
+"""Config flow of ARPA Piemonte: a municipality of Piedmont and its stations.
+
+An entry is a municipality, and each of its stations is a subentry: the
+integration page groups the stations by municipality. A station is added by
+choosing its municipality, then the station when the municipality has
+several, or from the entry of its municipality.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Iterable, Sequence
+from dataclasses import replace
+from types import MappingProxyType
 from typing import Any
 
-from aioarpapiemonte import ArpaPiemonteError, RealtimeStation
-from aiometeo3r import Meteo3rError, Station
+from aioarpapiemonte import ArpaPiemonteError
+from aiometeo3r import Meteo3rError
 
 try:  # Home Assistant 2026.9 and newer validate with probatio
     import probatio as vol
 except ImportError:  # pragma: no cover - older versions, back to 2025.4
     import voluptuous as vol  # type: ignore[no-redef]
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    ConfigSubentry,
+    ConfigSubentryData,
+    ConfigSubentryFlow,
+    SubentryFlowResult,
+)
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.selector import (
     SelectOptionDict,
     SelectSelector,
@@ -20,82 +37,24 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
 )
 
+from .catalog import Municipality, StationCatalog, StationChoice
 from .const import (
-    CONF_SENSOR_ID,
-    CONF_SENSOR_LETTERS,
+    CONF_MUNICIPALITY,
+    CONF_MUNICIPALITY_CODE,
     CONF_STATION_CODE,
-    CONF_THRESHOLDS,
     DOMAIN,
     LOGGER,
+    SUBENTRY_STATION,
 )
-from .models import Thresholds
+from .models import StationConfig, municipality_unique_id
 from .sources import ArpaSources, async_get_sources
-
-
-@dataclass(frozen=True, slots=True)
-class StationChoice:
-    """A station the user can add, from the list of Meteo 3R or of the api_realtime."""
-
-    code: str
-    name: str
-    river: str | None
-    municipality: str
-    latitude: float
-    longitude: float
-    sensor_letters: str
-    thresholds: Thresholds
-    sensor_id: str | None = None
-    """Identifier on the Arpa website, when the list gives it (the api_realtime)."""
-
-    @classmethod
-    def of_meteo3r(cls, station: Station) -> StationChoice:
-        """Return a station of the list of Meteo 3R."""
-        thresholds = station.thresholds
-        return cls(
-            code=station.code,
-            name=station.name,
-            river=station.river,
-            municipality=station.municipality,
-            latitude=station.latitude,
-            longitude=station.longitude,
-            sensor_letters=station.sensor_letters,
-            thresholds=Thresholds(
-                thresholds.pre_alarm, thresholds.guard, thresholds.danger
-            ),
-        )
-
-    @classmethod
-    def of_realtime(cls, station: RealtimeStation) -> StationChoice:
-        """Return a station of the list of the api_realtime, named in capitals."""
-        thresholds = station.thresholds
-        return cls(
-            code=station.station_code,
-            name=station.name.title(),
-            river=station.river,
-            municipality=station.municipality,
-            latitude=station.latitude,
-            longitude=station.longitude,
-            sensor_letters=station.station_type,
-            thresholds=Thresholds(
-                thresholds.pre_alarm, thresholds.guard, thresholds.danger
-            ),
-            sensor_id=station.sensor_id,
-        )
-
-    @property
-    def label(self) -> str:
-        """Return how the station is listed: name, river and municipality."""
-        place = self.municipality.title()
-        if self.river:
-            return f"{self.name} — {self.river.title()} ({place})"
-        return f"{self.name} ({place})"
 
 
 class CannotConnect(Exception):
     """No source of the list of the stations answered."""
 
 
-async def async_station_choices(sources: ArpaSources) -> dict[str, StationChoice]:
+async def async_station_catalog(sources: ArpaSources) -> StationCatalog:
     """Return the stations, from Meteo 3R or else from the api_realtime.
 
     Raises CannotConnect when neither answers.
@@ -105,15 +64,13 @@ async def async_station_choices(sources: ArpaSources) -> dict[str, StationChoice
     except Meteo3rError as err:
         LOGGER.debug("The stations of Meteo 3R are not available: %s", err)
     else:
-        return {station.code: StationChoice.of_meteo3r(station) for station in stations}
+        return StationCatalog(StationChoice.of_meteo3r(station) for station in stations)
     try:
         realtime = await sources.arpa.get_realtime_stations()
     except ArpaPiemonteError as err:
         LOGGER.debug("The stations of the api_realtime are not available: %s", err)
         raise CannotConnect from err
-    return {
-        station.station_code: StationChoice.of_realtime(station) for station in realtime
-    }
+    return StationCatalog(StationChoice.of_realtime(station) for station in realtime)
 
 
 async def async_sensor_id(sources: ArpaSources, choice: StationChoice) -> str | None:
@@ -173,48 +130,160 @@ async def async_station_answers(sources: ArpaSources, code: str) -> bool:
     return True
 
 
-class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
-    """Add a station: one config entry per station."""
+async def async_station_config(
+    sources: ArpaSources, choice: StationChoice
+) -> StationConfig | None:
+    """Return a station to store, read from Arpa; None when it does not answer."""
+    if not await async_station_answers(sources, choice.code):
+        return None
+    return StationConfig(
+        station_code=choice.code,
+        name=choice.name,
+        sensor_id=await async_sensor_id(sources, choice),
+        sensor_letters=choice.sensor_letters,
+        thresholds=choice.thresholds,
+    )
 
-    VERSION = 1
+
+async def async_read_again(
+    sources: ArpaSources, stations: Sequence[StationConfig]
+) -> list[StationConfig] | None:
+    """Return stations read again from Arpa; None when one does not answer.
+
+    Each keeps its name: it names the device and entity IDs the user knows.
+    """
+    try:
+        catalog = await async_station_catalog(sources)
+    except CannotConnect:
+        return None
+    read: list[StationConfig] = []
+    for station in stations:
+        choice = catalog.stations.get(station.station_code)
+        again = None if choice is None else await async_station_config(sources, choice)
+        if again is None:
+            return None
+        read.append(replace(again, name=station.name))
+    return read
+
+
+@callback
+def added_station_codes(hass: HomeAssistant) -> set[str]:
+    """Return the codes of the stations already added, in any municipality."""
+    return {
+        subentry.data[CONF_STATION_CODE]
+        for entry in hass.config_entries.async_entries(DOMAIN)
+        for subentry in entry.subentries.values()
+        if subentry.subentry_type == SUBENTRY_STATION
+    }
+
+
+def station_subentries(entry: ConfigEntry) -> list[ConfigSubentry]:
+    """Return the subentries of the stations of an entry."""
+    return [
+        subentry
+        for subentry in entry.subentries.values()
+        if subentry.subentry_type == SUBENTRY_STATION
+    ]
+
+
+def municipality_selector(municipalities: Iterable[Municipality]) -> SelectSelector:
+    """Return a picker of the municipalities, with a search.
+
+    It accepts typed text too, which the flow looks up in the list: the
+    search needs it ("mondovì" finds "Mondovi'").
+    """
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=[municipality.name for municipality in municipalities],
+            custom_value=True,
+            mode=SelectSelectorMode.DROPDOWN,
+            sort=False,
+        )
+    )
+
+
+def station_schema(stations: Iterable[StationChoice]) -> vol.Schema:
+    """Return the form of a station among those of a municipality."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_STATION_CODE): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=station.code, label=station.label)
+                        for station in stations
+                    ],
+                    mode=SelectSelectorMode.LIST,
+                )
+            )
+        }
+    )
+
+
+def station_subentry_data(
+    choice: StationChoice, station: StationConfig
+) -> ConfigSubentryData:
+    """Return the subentry of a station: its river (or name) as title."""
+    return ConfigSubentryData(
+        data=station.as_data(),
+        subentry_type=SUBENTRY_STATION,
+        title=choice.title,
+        unique_id=station.unique_id,
+    )
+
+
+class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
+    """Add a station: one entry per municipality, one subentry per station."""
+
+    VERSION = 2
     MINOR_VERSION = 1
 
     def __init__(self) -> None:
         """Initialize the flow."""
-        self._choices: dict[str, StationChoice] = {}
+        self._catalog: StationCatalog | None = None
+        self._municipality: Municipality | None = None
+
+    @classmethod
+    @callback
+    def async_get_supported_subentry_types(
+        cls, config_entry: ConfigEntry
+    ) -> dict[str, type[ConfigSubentryFlow]]:
+        """Return the subentries of a municipality: its stations."""
+        del config_entry
+        return {SUBENTRY_STATION: StationFlowHandler}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Choose a station among those of Piedmont."""
-        sources = async_get_sources(self.hass)
-        if not self._choices:
+        """Choose a municipality of Piedmont, with a search."""
+        if self._catalog is None:
             try:
-                self._choices = await async_station_choices(sources)
+                self._catalog = await async_station_catalog(
+                    async_get_sources(self.hass)
+                )
             except CannotConnect:
                 return self.async_abort(reason="cannot_connect")
 
         errors: dict[str, str] = {}
         if user_input is not None:
-            choice = self._choices[user_input[CONF_STATION_CODE]]
-            await self.async_set_unique_id(f"PIE_{choice.code}")
-            self._abort_if_unique_id_configured()
-            data = await self._async_entry_data(sources, choice)
-            if data is None:
-                errors["base"] = "cannot_connect"
+            municipality = self._catalog.municipality(user_input[CONF_MUNICIPALITY])
+            if municipality is None:
+                errors[CONF_MUNICIPALITY] = "municipality_not_listed"
             else:
-                return self.async_create_entry(title=choice.name, data=data)
+                self._municipality = municipality
+                stations = self._stations_to_add()
+                if not stations:
+                    return self.async_abort(reason="already_configured")
+                if len(stations) > 1:
+                    return await self.async_step_station()
+                # A municipality with one station needs no second step
+                if (result := await self._async_add(stations[0])) is not None:
+                    return result
+                errors["base"] = "cannot_connect"
 
-        options = [
-            SelectOptionDict(value=choice.code, label=choice.label)
-            for choice in sorted(self._choices.values(), key=lambda item: item.label)
-        ]
         schema = vol.Schema(
             {
-                vol.Required(CONF_STATION_CODE): SelectSelector(
-                    SelectSelectorConfig(
-                        options=options, mode=SelectSelectorMode.DROPDOWN
-                    )
+                vol.Required(CONF_MUNICIPALITY): municipality_selector(
+                    self._catalog.municipalities
                 )
             }
         )
@@ -224,44 +293,172 @@ class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_station(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Choose a station of the municipality: the rivers first."""
+        assert self._catalog is not None
+        assert self._municipality is not None
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            choice = self._catalog.stations[user_input[CONF_STATION_CODE]]
+            if (result := await self._async_add(choice)) is not None:
+                return result
+            errors["base"] = "cannot_connect"
+        return self.async_show_form(
+            step_id="station",
+            data_schema=self.add_suggested_values_to_schema(
+                station_schema(self._stations_to_add()), user_input
+            ),
+            errors=errors,
+            description_placeholders={"municipality": self._municipality.name},
+        )
+
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Read the station again from Arpa: its sensors, thresholds, identifiers."""
+        """Read every station of the municipality again from Arpa."""
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
         if user_input is not None:
-            sources = async_get_sources(self.hass)
-            try:
-                choices = await async_station_choices(sources)
-            except CannotConnect:
-                choices = {}
-            choice = choices.get(entry.data[CONF_STATION_CODE])
-            data = (
-                None
-                if choice is None
-                else await self._async_entry_data(sources, choice)
+            subentries = station_subentries(entry)
+            read = await async_read_again(
+                async_get_sources(self.hass),
+                [StationConfig.from_data(subentry.data) for subentry in subentries],
             )
-            if data is None:
+            if read is None:
                 errors["base"] = "cannot_connect"
             else:
-                return self.async_update_reload_and_abort(entry, data=data)
+                for subentry, station in zip(subentries, read, strict=True):
+                    self.hass.config_entries.async_update_subentry(
+                        entry, subentry, data=station.as_data()
+                    )
+                return self.async_abort(reason="reconfigure_successful")
         return self.async_show_form(
             step_id="reconfigure",
             data_schema=vol.Schema({}),
             errors=errors,
-            description_placeholders={"station": entry.title},
+            description_placeholders={"municipality": entry.title},
         )
 
-    async def _async_entry_data(
-        self, sources: ArpaSources, choice: StationChoice
-    ) -> dict[str, Any] | None:
-        """Return the data of the entry of a station; None when it does not answer."""
-        if not await async_station_answers(sources, choice.code):
+    def _stations_to_add(self) -> list[StationChoice]:
+        """Return the stations of the municipality not added yet."""
+        assert self._catalog is not None
+        assert self._municipality is not None
+        return self._catalog.stations_of(
+            self._municipality.code, added=added_station_codes(self.hass)
+        )
+
+    async def _async_add(self, choice: StationChoice) -> ConfigFlowResult | None:
+        """Add a station to its municipality; None when it does not answer.
+
+        A municipality already added gets the station as a subentry, and the
+        flow ends there; otherwise its entry is created with the station.
+        """
+        assert self._municipality is not None
+        station = await async_station_config(async_get_sources(self.hass), choice)
+        if station is None:
             return None
-        return {
-            CONF_STATION_CODE: choice.code,
-            CONF_SENSOR_ID: await async_sensor_id(sources, choice),
-            CONF_SENSOR_LETTERS: choice.sensor_letters,
-            CONF_THRESHOLDS: choice.thresholds.as_dict(),
-        }
+        unique_id = municipality_unique_id(self._municipality.code)
+        subentry = station_subentry_data(choice, station)
+        entry = self.hass.config_entries.async_entry_for_domain_unique_id(
+            DOMAIN, unique_id
+        )
+        if entry is not None:
+            self.hass.config_entries.async_add_subentry(
+                entry,
+                ConfigSubentry(
+                    data=MappingProxyType(subentry["data"]),
+                    subentry_type=subentry["subentry_type"],
+                    title=subentry["title"],
+                    unique_id=subentry["unique_id"],
+                ),
+            )
+            return self.async_abort(
+                reason="station_added",
+                description_placeholders={
+                    "station": station.name,
+                    "municipality": entry.title,
+                },
+            )
+        await self.async_set_unique_id(unique_id)
+        return self.async_create_entry(
+            title=self._municipality.name,
+            data={CONF_MUNICIPALITY_CODE: self._municipality.code},
+            subentries=[subentry],
+        )
+
+
+class StationFlowHandler(ConfigSubentryFlow):
+    """Add another station of a municipality, or read a station again."""
+
+    def __init__(self) -> None:
+        """Initialize the flow."""
+        self._catalog: StationCatalog | None = None
+
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> SubentryFlowResult:
+        """Choose another station of the municipality."""
+        entry = self._get_entry()
+        sources = async_get_sources(self.hass)
+        if self._catalog is None:
+            try:
+                self._catalog = await async_station_catalog(sources)
+            except CannotConnect:
+                return self.async_abort(reason="cannot_connect")
+        placeholders = {"municipality": entry.title}
+        stations = self._catalog.stations_of(
+            entry.data[CONF_MUNICIPALITY_CODE], added=added_station_codes(self.hass)
+        )
+        if not stations:
+            return self.async_abort(
+                reason="no_other_station", description_placeholders=placeholders
+            )
+
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            choice = self._catalog.stations[user_input[CONF_STATION_CODE]]
+            station = await async_station_config(sources, choice)
+            if station is None:
+                errors["base"] = "cannot_connect"
+            else:
+                subentry = station_subentry_data(choice, station)
+                return self.async_create_entry(
+                    title=subentry["title"],
+                    data=subentry["data"],
+                    unique_id=subentry["unique_id"],
+                )
+        return self.async_show_form(
+            step_id="user",
+            data_schema=self.add_suggested_values_to_schema(
+                station_schema(stations), user_input
+            ),
+            errors=errors,
+            description_placeholders=placeholders,
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> SubentryFlowResult:
+        """Read the station again from Arpa: its sensors, thresholds, identifiers."""
+        subentry = self._get_reconfigure_subentry()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            read = await async_read_again(
+                async_get_sources(self.hass), [StationConfig.from_data(subentry.data)]
+            )
+            if read is None:
+                errors["base"] = "cannot_connect"
+            else:
+                return self.async_update_and_abort(
+                    self._get_entry(), subentry, data=read[0].as_data()
+                )
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema({}),
+            errors=errors,
+            description_placeholders={
+                "station": StationConfig.from_data(subentry.data).name
+            },
+        )

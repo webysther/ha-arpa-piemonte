@@ -4,26 +4,73 @@
         "step": {
             "user": {
                 "title": "Add a station",
-                "description": "The readings of a station of Arpa Piemonte: river level, rain, temperature, humidity, wind and snow, as the station measures them. Not an official app of Arpa Piemonte.",
+                "description": "The readings of the stations of Arpa Piemonte: river level, rain, temperature, humidity, wind and snow, as each station measures them. Not an official app of Arpa Piemonte.",
+                "data": {
+                    "municipality": "Municipality"
+                },
+                "data_description": {
+                    "municipality": "Type to search among the municipalities of Piedmont with a station. Its stations are grouped under it."
+                }
+            },
+            "station": {
+                "title": "Stations of {municipality}",
+                "description": "The rivers first, then the weather stations.",
                 "data": {
                     "station_code": "Station"
                 },
                 "data_description": {
-                    "station_code": "Name, river and municipality of the station. The point of the river that matters to you, not necessarily the nearest one."
+                    "station_code": "The point of the river that matters to you, not necessarily the nearest one."
                 }
             },
             "reconfigure": {
-                "title": "Read {station} again",
-                "description": "Read the sensors, thresholds and identifiers of {station} again from Arpa Piemonte."
+                "title": "Read {municipality} again",
+                "description": "Read the sensors, thresholds and identifiers of every station of {municipality} again from Arpa Piemonte."
             }
         },
         "error": {
-            "cannot_connect": "Arpa Piemonte cannot be reached. Try again later."
+            "cannot_connect": "Arpa Piemonte cannot be reached. Try again later.",
+            "municipality_not_listed": "No station of Arpa Piemonte in this municipality. Choose one from the list."
         },
         "abort": {
-            "already_configured": "This station is already added.",
+            "already_configured": "Every station of this municipality is already added.",
+            "already_in_progress": "A station of this municipality is being added already.",
             "cannot_connect": "Arpa Piemonte cannot be reached. Try again later.",
-            "reconfigure_successful": "The station was read again."
+            "reconfigure_successful": "The stations were read again.",
+            "station_added": "{station} was added to {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Station",
+            "initiate_flow": {
+                "user": "Add station",
+                "reconfigure": "Read the station again"
+            },
+            "step": {
+                "user": {
+                    "title": "Add a station of {municipality}",
+                    "description": "The stations of {municipality} not added yet: the rivers first.",
+                    "data": {
+                        "station_code": "Station"
+                    },
+                    "data_description": {
+                        "station_code": "The point of the river that matters to you, not necessarily the nearest one."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Read {station} again",
+                    "description": "Read the sensors, thresholds and identifiers of {station} again from Arpa Piemonte."
+                }
+            },
+            "error": {
+                "cannot_connect": "Arpa Piemonte cannot be reached. Try again later."
+            },
+            "abort": {
+                "already_configured": "This station is already added.",
+                "cannot_connect": "Arpa Piemonte cannot be reached. Try again later.",
+                "no_other_station": "Every station of {municipality} is already added.",
+                "reconfigure_successful": "The station was read again."
+            }
         }
     },
     "entity": {

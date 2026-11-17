@@ -25,7 +25,17 @@ MANUFACTURER: Final = "Arpa Piemonte"
 
 ISSUE_URL: Final = "https://github.com/webysther/ha-arpa-piemonte/issues"
 
-# Config entry data
+# Config entry data: a municipality
+CONF_MUNICIPALITY_CODE: Final = "municipality_code"
+"""ISTAT code of the municipality of the entry ("096050"), the current one, as
+Meteo 3R and the api_realtime give it: the widget of the municipality on the
+Arpa website uses the same code."""
+CONF_MUNICIPALITY: Final = "municipality"
+"""The field of the config flow where the municipality is chosen or typed."""
+
+# Config subentry data: a station of the municipality
+SUBENTRY_STATION: Final = "station"
+"""The type of the subentry of a station."""
 CONF_STATION_CODE: Final = "station_code"
 """Code of the station in the network ("188"), as Meteo 3R and the api_realtime."""
 CONF_SENSOR_ID: Final = "sensor_id"
@@ -35,6 +45,15 @@ CONF_SENSOR_LETTERS: Final = "sensor_letters"
 CONF_THRESHOLDS: Final = "thresholds"
 """Thresholds of the level when the station was added: used when no source
 answered with them."""
+CONF_STATION_NAME: Final = "name"
+"""Name of the station ("Pray Sessera"): the name of its device, and of its
+entity IDs."""
+
+MUNICIPALITY_ID_PREFIX: Final = "ISTAT_"
+"""Unique ID of the entry of a municipality: this prefix and its ISTAT code."""
+STATION_ID_PREFIX: Final = "PIE_"
+"""Unique ID of a station: the network of Piedmont and its code, as Meteo 3R
+names it ("PIE_188"). Its device and entities keep it."""
 
 UPDATE_INTERVAL: Final = timedelta(minutes=10)
 """How often Meteo 3R is asked for the station.

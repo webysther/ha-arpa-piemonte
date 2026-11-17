@@ -6,7 +6,8 @@ Guidance for AI coding agents and contributors working on this repository.
 ARPA Piemonte is a Home Assistant custom integration (domain `arpa_piemonte`),
 installed from the Marketplace of Home Assistant. It turns a station of the Piedmont network of Arpa
 Piemonte into a device with the sensors the station has: water level and its
-status against the thresholds, rain, temperature, humidity, wind, snow.
+status against the thresholds, rain, temperature, humidity, wind, snow. Each
+municipality is a config entry, and each of its stations a subentry.
 
 Everything that talks to the sources or parses their files lives in two
 libraries, maintained alongside this repository:
@@ -36,9 +37,12 @@ the Home Assistant side only, and the choice among the sources.
 
 ```text
 custom_components/arpa_piemonte/
-  __init__.py      setup and unload of a station
-  config_flow.py   a station of the list of Meteo 3R (or of the api_realtime),
-                   its identifier on the Arpa website; reconfigure reads it again
+  __init__.py      setup and unload of a municipality, a coordinator per station
+  config_flow.py   a municipality (searched), then its station; the subentry
+                   flow adds another; reconfigure reads the stations again
+  catalog.py       the stations of the list by municipality, rivers first (pure)
+  migration.py     version 1 (an entry per station) merged by municipality, in
+                   async_setup; station_places.py is its table
   sources.py       the clients of the sources, shared by every station
   coordinator.py   ArpaPiemonteCoordinator, one per station: Meteo 3R at every
                    update, the official sources as a fallback (SourceTracker)
@@ -74,6 +78,10 @@ npx prettier --check .                 # the YAML
 CI runs them (`tests.yaml`), with hassfest and the checks of the Marketplace
 (`hacs/action`, in `validate.yaml`). Keep the coverage of
 `custom_components/arpa_piemonte` at 100%.
+
+To check the minimum version, run the tests in a scratch venv (Python 3.13)
+with `pytest-homeassistant-custom-component==0.13.232`, which pins Home
+Assistant 2025.4.0; the diagnostics tests fail there because of its harness.
 
 ## The sources
 
@@ -111,17 +119,22 @@ How a station chooses (`coordinator.py`, `selection.py`):
 
 Users' automations and dashboards depend on what the integration exposes.
 
-- Never change unique IDs: entries are `PIE_<station code>`, entities
-  `<entry unique ID>-<key>`, with the keys of `Quantity` and of
-  `STATION_SENSORS`.
+- Never change unique IDs: entries are `ISTAT_<municipality code>` (the
+  current ISTAT code), stations are subentries `PIE_<station code>`, as their
+  devices, and entities `PIE_<station code>-<key>`, with the keys of
+  `Quantity` and of `STATION_SENSORS`. Version 1 had an entry `PIE_<station
+  code>` per station: `migration.py` moves them.
 - Never rename the states of the enum sensors (`LevelStatus`, `Source`).
-- Changing the shape of config entry data needs a step in
-  `async_migrate_entry` and a new `MINOR_VERSION` (or `VERSION` when older
-  releases cannot load it).
+- Changing the shape of entry or subentry data needs a migration and a new
+  `MINOR_VERSION` (or `VERSION` when older releases cannot load it). Merging
+  or splitting entries happens in `async_setup`, before they load, as
+  `migration.py` does.
 - Supported Home Assistant: from the `homeassistant` version in `hacs.json`
   (the file the Marketplace reads, under that name; 2025.4.0, the first with
   `MEASUREMENT_ANGLE`) to the latest. Import the
   validation library both ways (`probatio` from 2026.9, `voluptuous` before).
+  The device registry changed in 2026.8 (a device in one entry); see
+  "Home Assistant, checked" in `docs/research.md`.
 
 ## Home Assistant conventions
 

@@ -189,7 +189,8 @@ def test_quantities_of_the_sensors(
     letters: str, quantities: tuple[Quantity, ...]
 ) -> None:
     """Test the quantities of a station, from the letters of its sensors."""
-    station = StationConfig("188", None, letters, Thresholds())
+    station = StationConfig("188", "Pray Sessera", None, letters, Thresholds())
 
     assert station.quantities == quantities
     assert station.has_level is (Quantity.LEVEL in quantities)
+    assert StationConfig.from_data(station.as_data()) == station

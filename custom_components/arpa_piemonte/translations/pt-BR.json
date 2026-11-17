@@ -4,26 +4,73 @@
         "step": {
             "user": {
                 "title": "Adicionar uma estação",
-                "description": "As medições de uma estação da Arpa Piemonte: nível do rio, chuva, temperatura, umidade, vento e neve, conforme os sensores da estação. Não é um app oficial da Arpa Piemonte.",
+                "description": "As medições das estações da Arpa Piemonte: nível do rio, chuva, temperatura, umidade, vento e neve, conforme os sensores de cada estação. Não é um app oficial da Arpa Piemonte.",
+                "data": {
+                    "municipality": "Município"
+                },
+                "data_description": {
+                    "municipality": "Digite para buscar entre os municípios do Piemonte com uma estação. As estações dele ficam agrupadas sob ele."
+                }
+            },
+            "station": {
+                "title": "Estações de {municipality}",
+                "description": "Primeiro os rios, depois as estações meteorológicas.",
                 "data": {
                     "station_code": "Estação"
                 },
                 "data_description": {
-                    "station_code": "Nome, rio e município da estação. O ponto do rio que importa para você, não necessariamente o mais próximo."
+                    "station_code": "O ponto do rio que importa para você, não necessariamente o mais próximo."
                 }
             },
             "reconfigure": {
-                "title": "Ler {station} de novo",
-                "description": "Ler de novo da Arpa Piemonte os sensores, os limiares e os identificadores de {station}."
+                "title": "Ler {municipality} de novo",
+                "description": "Ler de novo da Arpa Piemonte os sensores, os limiares e os identificadores de cada estação de {municipality}."
             }
         },
         "error": {
-            "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde."
+            "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde.",
+            "municipality_not_listed": "Nenhuma estação da Arpa Piemonte neste município. Escolha um da lista."
         },
         "abort": {
-            "already_configured": "Esta estação já foi adicionada.",
+            "already_configured": "Todas as estações deste município já foram adicionadas.",
+            "already_in_progress": "Uma estação deste município já está sendo adicionada.",
             "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde.",
-            "reconfigure_successful": "A estação foi lida de novo."
+            "reconfigure_successful": "As estações foram lidas de novo.",
+            "station_added": "{station} foi adicionada a {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Estação",
+            "initiate_flow": {
+                "user": "Adicionar estação",
+                "reconfigure": "Ler a estação de novo"
+            },
+            "step": {
+                "user": {
+                    "title": "Adicionar uma estação de {municipality}",
+                    "description": "As estações de {municipality} ainda não adicionadas: primeiro os rios.",
+                    "data": {
+                        "station_code": "Estação"
+                    },
+                    "data_description": {
+                        "station_code": "O ponto do rio que importa para você, não necessariamente o mais próximo."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Ler {station} de novo",
+                    "description": "Ler de novo da Arpa Piemonte os sensores, os limiares e os identificadores de {station}."
+                }
+            },
+            "error": {
+                "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde."
+            },
+            "abort": {
+                "already_configured": "Esta estação já foi adicionada.",
+                "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde.",
+                "no_other_station": "Todas as estações de {municipality} já foram adicionadas.",
+                "reconfigure_successful": "A estação foi lida de novo."
+            }
         }
     },
     "entity": {
