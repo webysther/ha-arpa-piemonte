@@ -1,0 +1,68 @@
+{
+    "entity": {
+        "sensor": {
+            "level": {
+                "default": "mdi:waves-arrow-up"
+            },
+            "temperature": {
+                "default": "mdi:thermometer"
+            },
+            "humidity": {
+                "default": "mdi:water-percent"
+            },
+            "rain_1h": {
+                "default": "mdi:weather-rainy"
+            },
+            "rain_3h": {
+                "default": "mdi:weather-rainy"
+            },
+            "rain_24h": {
+                "default": "mdi:weather-pouring"
+            },
+            "wind_speed": {
+                "default": "mdi:weather-windy"
+            },
+            "wind_direction": {
+                "default": "mdi:compass-outline"
+            },
+            "gust_speed": {
+                "default": "mdi:weather-windy-variant"
+            },
+            "gust_direction": {
+                "default": "mdi:compass-outline"
+            },
+            "snow_depth": {
+                "default": "mdi:snowflake"
+            },
+            "level_status": {
+                "default": "mdi:waves",
+                "state": {
+                    "normal": "mdi:check-circle-outline",
+                    "pre_alarm": "mdi:alert-circle-outline",
+                    "guard": "mdi:alert",
+                    "danger": "mdi:alert-octagon"
+                }
+            },
+            "pre_alarm_threshold": {
+                "default": "mdi:arrow-collapse-up"
+            },
+            "guard_threshold": {
+                "default": "mdi:arrow-collapse-up"
+            },
+            "danger_threshold": {
+                "default": "mdi:arrow-collapse-up"
+            },
+            "data_source": {
+                "default": "mdi:database-outline",
+                "state": {
+                    "meteo3r": "mdi:cellphone",
+                    "arpa_website": "mdi:web",
+                    "arpa_realtime": "mdi:api"
+                }
+            },
+            "last_measurement": {
+                "default": "mdi:clock-outline"
+            }
+        }
+    }
+}

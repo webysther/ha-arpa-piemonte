@@ -1,0 +1,100 @@
+{
+    "title": "ARPA Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Adicionar uma estação",
+                "description": "As medições de uma estação da Arpa Piemonte: nível do rio, chuva, temperatura, umidade, vento e neve, conforme os sensores da estação. Não é um app oficial da Arpa Piemonte.",
+                "data": {
+                    "station_code": "Estação"
+                },
+                "data_description": {
+                    "station_code": "Nome, rio e município da estação. O ponto do rio que importa para você, não necessariamente o mais próximo."
+                }
+            },
+            "reconfigure": {
+                "title": "Ler {station} de novo",
+                "description": "Ler de novo da Arpa Piemonte os sensores, os limiares e os identificadores de {station}."
+            }
+        },
+        "error": {
+            "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde."
+        },
+        "abort": {
+            "already_configured": "Esta estação já foi adicionada.",
+            "cannot_connect": "Não foi possível acessar a Arpa Piemonte. Tente mais tarde.",
+            "reconfigure_successful": "A estação foi lida de novo."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "level": {
+                "name": "Nível do rio"
+            },
+            "temperature": {
+                "name": "Temperatura"
+            },
+            "humidity": {
+                "name": "Umidade"
+            },
+            "rain_1h": {
+                "name": "Chuva 1 hora"
+            },
+            "rain_3h": {
+                "name": "Chuva 3 horas"
+            },
+            "rain_24h": {
+                "name": "Chuva 24 horas"
+            },
+            "wind_speed": {
+                "name": "Velocidade do vento"
+            },
+            "wind_direction": {
+                "name": "Direção do vento"
+            },
+            "gust_speed": {
+                "name": "Velocidade da rajada"
+            },
+            "gust_direction": {
+                "name": "Direção da rajada"
+            },
+            "snow_depth": {
+                "name": "Altura da neve"
+            },
+            "level_status": {
+                "name": "Situação do nível",
+                "state": {
+                    "normal": "Normal",
+                    "pre_alarm": "Pré-alarme",
+                    "guard": "Guarda",
+                    "danger": "Perigo"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "Limiar de pré-alarme"
+            },
+            "guard_threshold": {
+                "name": "Limiar de guarda"
+            },
+            "danger_threshold": {
+                "name": "Limiar de perigo"
+            },
+            "data_source": {
+                "name": "Fonte dos dados",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Site da Arpa",
+                    "arpa_realtime": "api_realtime da Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "Última medição"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Nenhuma fonte da Arpa Piemonte respondeu: {error}"
+        }
+    }
+}

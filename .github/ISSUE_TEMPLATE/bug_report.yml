@@ -1,0 +1,58 @@
+name: Report a problem
+description: Something in ARPA Piemonte does not work as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a problem!
+
+        Before you start, check the [Troubleshooting](https://github.com/webysther/ha-arpa-piemonte#troubleshooting) section of the README and the [open issues](https://github.com/webysther/ha-arpa-piemonte/issues): it may be solved already.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, and where. Name the station.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version of ARPA Piemonte
+      description: On the integration page, or in HACS.
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Version of Home Assistant
+      description: "**Settings → About**."
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: >-
+        On the page of the integration, the three dots of the station, **Download diagnostics**.
+        Drag the file here.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug log
+      description: >-
+        Turn on **Enable debug logging** on the page of the integration, wait for the problem,
+        then turn it off and drag the file here.
+      render: text

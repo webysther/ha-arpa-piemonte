@@ -1,0 +1,16 @@
+name: Suggest an improvement
+description: Something ARPA Piemonte could do, or do better.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you need
+      description: What you want to do, and why it is not possible or easy today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: How it could work

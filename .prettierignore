@@ -1,0 +1,10 @@
+# Prettier formats the YAML: the workflows. The rest keeps the format of what
+# writes it:
+
+# Markdown is wrapped by hand
+*.md
+
+# JSON: manifest.json with tabs, as Home Assistant writes it; the translations
+# with 4 spaces; the fixtures, unmodified files of Arpa Piemonte
+*.json
+*.geojson

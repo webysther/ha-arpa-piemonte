@@ -1,0 +1,8 @@
+{
+  "name": "ARPA Piemonte",
+  "country": ["IT"],
+  "homeassistant": "2025.4.0",
+  "zip_release": true,
+  "filename": "arpa_piemonte.zip",
+  "hacs": "2.0.0"
+}

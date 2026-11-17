@@ -1,0 +1,780 @@
+{
+  "type": "Feature",
+  "description": "IDRO",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      8.22167,
+      45.67389,
+      409.0
+    ]
+  },
+  "properties": {
+    "creation_date": "2026-11-17T02:17:18.719458+00:00",
+    "sensor": "002105900",
+    "name": "PRAY SESSERA",
+    "locality": "PIANCERI BASSO",
+    "quote": 409.0,
+    "area": "Piem-B",
+    "municipality": "PRAY",
+    "province": "PROVINCIA DI BIELLA",
+    "province_sign": "BI",
+    "region": "PIEMONTE",
+    "station_type": "IPT",
+    "date_validity": "1996-11-06 00:00:00",
+    "date_start_publication": "2005-08-02 00:00:00",
+    "basin": "SESIA",
+    "river": "SESSERA",
+    "basin_surface": 127.0,
+    "zero_hydrometric": 400.7,
+    "pre-alarm_threshold": 2.3,
+    "guard_threshold": 3.0,
+    "danger_threshold": 3.8,
+    "source": "https://arpa.piemonte.it",
+    "units": "Metri",
+    "units_sym": "m",
+    "units_sym_html": "m",
+    "description": "Livello idrometrico",
+    "sensor_altitude": 0.0,
+    "country": "ITALIA",
+    "exposure": 323,
+    "note": null,
+    "idro": {
+      "2026-11-11T00:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T01:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T02:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T03:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T04:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T05:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T06:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T07:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T08:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T09:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T10:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T11:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T12:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T13:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T14:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T15:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T16:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T17:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T18:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T19:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T20:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T21:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T22:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-11T23:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T00:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T01:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T02:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T03:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T04:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T05:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T06:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T07:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T08:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T09:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T10:00": {
+        "value": 1.04,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T11:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T12:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T13:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T14:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T15:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T16:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T17:00": {
+        "value": 0.97,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T18:00": {
+        "value": 1,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T19:00": {
+        "value": 1,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T20:00": {
+        "value": 1,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T21:00": {
+        "value": 1,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T22:00": {
+        "value": 0.98,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-12T23:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T00:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T01:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T02:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T03:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T04:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T05:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T06:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T07:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T08:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T09:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T10:00": {
+        "value": 0.99,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T11:00": {
+        "value": 1.01,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T12:00": {
+        "value": 1.01,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T13:00": {
+        "value": 1.01,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T14:00": {
+        "value": 1.01,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T15:00": {
+        "value": 1.02,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T16:00": {
+        "value": 1.01,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T17:00": {
+        "value": 0.9,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T18:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T19:00": {
+        "value": 0.95,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T20:00": {
+        "value": 0.95,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T21:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T22:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-13T23:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T00:00": {
+        "value": 0.9,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T01:00": {
+        "value": 0.9,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T02:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T03:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T04:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T05:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T06:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T07:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T08:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T09:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T10:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T11:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T12:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T13:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T14:00": {
+        "value": 0.9,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T15:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T16:00": {
+        "value": 0.9,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T17:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T18:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T19:00": {
+        "value": 0.97,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T20:00": {
+        "value": 0.97,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T21:00": {
+        "value": 0.97,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T22:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-14T23:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T00:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T01:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T02:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T03:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T04:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T05:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T06:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T07:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T08:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T09:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T10:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T11:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T12:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T13:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T14:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T15:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T16:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T17:00": {
+        "value": 0.91,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T18:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T19:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T20:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T21:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T22:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-15T23:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T00:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T01:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T02:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T03:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T04:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T05:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T06:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T07:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T08:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T09:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T10:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T11:00": {
+        "value": 0.95,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T12:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T13:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T14:00": {
+        "value": 0.93,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T15:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T16:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T17:00": {
+        "value": 0.89,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T18:00": {
+        "value": 0.94,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T19:00": {
+        "value": 0.95,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T20:00": {
+        "value": 0.96,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T21:00": {
+        "value": 0.95,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T22:00": {
+        "value": 0.92,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-16T23:00": {
+        "value": 0.88,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-17T00:00": {
+        "value": 0.87,
+        "valid_type": "OK",
+        "flag_type": "0"
+      },
+      "2026-11-17T01:00": {
+        "value": 0.86,
+        "valid_type": "VTA",
+        "flag_type": "0"
+      },
+      "2026-11-17T02:00": {
+        "value": 0.86,
+        "valid_type": "VTA",
+        "flag_type": "0"
+      }
+    }
+  }
+}

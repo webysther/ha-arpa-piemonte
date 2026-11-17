@@ -1,0 +1,67 @@
+[project]
+# Metadata of the repository. The integration is installed by HACS, not from
+# PyPI: its requirements are in custom_components/arpa_piemonte/manifest.json,
+# and its version comes from the git tag of each release (see release.sh).
+name = "ha-arpa-piemonte"
+version = "0.0.0"
+description = "River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte in Home Assistant"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.md"]
+authors = [{ name = "Webysther Sperandio" }]
+requires-python = ">=3.13"
+keywords = [
+  "arpa piemonte",
+  "hacs",
+  "home assistant",
+  "hydrometer",
+  "idrometro",
+  "italy",
+  "meteo 3r",
+  "piemonte",
+  "river level",
+]
+
+[project.urls]
+Homepage = "https://github.com/webysther/ha-arpa-piemonte"
+Changelog = "https://github.com/webysther/ha-arpa-piemonte/blob/main/CHANGELOG.md"
+Issues = "https://github.com/webysther/ha-arpa-piemonte/issues"
+"Data source" = "https://www.arpa.piemonte.it"
+
+[tool.ruff.lint]
+# The rules of the code of Home Assistant that matter most here
+select = ["B", "C4", "D", "E", "F", "I", "PL", "PT", "RUF", "SIM", "UP", "W"]
+ignore = [
+  "D203",    # incompatible with D211
+  "D213",    # incompatible with D212
+  "PLR0913", # the entity descriptions take many keyword arguments
+  "PLR2004", # magic values in the assertions of the tests
+]
+
+[tool.ruff.lint.isort]
+# As Home Assistant sorts its imports
+force-sort-within-sections = true
+known-first-party = ["custom_components"]
+combine-as-imports = true
+
+[tool.mypy]
+# The strict-typing rule of the Home Assistant integration quality scale
+files = ["custom_components/arpa_piemonte"]
+python_version = "3.14"
+strict = true
+follow_imports = "silent"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["custom_components/arpa_piemonte"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95
+exclude_also = ["if TYPE_CHECKING:"]

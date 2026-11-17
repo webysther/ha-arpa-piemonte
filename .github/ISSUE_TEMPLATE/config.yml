@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Troubleshooting
+    url: https://github.com/webysther/ha-arpa-piemonte#troubleshooting
+    about: The common problems and how to solve them, before you open an issue.

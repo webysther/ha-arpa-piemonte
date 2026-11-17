@@ -1,0 +1,100 @@
+{
+    "title": "ARPA Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Aggiungi una stazione",
+                "description": "Le misure di una stazione di Arpa Piemonte: livello idrometrico, pioggia, temperatura, umidità, vento e neve, secondo i sensori della stazione. Non è un'app ufficiale di Arpa Piemonte.",
+                "data": {
+                    "station_code": "Stazione"
+                },
+                "data_description": {
+                    "station_code": "Nome, corso d'acqua e comune della stazione. Il punto del fiume che ti interessa, non per forza il più vicino."
+                }
+            },
+            "reconfigure": {
+                "title": "Rileggi {station}",
+                "description": "Rileggi da Arpa Piemonte i sensori, le soglie e gli identificativi di {station}."
+            }
+        },
+        "error": {
+            "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi."
+        },
+        "abort": {
+            "already_configured": "Questa stazione è già stata aggiunta.",
+            "cannot_connect": "Arpa Piemonte non è raggiungibile. Riprova più tardi.",
+            "reconfigure_successful": "La stazione è stata riletta."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "level": {
+                "name": "Livello idrometrico"
+            },
+            "temperature": {
+                "name": "Temperatura"
+            },
+            "humidity": {
+                "name": "Umidità"
+            },
+            "rain_1h": {
+                "name": "Pioggia 1 ora"
+            },
+            "rain_3h": {
+                "name": "Pioggia 3 ore"
+            },
+            "rain_24h": {
+                "name": "Pioggia 24 ore"
+            },
+            "wind_speed": {
+                "name": "Velocità del vento"
+            },
+            "wind_direction": {
+                "name": "Direzione del vento"
+            },
+            "gust_speed": {
+                "name": "Velocità della raffica"
+            },
+            "gust_direction": {
+                "name": "Direzione della raffica"
+            },
+            "snow_depth": {
+                "name": "Altezza neve"
+            },
+            "level_status": {
+                "name": "Stato del livello",
+                "state": {
+                    "normal": "Normale",
+                    "pre_alarm": "Preallarme",
+                    "guard": "Guardia",
+                    "danger": "Pericolo"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "Soglia di preallarme"
+            },
+            "guard_threshold": {
+                "name": "Soglia di guardia"
+            },
+            "danger_threshold": {
+                "name": "Soglia di pericolo"
+            },
+            "data_source": {
+                "name": "Fonte dei dati",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Sito di Arpa",
+                    "arpa_realtime": "api_realtime di Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "Ultima misura"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Nessuna fonte di Arpa Piemonte ha risposto: {error}"
+        }
+    }
+}
