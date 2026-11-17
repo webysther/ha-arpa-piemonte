@@ -30,6 +30,11 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 - **Reconfigure** on a municipality reads all its stations again; **Read the
   station again** reads one.
 
+### Fixed
+
+- When the list of Meteo 3R did not answer, a station without a river was
+  listed and titled "-" instead of by its name (aioarpapiemonte 0.1.1).
+
 ## [2026.11.0] - 2026-11-17
 
 First release.
