@@ -54,6 +54,8 @@ custom_components/arpa_piemonte/
                    StationConfig (pure)
   entity.py        the device of the station; sensor.py, binary_sensor.py (the
                    flood risk, from the level status), diagnostics.py
+  charts.py        the charts of the Meteo 3R series, drawn as SVG (pure);
+                   image.py serves them, one image entity per chart
   const.py         constants, each with the measurement behind it
   strings.json, translations/ (en, it, pt-BR), icons.json, quality_scale.yaml,
   manifest.json, version.py
@@ -124,7 +126,7 @@ Users' automations and dashboards depend on what the integration exposes.
 - Never change unique IDs: entries are `ISTAT_<municipality code>` (the
   current ISTAT code), stations are subentries `PIE_<station code>`, as their
   devices, and entities `PIE_<station code>-<key>`, with the keys of
-  `Quantity`, of `STATION_SENSORS` and `flood_risk`. Version 1 had an entry `PIE_<station
+  `Quantity`, of `STATION_SENSORS`, of `CHARTS` and `flood_risk`. Version 1 had an entry `PIE_<station
   code>` per station: `migration.py` moves them.
 - Never rename the states of the enum sensors (`LevelStatus`, `Source`).
 - Changing the shape of entry or subentry data needs a migration and a new

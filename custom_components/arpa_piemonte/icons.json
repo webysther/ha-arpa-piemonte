@@ -9,6 +9,26 @@
                 }
             }
         },
+        "image": {
+            "level_chart": {
+                "default": "mdi:chart-line"
+            },
+            "rain_chart": {
+                "default": "mdi:chart-bar"
+            },
+            "temperature_chart": {
+                "default": "mdi:chart-line"
+            },
+            "humidity_chart": {
+                "default": "mdi:chart-line"
+            },
+            "snow_chart": {
+                "default": "mdi:chart-line"
+            },
+            "wind_chart": {
+                "default": "mdi:chart-line"
+            }
+        },
         "sensor": {
             "level": {
                 "default": "mdi:waves-arrow-up"

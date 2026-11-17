@@ -99,7 +99,7 @@ async def test_device(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     entities = er.async_entries_for_config_entry(
         er.async_get(hass), init_integration.entry_id
     )
-    assert len(entities) == 12
+    assert len(entities) == 15
     assert {entity.config_subentry_id for entity in entities} == {subentry_id}
 
 

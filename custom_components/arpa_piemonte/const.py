@@ -15,7 +15,7 @@ VERSION: Final = __version__
 
 DOMAIN: Final = "arpa_piemonte"
 LOGGER = logging.getLogger(__package__)
-PLATFORMS: Final = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: Final = [Platform.BINARY_SENSOR, Platform.IMAGE, Platform.SENSOR]
 
 ATTRIBUTION: Final = "Fonte: Arpa Piemonte - www.arpa.piemonte.it"
 """Credit the data needs (CC BY 4.0, https://www.arpa.piemonte.it/note-legali)."""

@@ -79,6 +79,26 @@
                 "name": "Risco de cheia"
             }
         },
+        "image": {
+            "level_chart": {
+                "name": "Gráfico do nível"
+            },
+            "rain_chart": {
+                "name": "Gráfico da chuva"
+            },
+            "temperature_chart": {
+                "name": "Gráfico da temperatura"
+            },
+            "humidity_chart": {
+                "name": "Gráfico da umidade"
+            },
+            "snow_chart": {
+                "name": "Gráfico da neve"
+            },
+            "wind_chart": {
+                "name": "Gráfico do vento"
+            }
+        },
         "sensor": {
             "level": {
                 "name": "Nível do rio"

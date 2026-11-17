@@ -79,6 +79,26 @@
                 "name": "Flood risk"
             }
         },
+        "image": {
+            "level_chart": {
+                "name": "Level chart"
+            },
+            "rain_chart": {
+                "name": "Rain chart"
+            },
+            "temperature_chart": {
+                "name": "Temperature chart"
+            },
+            "humidity_chart": {
+                "name": "Humidity chart"
+            },
+            "snow_chart": {
+                "name": "Snow chart"
+            },
+            "wind_chart": {
+                "name": "Wind chart"
+            }
+        },
         "sensor": {
             "level": {
                 "name": "Water level"

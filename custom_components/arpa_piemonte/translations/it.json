@@ -79,6 +79,26 @@
                 "name": "Rischio di piena"
             }
         },
+        "image": {
+            "level_chart": {
+                "name": "Grafico del livello"
+            },
+            "rain_chart": {
+                "name": "Grafico della pioggia"
+            },
+            "temperature_chart": {
+                "name": "Grafico della temperatura"
+            },
+            "humidity_chart": {
+                "name": "Grafico dell'umidità"
+            },
+            "snow_chart": {
+                "name": "Grafico della neve"
+            },
+            "wind_chart": {
+                "name": "Grafico del vento"
+            }
+        },
         "sensor": {
             "level": {
                 "name": "Livello idrometrico"

@@ -29,6 +29,7 @@ from .adapters import (
     from_meteo3r,
     from_realtime,
     from_website,
+    series_of_meteo3r,
     thresholds_of_meteo3r,
     thresholds_of_website,
 )
@@ -45,6 +46,7 @@ from .const import (
 from .models import (
     Measurement,
     Quantity,
+    Series,
     Source,
     StationConfig,
     StationSnapshot,
@@ -62,6 +64,8 @@ class SourceResult:
 
     measurements: dict[Quantity, Measurement] = field(default_factory=dict)
     thresholds: Thresholds | None = None
+    series: dict[Quantity, Series] | None = None
+    """The recent readings of each quantity, when the source gives them."""
     error: SourceError | None = None
     """The first failure, when only part of the source answered."""
 
@@ -76,6 +80,8 @@ class SourceTracker:
         self._min_interval = min_interval
         self.measurements: dict[Quantity, Measurement] = {}
         self.thresholds: Thresholds | None = None
+        self.series: dict[Quantity, Series] = {}
+        """The latest series the source gave, kept when it fails."""
         self.error: SourceError | None = None
         """Why the last request failed; None when it succeeded."""
         self.attempted_at: datetime | None = None
@@ -100,6 +106,8 @@ class SourceTracker:
         self.measurements.update(result.measurements)
         if result.thresholds is not None:
             self.thresholds = result.thresholds
+        if result.series is not None:
+            self.series = result.series
         if result.error is not None:
             self._failed(result.error)
             return
@@ -184,7 +192,9 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
             quantities,
             now,
         )
-        snapshot = StationSnapshot(dict(self._shown), self._thresholds())
+        snapshot = StationSnapshot(
+            dict(self._shown), self._thresholds(), dict(self.meteo3r.series)
+        )
         errors = [tracker.error for tracker in self.trackers if tracker.error]
         if not snapshot.measurements and errors:
             raise UpdateFailed(
@@ -226,7 +236,9 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
 
     async def _fetch_meteo3r(self) -> SourceResult:
         data = await self._sources.meteo3r.get_station_data(self.station.station_code)
-        return SourceResult(from_meteo3r(data), thresholds_of_meteo3r(data))
+        return SourceResult(
+            from_meteo3r(data), thresholds_of_meteo3r(data), series_of_meteo3r(data)
+        )
 
     async def _fetch_website(self, quantities: list[Quantity]) -> SourceResult:
         """Return the files of the Arpa website of the quantities, as they answer."""

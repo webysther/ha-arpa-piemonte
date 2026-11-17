@@ -53,6 +53,12 @@ def _station(coordinator: ArpaPiemonteCoordinator) -> dict[str, Any]:
         "thresholds": None
         if snapshot is None or snapshot.thresholds is None
         else asdict(snapshot.thresholds),
+        # The number of readings of each series of the charts, not the readings
+        "series": None
+        if snapshot is None
+        else {
+            quantity.value: len(series) for quantity, series in snapshot.series.items()
+        },
         "sources": {
             tracker.source.value: _source(tracker) for tracker in coordinator.trackers
         },

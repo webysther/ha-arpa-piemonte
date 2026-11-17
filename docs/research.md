@@ -91,10 +91,15 @@ One phase at a time; the maintainer commits and approves between phases.
    device class safety, only on hydrometers with a stored threshold, on from
    pre-alarm (pre-alarm, guard, danger: the rule the user confirmed),
    unavailable without a level.
-3. **Charts:** SVG images drawn by the integration from the Meteo 3R series
-   already downloaded (3 to 4 days): level with the pre-alarm, guard and
-   danger lines in yellow, orange and red; hourly rain with its cumulative;
-   temperature, humidity, snow, wind.
+3. **Charts** (done, unreleased): SVG images drawn by the integration from
+   the Meteo 3R series already downloaded (3 to 4 days), one image entity per
+   chart the station has: level with the pre-alarm, guard and danger lines in
+   yellow, orange and red; the rain of each hour (the `P_1H` readings on the
+   hour) with its running total; temperature with 0 °C, humidity, snow, wind
+   with the gusts as dots. No words, only units and values; times in the time
+   zone of Home Assistant. The state of a chart is the time of its newest
+   reading. Home Assistant serves any `image/` type, `image/svg+xml`
+   included, from 2025.4 (checked).
 4. **A dashboard strategy** like DPC's: plain JavaScript, native cards; a
    view per municipality, a section per station; tiles coloured by the level
    status; a gauge with the thresholds as segments; the charts.

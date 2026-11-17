@@ -137,8 +137,21 @@ class Measurement:
 
 
 @dataclass(frozen=True, slots=True)
+class Reading:
+    """A value of a series, at the time it was measured."""
+
+    time: datetime
+    """Time of the measurement, in UTC."""
+    value: float
+
+
+type Series = tuple[Reading, ...]
+"""The readings of a quantity, from the oldest, at strictly increasing times."""
+
+
+@dataclass(frozen=True, slots=True)
 class StationSnapshot:
-    """What a station shows: the latest reading of each quantity.
+    """What a station shows: the latest reading of each quantity, and the series.
 
     It holds nothing that changes without a new reading (no time of download,
     no host), so an update without new readings is equal to the previous one
@@ -147,6 +160,9 @@ class StationSnapshot:
 
     measurements: Mapping[Quantity, Measurement] = field(default_factory=dict)
     thresholds: Thresholds | None = None
+    series: Mapping[Quantity, Series] = field(default_factory=dict)
+    """The recent readings of each quantity, of Meteo 3R only: 3 to 4 days,
+    every 30 minutes. Kept as they were while Meteo 3R does not answer."""
 
     @property
     def source(self) -> Source | None:

@@ -15,7 +15,7 @@ from typing import Final
 from aioarpapiemonte import Param, ParamSeries, RealtimeData, RealtimeField
 from aiometeo3r import Quantity as Meteo3rQuantity, StationData
 
-from .models import Measurement, Quantity, Source, Thresholds
+from .models import Measurement, Quantity, Reading, Series, Source, Thresholds
 
 METEO3R_QUANTITIES: Final[Mapping[Quantity, Meteo3rQuantity]] = {
     Quantity.LEVEL: Meteo3rQuantity.LEVEL,
@@ -66,6 +66,19 @@ def from_meteo3r(data: StationData) -> dict[Quantity, Measurement]:
                 float(reading.value), reading.time, Source.METEO3R
             )
     return measurements
+
+
+def series_of_meteo3r(data: StationData) -> dict[Quantity, Series]:
+    """Return the readings of each quantity of a station of Meteo 3R."""
+    series = {}
+    for quantity, meteo3r_quantity in METEO3R_QUANTITIES.items():
+        readings = tuple(
+            Reading(reading.time, float(reading.value))
+            for reading in data.series_of(meteo3r_quantity)
+        )
+        if readings:
+            series[quantity] = readings
+    return series
 
 
 def thresholds_of_meteo3r(data: StationData) -> Thresholds:

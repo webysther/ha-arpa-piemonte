@@ -36,6 +36,7 @@ async def test_diagnostics(
     assert station["sources"]["meteo3r"]["error"] is None
     assert station["sources"]["arpa_website"]["attempted_at"] is None
     assert station["thresholds"] == {"pre_alarm": 2.3, "guard": 3.0, "danger": 3.8}
+    assert station["series"]["level"] == 153
     assert diagnostics["meteo3r_host"].startswith("https://staticm3r.")
 
 

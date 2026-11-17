@@ -39,6 +39,9 @@ stations of the Piedmont network.
   sources of Arpa Piemonte take over: the files of its website, then its
   api_realtime. The sensor **Data source** says which one is shown.
 - The time of the measurement, not of the download: **Last measurement**.
+- Charts of the last 3 to 4 days, as images: the level with its thresholds,
+  the rain of each hour with its total, temperature, humidity, snow and wind.
+  The integration draws them from the readings of Meteo 3R it already has.
 
 ## Use cases
 
@@ -117,6 +120,10 @@ unavailable.
   later. A sensor of a station can stop answering for days.
 - The thresholds are those of Arpa Piemonte; not every hydrometer has all
   three (26 of 110 lack at least one).
+- The charts show the readings of Meteo 3R only: while it does not answer,
+  they keep its last readings. Their text is grey, darker or lighter when the
+  browser says the page is light or dark, whatever the theme of Home
+  Assistant.
 
 ## Troubleshooting
 
@@ -152,9 +159,17 @@ Of each station, those of its sensors:
 | Snow depth | cm | snow gauge |
 | Data source (diagnostic): Meteo 3R, Arpa website, Arpa api_realtime | | every station |
 | Last measurement (diagnostic) | | every station |
+| Level, rain, temperature, humidity, snow, wind chart (image) | | the sensor it shows |
 
 The entity IDs are in English: `sensor.arpa_piemonte_pray_sessera_level`,
-`binary_sensor.arpa_piemonte_pray_sessera_flood_risk`.
+`binary_sensor.arpa_piemonte_pray_sessera_flood_risk`,
+`image.arpa_piemonte_pray_sessera_level_chart`.
+
+The state of a chart is the time of its newest reading. The charts carry no
+words, only units and values: the dashed lines of the level are the
+pre-alarm (yellow), guard (orange) and danger (red) thresholds, the bars of
+the rain are the rain of each hour, and the line its total over the chart
+(right axis, Σ mm); the dots of the wind are the gusts.
 
 ## Automation examples
 
@@ -189,6 +204,16 @@ automation:
       - action: notify.notify
         data:
           message: "The Sessera at Pray is above 1.5 m"
+```
+
+## Dashboard example
+
+A chart on a dashboard:
+
+```yaml
+type: picture-entity
+entity: image.arpa_piemonte_pray_sessera_level_chart
+show_state: false
 ```
 
 ## Data source and attribution

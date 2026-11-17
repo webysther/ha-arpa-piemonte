@@ -17,6 +17,9 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 - Diagnostics of each station, on its device.
 - **Flood risk**, a safety binary sensor of each hydrometer with a threshold:
   on from the pre-alarm threshold (pre-alarm, guard or danger), off below it.
+- Charts of the last 3 to 4 days, as images: the level with its thresholds,
+  the rain of each hour with its total, temperature, humidity, snow and wind,
+  drawn from the readings of Meteo 3R, without another download.
 
 ### Changed
 
