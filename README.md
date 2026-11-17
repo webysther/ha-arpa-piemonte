@@ -42,6 +42,9 @@ stations of the Piedmont network.
 - Charts of the last 3 to 4 days, as images: the level with its thresholds,
   the rain of each hour with its total, temperature, humidity, snow and wind.
   The integration draws them from the readings of Meteo 3R it already has.
+- A [dashboard](#dashboard): a tab per municipality, a section per station,
+  with the level in the colors of the alert maps and a gauge with its
+  thresholds; and a [card](#card) of a station, in the card picker.
 
 ## Use cases
 
@@ -124,6 +127,10 @@ unavailable.
   they keep its last readings. Their text is grey, darker or lighter when the
   browser says the page is light or dark, whatever the theme of Home
   Assistant.
+- Before Home Assistant 2026.5, the dashboard is not listed under **Add
+  dashboard**: add it with its YAML (see [Dashboard](#dashboard)).
+- The dashboard reads the thresholds when it opens: the gauge of a station
+  that had not answered yet appears after reloading the page.
 
 ## Troubleshooting
 
@@ -206,13 +213,91 @@ automation:
           message: "The Sessera at Pray is above 1.5 m"
 ```
 
-## Dashboard example
+## Dashboard
 
-A chart on a dashboard:
+The integration comes with a dashboard made of the cards of Home Assistant,
+with the names of the entities in the language of each user. It has a tab for
+each municipality and a section for each station, the hydrometers first:
+
+- **The heading**: the name of the station, its flood risk in the color of its
+  level, the time of its last measurement and, while it is not Meteo 3R, the
+  source of its readings.
+- **The level** of a hydrometer: its status in the colors of the alert maps,
+  green, yellow, orange and red, and a gauge with a band above each threshold,
+  from 0 to the highest threshold and a quarter more (Pray Sessera, with 2.3,
+  3.0 and 3.8 m, goes to 4.75 m). A hydrometer without thresholds shows its
+  level.
+- **The readings**: temperature, humidity, the three rains, wind, gust and snow,
+  as the station measures them.
+- **The charts**, once Meteo 3R has given the readings of the station.
+
+To add it, from Home Assistant 2026.5:
+
+1. Go to **Settings → Dashboards → Add dashboard**.
+2. Choose **ARPA Piemonte**. If it is not listed, reload the page.
+
+Before Home Assistant 2026.5:
+
+1. Go to **Settings → Dashboards → Add dashboard → New dashboard from scratch**,
+   and open it.
+2. Choose **⋮ → Edit dashboard**, then **⋮ → Raw configuration editor**.
+3. Replace its content with:
+
+   ```yaml
+   strategy:
+     type: custom:arpa-piemonte
+   ```
+
+The dashboard follows your stations and the names you give their devices:
+from Home Assistant 2026.7 it changes by itself when you add or remove one;
+before, when you reload the page. To show the stations
+of a municipality in another dashboard, add a view with the strategy and the
+ID of the entry of the municipality (`entry_id`, in its diagnostics):
+
+```yaml
+views:
+  - title: Pray
+    strategy:
+      type: custom:arpa-piemonte
+      entry_id: 01JCQK3Z5T3K8W6B2V4M9H7XNE
+```
+
+## Card
+
+The card of a station, in the card picker as soon as the integration is
+installed: search for **ARPA Piemonte** (`custom:arpa-piemonte-card`). It is
+the section of the station in the dashboard, as a single card made of the
+cards of Home Assistant: it finds the entities of the station even after you
+rename them, colors the level status and the flood risk as the level is, and
+shows the charts that have data.
+
+The visual editor chooses the station and what the card shows. In YAML, an
+option left out shows everything:
+
+| Option | Without it |
+| --- | --- |
+| `device_id` | The first station. The ID of the device of the station, the end of the address of its device page. |
+| `show_title: false` | The name of the station, above the rest. Without it, the badges move to the start. |
+| `show_flood_risk: false` | The flood risk, in the color of the level, beside the name. |
+| `show_last_measurement: false` | The time of the last measurement, beside the name. |
+| `show_level: false` | The status of the level and its gauge. |
+| `show_readings: false` | The readings. |
+| `show_charts: false` | The charts. |
+| `columns: 1` | The readings in two columns. |
+
+```yaml
+# The level of Pray Sessera and its charts, without the readings
+type: custom:arpa-piemonte-card
+device_id: 0123456789abcdef0123456789abcdef
+show_readings: false
+```
+
+A chart alone, with the cards of Home Assistant:
 
 ```yaml
 type: picture-entity
 entity: image.arpa_piemonte_pray_sessera_level_chart
+show_name: false
 show_state: false
 ```
 

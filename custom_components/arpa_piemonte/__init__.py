@@ -20,6 +20,7 @@ from .coordinator import (
     ArpaPiemonteCoordinator,
     ArpaPiemonteData,
 )
+from .dashboard import async_offer_the_frontend
 from .migration import async_migrate_integration
 from .models import StationConfig
 from .sources import async_get_sources
@@ -28,9 +29,14 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Merge the entries of a station of version 1 before they are set up."""
+    """Prepare the integration before its entries are set up.
+
+    Merge the entries of a station of version 1, and offer the dashboard and
+    the card to the frontend.
+    """
     del config
     await async_migrate_integration(hass)
+    await async_offer_the_frontend(hass)
     return True
 
 

@@ -56,11 +56,16 @@ custom_components/arpa_piemonte/
                    flood risk, from the level status), diagnostics.py
   charts.py        the charts of the Meteo 3R series, drawn as SVG (pure);
                    image.py serves them, one image entity per chart
+  dashboard.py     serves frontend/ and has the frontend load its modules
+  frontend/        the dashboard strategy (arpa-piemonte-dashboard.js) and the
+                   card (arpa-piemonte-card.js): plain JavaScript, no build,
+                   native cards only
   const.py         constants, each with the measurement behind it
   strings.json, translations/ (en, it, pt-BR), icons.json, quality_scale.yaml,
   manifest.json, version.py
 tests/             pytest-homeassistant-custom-component; the sources served by
                    aioclient_mock with unmodified files in tests/fixtures
+tests/frontend/    node:test tests of the dashboard strategy and the card
 release.sh         releases, run by the maintainer
 docs/research.md   decisions, DPC parity, roadmap and what is still unverified
 ```
@@ -76,10 +81,11 @@ pip install -r requirements_test.txt
 ruff format custom_components tests && ruff check custom_components tests
 mypy                                   # strict, configured in pyproject.toml
 pytest --cov --cov-report=term-missing
-npx prettier --check .                 # the YAML
+node --test "tests/frontend/*.test.mjs"   # the dashboard strategy and the card
+npx prettier --check .                    # the JavaScript and the YAML
 ```
 
-CI runs them (`tests.yaml`), with hassfest and the checks of the Marketplace
+CI runs them (`tests.yaml`, with a `node` job), with hassfest and the checks of the Marketplace
 (`hacs/action`, in `validate.yaml`). Keep the coverage of
 `custom_components/arpa_piemonte` at 100%.
 
@@ -159,6 +165,26 @@ Users' automations and dashboards depend on what the integration exposes.
   px), made from a transparent high-resolution logo of Arpa without changing
   it. The License section of the README
   says the trademarks belong to their owners, as in DPC Alert: keep it.
+- The dashboard and the card find the stations by the identifier of their
+  device (`["arpa_piemonte", "PIE_<code>"]`) and the entities by their
+  translation key, never by entity ID; the municipalities are the entries,
+  named by `config_entries/get`, which needs no admin. They color the level
+  status and the flood risk with the colors of the alert maps
+  (`LEVEL_STATUS_COLORS`), name the entities in the language of the user
+  (`withTexts`), and gate what newer versions of Home Assistant have with
+  `isAtLeast`: check each card option against the frontend of 2025.4
+  (`home-assistant-frontend==20250401.0`). The Add dashboard dialog lists
+  custom strategies from 2026.5 only, and a strategy is generated again when
+  its `registryDependencies` change from 2026.7; before, when the page loads.
+- The card draws nothing of its own: an `ha-card` with native cards inside,
+  created with `loadCardHelpers`, without their own background. Its visual
+  editor is an `ha-form`, which the frontend defines only with the editor of
+  one of its cards: the card loads the editor of a tile first. The editor
+  writes only the options that differ from what the card shows without them.
+- The frontend is served at `/arpa_piemonte/frontend/<version>/`
+  (`FRONTEND_URL`), so that browsers load it again after an update, and the
+  card imports the strategy by relative path. A new module goes in
+  `FRONTEND_MODULES`.
 
 ## Tests
 

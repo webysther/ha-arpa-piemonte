@@ -33,7 +33,8 @@ The sources themselves are documented in the libraries:
 | Skip the station step for a municipality with one station | 214 of 278 |
 | DPC search model (dropdown with `custom_value`) | the user's choice; the frontend filters |
 | Charts: SVG drawn by the integration, from the Meteo 3R series (3–4 days) | the threshold colours; no extra download |
-| Dashboard strategy like DPC's (native cards, no build) | the user's choice |
+| Dashboard strategy like DPC's (native cards, no build), and a card | the user's choice |
+| Top of the level gauge: the highest threshold plus 25 %, or the level when higher; no gauge without thresholds | the user's choice, 2026-11-17 |
 | One risk binary sensor (device class safety) derived from `level_status`, on from pre-alarm (pre_alarm, guard, danger), instead of three binaries per band | the user asked to derive a risk sensor from `sensor.arpa_piemonte_pray_sessera_level_status`; the user confirmed the on-from-pre-alarm rule on 2026-11-17 |
 | Marketplace instead of HACS in README, AGENTS, pyproject, release.sh, .github | done |
 
@@ -100,9 +101,16 @@ One phase at a time; the maintainer commits and approves between phases.
    zone of Home Assistant. The state of a chart is the time of its newest
    reading. Home Assistant serves any `image/` type, `image/svg+xml`
    included, from 2025.4 (checked).
-4. **A dashboard strategy** like DPC's: plain JavaScript, native cards; a
-   view per municipality, a section per station; tiles coloured by the level
-   status; a gauge with the thresholds as segments; the charts.
+4. **A dashboard strategy and a card** like DPC's (done, unreleased): plain
+   JavaScript, native cards; a view per municipality (named by
+   `config_entries/get`), a section per station, the hydrometers first; the
+   flood risk as a badge and the level status as a tile, in the colours of
+   the alert maps; a gauge with a band above each threshold, from 0 to the
+   highest threshold plus 25 % (the user's choice); the readings and the
+   charts. The card is the section of a station, with a visual editor (the
+   user asked for it too). The Add dashboard dialog lists custom strategies
+   from Home Assistant 2026.5 (frontend 20260429); before, the dashboard is
+   added with its YAML.
 5. **Pressure and solar radiation** from the website files `baro` and `radd`
    (45 and 64 stations), only where `sensors.geojson` lists them.
 6. **Natural risks.** In aioarpapiemonte first the stable machine-readable

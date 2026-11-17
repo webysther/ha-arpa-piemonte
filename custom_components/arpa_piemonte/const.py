@@ -25,6 +25,17 @@ MANUFACTURER: Final = "Arpa Piemonte"
 
 ISSUE_URL: Final = "https://github.com/webysther/ha-arpa-piemonte/issues"
 
+FRONTEND_URL: Final = f"/{DOMAIN}/frontend/{VERSION}"
+"""URL of the modules of the frontend, loaded by the frontend of every user.
+
+The browsers keep the modules in their cache: the version in the path makes
+them load the modules again when the integration is updated, and the card
+imports the dashboard strategy by a relative path, which keeps the version.
+"""
+
+FRONTEND_MODULES: Final = ("arpa-piemonte-dashboard.js", "arpa-piemonte-card.js")
+"""The modules of the frontend: the dashboard strategy and the card."""
+
 # Config entry data: a municipality
 CONF_MUNICIPALITY_CODE: Final = "municipality_code"
 """ISTAT code of the municipality of the entry ("096050"), the current one, as

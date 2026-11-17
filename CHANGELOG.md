@@ -20,6 +20,14 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 - Charts of the last 3 to 4 days, as images: the level with its thresholds,
   the rain of each hour with its total, temperature, humidity, snow and wind,
   drawn from the readings of Meteo 3R, without another download.
+- The ARPA Piemonte dashboard, made of the cards of Home Assistant: a tab per
+  municipality and a section per station, with the flood risk and the level
+  status in the colors of the alert maps, a gauge of the level with a band
+  above each threshold, the readings and the charts. Listed under **Add
+  dashboard** from Home Assistant 2026.5; before, added with its YAML.
+- The ARPA Piemonte card, in the card picker: the section of a station as a
+  single card, with a visual editor that chooses the station and what it
+  shows.
 
 ### Changed
 
