@@ -80,6 +80,13 @@ class LevelStatus(StrEnum):
     DANGER = "danger"
 
 
+FLOOD_RISK_STATUSES: Final = frozenset(
+    {LevelStatus.PRE_ALARM, LevelStatus.GUARD, LevelStatus.DANGER}
+)
+"""The level statuses that are a flood risk: from the pre-alarm threshold up,
+the first one Arpa Piemonte sets on a hydrometer (the user's choice)."""
+
+
 @dataclass(frozen=True, slots=True)
 class Thresholds:
     """Alert thresholds of a hydrometer, in metres; any may be missing."""

@@ -74,6 +74,11 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "Risco de cheia"
+            }
+        },
         "sensor": {
             "level": {
                 "name": "Nível do rio"

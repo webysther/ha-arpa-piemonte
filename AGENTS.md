@@ -4,10 +4,11 @@ Guidance for AI coding agents and contributors working on this repository.
 `CLAUDE.md` imports this file.
 
 ARPA Piemonte is a Home Assistant custom integration (domain `arpa_piemonte`),
-installed from the Marketplace of Home Assistant. It turns a station of the Piedmont network of Arpa
-Piemonte into a device with the sensors the station has: water level and its
-status against the thresholds, rain, temperature, humidity, wind, snow. Each
-municipality is a config entry, and each of its stations a subentry.
+installed from the Marketplace of Home Assistant. It turns a station of the
+Piedmont network of Arpa Piemonte into a device with the sensors the station
+has: water level, its status against the thresholds and its flood risk, rain,
+temperature, humidity, wind, snow. Each municipality is a config entry, and
+each of its stations a subentry.
 
 Everything that talks to the sources or parses their files lives in two
 libraries, maintained alongside this repository:
@@ -51,7 +52,8 @@ custom_components/arpa_piemonte/
                    and which source gives which quantity (pure)
   models.py        Quantity, Source, Thresholds, Measurement, StationSnapshot,
                    StationConfig (pure)
-  entity.py        the device of the station; sensor.py, diagnostics.py
+  entity.py        the device of the station; sensor.py, binary_sensor.py (the
+                   flood risk, from the level status), diagnostics.py
   const.py         constants, each with the measurement behind it
   strings.json, translations/ (en, it, pt-BR), icons.json, quality_scale.yaml,
   manifest.json, version.py
@@ -122,7 +124,7 @@ Users' automations and dashboards depend on what the integration exposes.
 - Never change unique IDs: entries are `ISTAT_<municipality code>` (the
   current ISTAT code), stations are subentries `PIE_<station code>`, as their
   devices, and entities `PIE_<station code>-<key>`, with the keys of
-  `Quantity` and of `STATION_SENSORS`. Version 1 had an entry `PIE_<station
+  `Quantity`, of `STATION_SENSORS` and `flood_risk`. Version 1 had an entry `PIE_<station
   code>` per station: `migration.py` moves them.
 - Never rename the states of the enum sensors (`LevelStatus`, `Source`).
 - Changing the shape of entry or subentry data needs a migration and a new

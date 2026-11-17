@@ -15,6 +15,8 @@ All notable changes to ARPA Piemonte are documented here. The format follows
   with its stations under it. **Add station** on the entry adds another
   station of the same municipality.
 - Diagnostics of each station, on its device.
+- **Flood risk**, a safety binary sensor of each hydrometer with a threshold:
+  on from the pre-alarm threshold (pre-alarm, guard or danger), off below it.
 
 ### Changed
 

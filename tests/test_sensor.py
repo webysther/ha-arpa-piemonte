@@ -99,7 +99,7 @@ async def test_device(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     entities = er.async_entries_for_config_entry(
         er.async_get(hass), init_integration.entry_id
     )
-    assert len(entities) == 11
+    assert len(entities) == 12
     assert {entity.config_subentry_id for entity in entities} == {subentry_id}
 
 
@@ -136,6 +136,12 @@ async def test_sensors_of_a_weather_station(
     assert (
         registry.async_get_entity_id(
             "sensor", DOMAIN, f"{COLLE_LOMBARDA_ID}-level_status"
+        )
+        is None
+    )
+    assert (
+        registry.async_get_entity_id(
+            "binary_sensor", DOMAIN, f"{COLLE_LOMBARDA_ID}-flood_risk"
         )
         is None
     )

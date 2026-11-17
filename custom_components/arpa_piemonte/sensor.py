@@ -20,6 +20,7 @@ from homeassistant.const import (
     DEGREE,
     PERCENTAGE,
     EntityCategory,
+    Platform,
     UnitOfLength,
     UnitOfPrecipitationDepth,
     UnitOfSpeed,
@@ -209,7 +210,7 @@ class MeasurementSensor(ArpaPiemonteEntity, SensorEntity):
         self, coordinator: ArpaPiemonteCoordinator, description: MeasurementDescription
     ) -> None:
         """Initialize the sensor of a quantity."""
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, Platform.SENSOR, description.key)
         self.entity_description = description
 
     @property
@@ -238,7 +239,7 @@ class StationSensor(ArpaPiemonteEntity, SensorEntity):
         self, coordinator: ArpaPiemonteCoordinator, description: StationDescription
     ) -> None:
         """Initialize the sensor of the station."""
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, Platform.SENSOR, description.key)
         self.entity_description = description
 
     @property

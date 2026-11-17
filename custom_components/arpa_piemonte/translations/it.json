@@ -74,6 +74,11 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "Rischio di piena"
+            }
+        },
         "sensor": {
             "level": {
                 "name": "Livello idrometrico"

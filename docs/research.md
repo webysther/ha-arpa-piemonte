@@ -34,7 +34,7 @@ The sources themselves are documented in the libraries:
 | DPC search model (dropdown with `custom_value`) | the user's choice; the frontend filters |
 | Charts: SVG drawn by the integration, from the Meteo 3R series (3–4 days) | the threshold colours; no extra download |
 | Dashboard strategy like DPC's (native cards, no build) | the user's choice |
-| One risk binary sensor (device class safety) derived from `level_status`, on from pre-alarm (pre_alarm, guard, danger), instead of three binaries per band | the user asked to derive a risk sensor from `sensor.arpa_piemonte_pray_sessera_level_status`; the on-from-pre-alarm rule is the default, to confirm |
+| One risk binary sensor (device class safety) derived from `level_status`, on from pre-alarm (pre_alarm, guard, danger), instead of three binaries per band | the user asked to derive a risk sensor from `sensor.arpa_piemonte_pray_sessera_level_status`; the user confirmed the on-from-pre-alarm rule on 2026-11-17 |
 | Marketplace instead of HACS in README, AGENTS, pyproject, release.sh, .github | done |
 
 ## What DPC offers, and what Arpa can feed
@@ -84,13 +84,13 @@ One phase at a time; the maintainer commits and approves between phases.
      yet when Home Assistant starts.
    - Checked on Home Assistant 2025.4.0 (the whole test suite, in a scratch
      venv) and 2026.10 (the pinned one): see "Home Assistant, checked" below.
-2. **A flood risk binary sensor derived from the level status** (the user's
-   request: "derive a risk sensor" from
+2. **A flood risk binary sensor derived from the level status** (done,
+   unreleased; the user's request: "derive a risk sensor" from
    `sensor.arpa_piemonte_pray_sessera_level_status`), like
-   `binary_sensor.dpc_*_hydraulic_risk`. Device class safety, only on
-   hydrometers with thresholds, on from pre-alarm (pre-alarm, guard, danger),
-   unavailable without a level. The pre-alarm rule is the default, to be
-   confirmed.
+   `binary_sensor.dpc_*_hydraulic_risk`. `binary_sensor.<station>_flood_risk`,
+   device class safety, only on hydrometers with a stored threshold, on from
+   pre-alarm (pre-alarm, guard, danger: the rule the user confirmed),
+   unavailable without a level.
 3. **Charts:** SVG images drawn by the integration from the Meteo 3R series
    already downloaded (3 to 4 days): level with the pre-alarm, guard and
    danger lines in yellow, orange and red; hourly rain with its cumulative;

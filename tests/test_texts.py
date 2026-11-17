@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from custom_components.arpa_piemonte.binary_sensor import FLOOD_RISK
 from custom_components.arpa_piemonte.models import LevelStatus, Quantity, Source
 from custom_components.arpa_piemonte.sensor import MEASUREMENTS, STATION_SENSORS
 
@@ -52,7 +53,13 @@ def test_every_entity_has_a_name_and_an_icon() -> None:
     sensors = STRINGS["entity"]["sensor"]
     icons = ICONS["entity"]["sensor"]
 
+    assert set(STRINGS["entity"]) == set(ICONS["entity"]) == {"binary_sensor", "sensor"}
     assert set(sensors) == set(KEYS) == set(icons)
+    assert (
+        set(STRINGS["entity"]["binary_sensor"])
+        == {FLOOD_RISK.key}
+        == set(ICONS["entity"]["binary_sensor"])
+    )
     assert {quantity.value for quantity in Quantity} <= set(KEYS)
     assert set(sensors["level_status"]["state"]) == {
         status.value for status in LevelStatus

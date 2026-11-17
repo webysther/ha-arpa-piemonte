@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 from aioarpapiemonte import Param, station_page_url
+from homeassistant.const import Platform
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
@@ -30,8 +31,10 @@ class ArpaPiemonteEntity(CoordinatorEntity[ArpaPiemonteCoordinator]):
     _attr_attribution = ATTRIBUTION
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: ArpaPiemonteCoordinator, key: str) -> None:
-        """Initialize an entity of the station, with its key."""
+    def __init__(
+        self, coordinator: ArpaPiemonteCoordinator, platform: Platform, key: str
+    ) -> None:
+        """Initialize an entity of the station, of a platform, with its key."""
         super().__init__(coordinator)
         station = coordinator.station
         self._attr_unique_id = f"{station.unique_id}-{key}"
@@ -47,7 +50,7 @@ class ArpaPiemonteEntity(CoordinatorEntity[ArpaPiemonteCoordinator]):
             configuration_url=_page_url(station.sensor_id, station.sensor_letters),
         )
         # English IDs whatever the language: sensor.arpa_piemonte_pray_sessera_level
-        self.entity_id = f"sensor.{DOMAIN}_{slugify(station.name)}_{key}"
+        self.entity_id = f"{platform}.{DOMAIN}_{slugify(station.name)}_{key}"
 
 
 def _page_url(sensor_id: str | None, letters: str) -> str | None:

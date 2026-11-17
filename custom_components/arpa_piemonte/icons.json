@@ -1,5 +1,14 @@
 {
     "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "default": "mdi:home-flood",
+                "state": {
+                    "on": "mdi:home-flood",
+                    "off": "mdi:check-circle-outline"
+                }
+            }
+        },
         "sensor": {
             "level": {
                 "default": "mdi:waves-arrow-up"

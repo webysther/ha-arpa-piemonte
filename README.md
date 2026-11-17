@@ -28,8 +28,9 @@ stations of the Piedmont network.
 ## Features
 
 - One device per station, with the sensors it has: a hydrometer gets its water
-  level and its status against the thresholds (normal, pre-alarm, guard,
-  danger); a weather station its rain, temperature, humidity, wind and snow.
+  level, its status against the thresholds (normal, pre-alarm, guard, danger)
+  and a flood risk, on from the pre-alarm threshold; a weather station its
+  rain, temperature, humidity, wind and snow.
 - The stations grouped by municipality: one entry per municipality, with its
   stations under it.
 - The freshest readings: those of the Meteo 3R app of Arpa Piemonte, every 30
@@ -141,6 +142,7 @@ Of each station, those of its sensors:
 | --- | --- | --- |
 | Water level | m above the hydrometric zero | hydrometer |
 | Level status: normal, pre-alarm, guard, danger | | hydrometer |
+| Flood risk (safety): on from the pre-alarm threshold | | hydrometer with a threshold |
 | Pre-alarm, guard and danger threshold (diagnostic) | m | hydrometer |
 | Rain 1 hour, 3 hours, 24 hours | mm | rain gauge |
 | Temperature | °C | thermometer |
@@ -151,7 +153,8 @@ Of each station, those of its sensors:
 | Data source (diagnostic): Meteo 3R, Arpa website, Arpa api_realtime | | every station |
 | Last measurement (diagnostic) | | every station |
 
-The entity IDs are in English: `sensor.arpa_piemonte_pray_sessera_level`.
+The entity IDs are in English: `sensor.arpa_piemonte_pray_sessera_level`,
+`binary_sensor.arpa_piemonte_pray_sessera_flood_risk`.
 
 ## Automation examples
 
@@ -162,8 +165,8 @@ automation:
   - alias: "Sessera above a threshold"
     triggers:
       - trigger: state
-        entity_id: sensor.arpa_piemonte_pray_sessera_level_status
-        to: ["pre_alarm", "guard", "danger"]
+        entity_id: binary_sensor.arpa_piemonte_pray_sessera_flood_risk
+        to: "on"
     actions:
       - action: notify.notify
         data:

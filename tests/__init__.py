@@ -185,10 +185,12 @@ def subentry_of_device(device: dr.DeviceEntry) -> str | None:
     return subentry_id
 
 
-def entity_id_of(hass: HomeAssistant, key: str, unique_id: str = UNIQUE_ID) -> str:
+def entity_id_of(
+    hass: HomeAssistant, key: str, unique_id: str = UNIQUE_ID, platform: str = "sensor"
+) -> str:
     """Return the entity ID of an entity of a station, by its key."""
     entity_id = er.async_get(hass).async_get_entity_id(
-        "sensor", DOMAIN, f"{unique_id}-{key}"
+        platform, DOMAIN, f"{unique_id}-{key}"
     )
     assert entity_id is not None
     return entity_id
