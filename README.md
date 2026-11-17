@@ -1,4 +1,20 @@
-# ARPA Piemonte
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/custom_components/arpa_piemonte/brand/dark_icon@2x.png">
+    <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/custom_components/arpa_piemonte/brand/icon@2x.png" alt="" width="128">
+  </picture>
+</p>
+
+<h1 align="center">ARPA Piemonte</h1>
+
+<p align="center">River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte in Home Assistant</p>
+
+<p align="center">
+  <a href="https://github.com/webysther/ha-arpa-piemonte/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/webysther/ha-arpa-piemonte?label=release&color=41BDF5"></a>
+  <a href="https://hacs.xyz/"><img alt="HACS custom repository" src="https://img.shields.io/badge/HACS-custom-41BDF5?logo=homeassistantcommunitystore&logoColor=white"></a>
+  <a href="https://github.com/webysther/ha-arpa-piemonte/actions/workflows/tests.yaml"><img alt="Tests" src="https://github.com/webysther/ha-arpa-piemonte/actions/workflows/tests.yaml/badge.svg"></a>
+  <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/LICENSE.md"><img alt="License" src="https://img.shields.io/github/license/webysther/ha-arpa-piemonte?color=41BDF5"></a>
+</p>
 
 The readings of the stations of [Arpa Piemonte](https://www.arpa.piemonte.it)
 in Home Assistant: **river levels**, with the alert thresholds of each
@@ -81,6 +97,8 @@ unavailable.
 - Only the stations of Piedmont. Meteo 3R also shows those of Liguria and
   Valle d'Aosta, which belong to other bodies, under other terms.
 - When only the api_realtime answers, the readings are about 4 hours old.
+- Before Home Assistant 2026.3, the integration shows no icon: it ships its
+  icon in its own folder, which older versions do not read.
 - The data is validated automatically only, and Arpa Piemonte may correct it
   later. A sensor of a station can stop answering for days.
 - The thresholds are those of Arpa Piemonte; not every hydrometer has all
@@ -174,4 +192,13 @@ See [CONTRIBUTING.md](https://github.com/webysther/ha-arpa-piemonte/blob/main/CO
 
 ## License
 
-MIT, see [LICENSE.md](https://github.com/webysther/ha-arpa-piemonte/blob/main/LICENSE.md).
+The code of ARPA Piemonte is under the
+[MIT License](https://github.com/webysther/ha-arpa-piemonte/blob/main/LICENSE.md).
+The readings are data of Arpa Piemonte, under the
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license: every entity
+carries this attribution.
+
+The names, logos and trademarks in this repository, such as those of Arpa
+Piemonte, Meteo 3R and Home Assistant, belong to their owners and are used to
+identify them only, without implying their endorsement. They are not covered
+by the license of the code nor by the CC BY 4.0 license of the data.

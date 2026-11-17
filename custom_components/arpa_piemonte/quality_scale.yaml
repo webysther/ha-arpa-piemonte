@@ -10,8 +10,11 @@ rules:
       30 minutes, and most answers are a 304. The official sources are asked only
       when Meteo 3R fails, at most every 20 or 30 minutes.
   brands:
-    status: todo
-    comment: An icon of its own is needed; the logo of Arpa Piemonte is not to be used.
+    status: done
+    comment: >-
+      The icon and logo of Arpa Piemonte in the brand folder of the integration,
+      read by Home Assistant 2026.3 and newer; the README states whose trademarks
+      they are.
   common-modules: done
   config-flow-test-coverage: done
   config-flow: done

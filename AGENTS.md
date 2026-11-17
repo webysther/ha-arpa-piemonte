@@ -125,8 +125,14 @@ Users' automations and dashboards depend on what the integration exposes.
   it true when a change affects a rule.
 - The README is the HACS store page and holds the sections the quality scale
   asks for: keep them current.
-- Credit the data: every entity has the attribution of Arpa Piemonte, the
-  device links to the page of its station, nothing uses the logo of Arpa.
+- Credit the data: every entity has the attribution of Arpa Piemonte, and the
+  device links to the page of its station.
+- `brand/` holds the icon and logo of Arpa Piemonte, as Home Assistant 2026.3
+  and newer read them (`icon.png` 256 px, `icon@2x.png` 512 px, transparent;
+  `dark_icon*` on a white plate; `logo.png` 256 px high, `logo@2x.png` 512
+  px), made from a transparent high-resolution logo of Arpa without changing
+  it. The License section of the README
+  says the trademarks belong to their owners, as in DPC Alert: keep it.
 
 ## Tests
 

@@ -19,6 +19,7 @@ First release.
   source and Last measurement say where each reading comes from and when it
   was measured.
 - Reconfiguration, which reads the station again; diagnostics.
+- The icon of Arpa Piemonte, shown from Home Assistant 2026.3.
 - Texts in English, Italian and Brazilian Portuguese.
 
 [Unreleased]: https://github.com/webysther/ha-arpa-piemonte/commits/main
