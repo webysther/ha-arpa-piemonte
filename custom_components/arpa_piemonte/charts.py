@@ -1,9 +1,10 @@
 """Charts of the recent readings of a station, drawn as SVG (pure).
 
 As the charts of the Arpa website: the level with its thresholds, the rain of
-each hour with its total, temperature, humidity, snow and wind. They carry no
-words, only units and values, so they read the same in every language, and
-their colours read on a light or a dark background.
+each hour with its total, temperature, humidity, snow, wind, pressure and
+solar radiation. They carry no words, only units and values, so they read the
+same in every language, and their colours read on a light or a dark
+background.
 """
 
 from __future__ import annotations
@@ -38,7 +39,8 @@ GAP: Final = timedelta(minutes=90)
 """A step longer than this misses readings, and the line breaks there.
 
 Meteo 3R gives a reading every 30 minutes, the gusts every hour, and leaves
-out the readings it has not (measured on 2026-11-17).
+out the readings it has not; the files of the website give one every hour
+(measured on 2026-11-17).
 """
 HOUR: Final = timedelta(hours=1)
 """What a rain bar covers: the hour that ends at its time."""
@@ -57,6 +59,8 @@ HUMIDITY_COLOR: Final = "#29b6f6"
 SNOW_COLOR: Final = "#7e57c2"
 WIND_COLOR: Final = "#43a047"
 GUST_COLOR: Final = "#8e24aa"
+PRESSURE_COLOR: Final = "#5c6bc0"
+RADIATION_COLOR: Final = "#f9a825"
 PRE_ALARM_COLOR: Final = "#e6b800"
 """The yellow of the pre-alarm threshold, as on the charts of Arpa."""
 GUARD_COLOR: Final = "#f08c00"
@@ -205,6 +209,20 @@ def wind_chart(speed: Series, gust: Series) -> Chart | None:
     if not lines:
         return None
     return Chart("km/h", lines=lines, floor=0.0)
+
+
+def pressure_chart(readings: Series) -> Chart | None:
+    """Return the chart of the pressure at the station."""
+    if not readings:
+        return None
+    return Chart("hPa", lines=(Line(readings, PRESSURE_COLOR),))
+
+
+def radiation_chart(readings: Series) -> Chart | None:
+    """Return the chart of the solar radiation, from 0 W/m²."""
+    if not readings:
+        return None
+    return Chart("W/m²", lines=(Line(readings, RADIATION_COLOR),), floor=0.0)
 
 
 def draw(chart: Chart, zone: tzinfo) -> str:

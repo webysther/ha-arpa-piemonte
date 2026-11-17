@@ -26,6 +26,7 @@ from custom_components.arpa_piemonte.const import (
     CONF_STATION_CODE,
     CONF_STATION_NAME,
     CONF_THRESHOLDS,
+    CONF_WEBSITE_PARAMS,
     DOMAIN,
     SUBENTRY_STATION,
 )
@@ -56,11 +57,38 @@ PRAY_DATA: dict[str, Any] = {
     CONF_SENSOR_ID: PRAY_SENSOR,
     CONF_SENSOR_LETTERS: "IPT",
     CONF_THRESHOLDS: {"pre_alarm": 2.3, "guard": 3.0, "danger": 3.8},
+    CONF_WEBSITE_PARAMS: ["idro", "pluv", "terma"],
 }
-"""The data of the subentry of the station of Pray."""
+"""The data of the subentry of the station of Pray: its files on the website as
+the list of stations of the website names them."""
 PRAY_MUNICIPALITY = "096050"
 PRAY_ENTRY_ID = f"ISTAT_{PRAY_MUNICIPALITY}"
 """Unique ID of the entry of the municipality of Pray."""
+
+AVIGLIANA = "142"
+AVIGLIANA_SENSOR = "001013900"
+AVIGLIANA_UNIQUE_ID = f"PIE_{AVIGLIANA}"
+AVIGLIANA_MUNICIPALITY = "001013"
+AVIGLIANA_DATA: dict[str, Any] = {
+    CONF_STATION_CODE: AVIGLIANA,
+    CONF_STATION_NAME: "Avigliana",
+    CONF_SENSOR_ID: AVIGLIANA_SENSOR,
+    CONF_SENSOR_LETTERS: "BHPRTV",
+    CONF_THRESHOLDS: {"pre_alarm": None, "guard": None, "danger": None},
+    CONF_WEBSITE_PARAMS: [
+        "baro",
+        "dirv",
+        "igro",
+        "pluv",
+        "radd",
+        "terma",
+        "velr",
+        "vels",
+        "velv",
+    ],
+}
+"""The data of the subentry of the station of Avigliana: a weather station
+with a barometer and a radiometer, whose files the website lists."""
 
 METEO3R_URL = Host.PRIMARY.url(station_path(PRAY))
 METEO3R_MIRROR_URL = Host.MIRROR.url(station_path(PRAY))
@@ -68,6 +96,8 @@ LEVEL_URL = series_url(Param.LEVEL, PRAY_SENSOR)
 TEMPERATURE_URL = series_url(Param.TEMPERATURE, PRAY_SENSOR)
 RAIN_URL = series_url(Param.RAIN_10_MIN, PRAY_SENSOR)
 REALTIME_URL = data_pie_url(PRAY)
+PRESSURE_URL = series_url(Param.PRESSURE, AVIGLIANA_SENSOR)
+RADIATION_URL = series_url(Param.RADIATION, AVIGLIANA_SENSOR)
 
 
 def fixture_text(name: str) -> str:
@@ -118,6 +148,26 @@ def serve_realtime(
         aioclient_mock.get(REALTIME_URL, text=fixture_text("data_pie_188.json"))
     else:
         aioclient_mock.get(REALTIME_URL, status=status)
+
+
+def serve_avigliana(
+    aioclient_mock: AiohttpClientMocker, status: HTTPStatus = HTTPStatus.OK
+) -> None:
+    """Serve Avigliana: its file of Meteo 3R, its pressure and its radiation.
+
+    With an error status, the website answers it for both files.
+    """
+    meteo3r = fixture_text("misure_PIE_142.json")
+    for host in Host:
+        aioclient_mock.get(host.url(station_path(AVIGLIANA)), text=meteo3r)
+    for url, name in (
+        (PRESSURE_URL, "baro_001013900.geojson"),
+        (RADIATION_URL, "radd_001013900.geojson"),
+    ):
+        if status == HTTPStatus.OK:
+            aioclient_mock.get(url, text=fixture_text(name))
+        else:
+            aioclient_mock.get(url, status=status)
 
 
 def requested(aioclient_mock: AiohttpClientMocker) -> list[str]:

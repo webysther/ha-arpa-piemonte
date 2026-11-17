@@ -59,6 +59,10 @@ answered with them."""
 CONF_STATION_NAME: Final = "name"
 """Name of the station ("Pray Sessera"): the name of its device, and of its
 entity IDs."""
+CONF_WEBSITE_PARAMS: Final = "website_params"
+"""The files of the station on the Arpa website ("baro", "radd"...), as its list
+of stations gives them when the station is added or read again. None when the
+list did not answer: the letters of the sensors stand in for it."""
 
 MUNICIPALITY_ID_PREFIX: Final = "ISTAT_"
 """Unique ID of the entry of a municipality: this prefix and its ISTAT code."""
@@ -94,7 +98,13 @@ hour at a time, 3 h 40 min after it (measured on 2026-11-16 and 17)."""
 
 WEBSITE_MIN_INTERVAL: Final = timedelta(minutes=20)
 """Least time between two requests to the Arpa website for a station: its
-readings are hourly."""
+readings are hourly. It is the pace of the pressure and the solar radiation,
+which only the website gives."""
+
+WEBSITE_SERIES_SPAN: Final = timedelta(hours=76)
+"""How far back the charts of the files of the website go: as those of Meteo
+3R, whose files hold 3 days and 4 hours of readings (measured on 2026-11-17),
+while those of the website hold about 6 days."""
 
 REALTIME_MIN_INTERVAL: Final = timedelta(minutes=30)
 """Least time between two requests to the api_realtime for a station: it has

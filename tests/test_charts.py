@@ -16,6 +16,8 @@ from custom_components.arpa_piemonte.charts import (
     humidity_chart,
     level_chart,
     nice_ticks,
+    pressure_chart,
+    radiation_chart,
     rain_chart,
     snow_chart,
     temperature_chart,
@@ -185,3 +187,35 @@ def test_time_axis_in_the_time_zone() -> None:
     assert labels[:2] == ["06", "16/11"]
     assert "17/11" in labels
     assert labels.count("00") == 2
+
+
+def test_pressure_chart() -> None:
+    """Test the chart of the pressure at the station: hourly, around its values."""
+    chart = pressure_chart(series(970.2, 969.8, 970.5, step=timedelta(hours=1)))
+
+    assert chart is not None
+    assert chart.unit == "hPa"
+    assert chart.floor is None
+    labels = texts(draw(chart, ROME))
+    assert "hPa" in labels
+    assert "0" not in labels
+    assert pressure_chart(()) is None
+
+
+def test_radiation_chart() -> None:
+    """Test the chart of the solar radiation, from 0 W/m²."""
+    chart = radiation_chart(series(0, 120.0, 340.0, step=timedelta(hours=1)))
+
+    assert chart is not None
+    assert chart.floor == 0.0
+    assert "W/m²" in texts(draw(chart, ROME))
+    assert radiation_chart(()) is None
+
+
+def test_hourly_readings_make_one_line() -> None:
+    """Test that the hourly readings of the website do not break the line."""
+    chart = pressure_chart(series(970.0, 971.0, 972.0, step=timedelta(hours=1)))
+
+    assert chart is not None
+    (outline,) = paths(draw(chart, ROME))
+    assert outline.count("M") == 1

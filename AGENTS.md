@@ -108,7 +108,13 @@ Measured on 2026-11-16 and 17, see the libraries for the details:
   back between them). Equal to the api_realtime for every quantity.
 - Files of the Arpa website: hourly, ~40 minutes late. Equal to Meteo 3R for
   level, temperature, humidity and snow only: their rain is of 10 minutes and
-  their wind in m/s, so neither is read (`WEBSITE_PARAMS`).
+  their wind in m/s, so neither is read (`WEBSITE_PARAMS`). The only source of
+  the pressure (`baro`) and the solar radiation (`radd`): Meteo 3R and the
+  api_realtime have neither (`WEBSITE_QUANTITIES`).
+- The barometers and radiometers are those the list of stations of the
+  website names (45 and 64), stored in the subentry (`website_params`) when a
+  station is added or read again; the letters B and R (47 and 66) name dead
+  sensors too, and stand in only when the files are unknown (None).
 - api_realtime: hourly, ~3 h 40 min late, every quantity in one request.
 - A station has two identifiers: its code in the network ("188") and its
   identifier on the website ("002105900"); the config flow stores both.
@@ -122,6 +128,10 @@ How a station chooses (`coordinator.py`, `selection.py`):
   more often than its pace (`*_MIN_INTERVAL`).
 - Each quantity shows the newest current reading of all; on the same time,
   the preferred source. A source never takes a quantity back in time.
+- The pressure and the solar radiation, which Meteo 3R never gives, are asked
+  of the website at its pace (`WEBSITE_MIN_INTERVAL`); their charts are those
+  of its files, over the span of Meteo 3R (`WEBSITE_SERIES_SPAN`). The data
+  source leaves them out, so it still says whether Meteo 3R answers.
 - The snapshot holds no download time: an update without new readings is
   equal to the previous one and writes nothing (`always_update=False`).
 

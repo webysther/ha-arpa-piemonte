@@ -158,6 +158,30 @@ describe("card", () => {
   });
 });
 
+describe("card of a station with a barometer and a radiometer", () => {
+  it("shows the pressure and the solar radiation with the readings, and their charts", () => {
+    const extra = ["pressure", "solar_radiation", "pressure_chart", "radiation_chart"].map(
+      (key) => ({
+        entity_id: entityId("colle", key.endsWith("_chart") ? "image" : "sensor", key),
+        platform: "arpa_piemonte",
+        device_id: "colle",
+        translation_key: key,
+      }),
+    );
+    const hass = homeAssistant({
+      entities: extra,
+      states: { [entityId("colle", "image", "pressure_chart")]: "2026-11-17T02:00:00+00:00" },
+    });
+
+    const placed = layoutOf("colle", {}, hass);
+
+    const keys = placed.map(({ card }) => card.entity?.split("_lombarda_")[1]);
+    assert.deepEqual(keys.slice(-3), ["pressure", "solar_radiation", "pressure_chart"]);
+    assert.equal(placed.at(-3).column, "cell");
+    assert.equal(placed.at(-1).column, "all");
+  });
+});
+
 describe("options of the card", () => {
   it("show the badges without the title, and no heading without either", () => {
     const [{ card }] = layoutOf("pray", { show_title: false });

@@ -5,17 +5,28 @@ stations: every reading of Meteo 3R equals the api_realtime at the same time,
 for every quantity; the files of the Arpa website equal them for the level,
 the temperature, the humidity and the snow. The rain of the website is of 10
 minutes, and its wind is in m/s while the others give km/h: neither is used.
+Only the website gives the pressure and the solar radiation.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from datetime import timedelta
 from typing import Final
 
-from aioarpapiemonte import Param, ParamSeries, RealtimeData, RealtimeField
+from aioarpapiemonte import USABLE, Param, ParamSeries, RealtimeData, RealtimeField
 from aiometeo3r import Quantity as Meteo3rQuantity, StationData
 
-from .models import Measurement, Quantity, Reading, Series, Source, Thresholds
+from .const import WEBSITE_SERIES_SPAN
+from .models import (
+    WEBSITE_QUANTITIES,
+    Measurement,
+    Quantity,
+    Reading,
+    Series,
+    Source,
+    Thresholds,
+)
 
 METEO3R_QUANTITIES: Final[Mapping[Quantity, Meteo3rQuantity]] = {
     Quantity.LEVEL: Meteo3rQuantity.LEVEL,
@@ -37,8 +48,11 @@ WEBSITE_PARAMS: Final[Mapping[Quantity, Param]] = {
     Quantity.TEMPERATURE: Param.TEMPERATURE,
     Quantity.HUMIDITY: Param.HUMIDITY,
     Quantity.SNOW_DEPTH: Param.SNOW_DEPTH,
+    **{quantity: Param(name) for name, quantity in WEBSITE_QUANTITIES.items()},
 }
-"""The files of the Arpa website equal to Meteo 3R: only these are read."""
+"""The files of the Arpa website the integration reads: as a fallback, those
+equal to Meteo 3R; and the pressure and the solar radiation, which only the
+website gives."""
 
 REALTIME_FIELDS: Final[Mapping[Quantity, RealtimeField]] = {
     Quantity.LEVEL: RealtimeField.HYDROMETRIC_LEVEL,
@@ -99,6 +113,32 @@ def from_website(
                 float(reading.value), reading.time, Source.ARPA_WEBSITE
             )
     return measurements
+
+
+def series_of_website(
+    files: Iterable[tuple[Quantity, ParamSeries]],
+    span: timedelta = WEBSITE_SERIES_SPAN,
+) -> dict[Quantity, Series]:
+    """Return the readings of the quantities only the website gives, for charts.
+
+    Those of the span before the newest one, as long as those of Meteo 3R;
+    invalid and missing readings are left out.
+    """
+    website_only = set(WEBSITE_QUANTITIES.values())
+    series = {}
+    for quantity, param_series in files:
+        if quantity not in website_only:
+            continue
+        readings = [reading for reading in param_series if reading.validation in USABLE]
+        if not readings:
+            continue
+        start = readings[-1].time - span
+        series[quantity] = tuple(
+            Reading(reading.time, float(reading.value))
+            for reading in readings
+            if reading.time >= start
+        )
+    return series
 
 
 def thresholds_of_website(series: ParamSeries) -> Thresholds | None:

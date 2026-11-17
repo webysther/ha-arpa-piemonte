@@ -194,3 +194,55 @@ def test_quantities_of_the_sensors(
     assert station.quantities == quantities
     assert station.has_level is (Quantity.LEVEL in quantities)
     assert StationConfig.from_data(station.as_data()) == station
+
+
+@pytest.mark.parametrize(
+    ("sensor_id", "website_params", "quantities"),
+    [
+        # The files the website lists
+        (
+            "001013900",
+            ("baro", "radd", "terma"),
+            (Quantity.TEMPERATURE, Quantity.PRESSURE, Quantity.SOLAR_RADIATION),
+        ),
+        # A barometer the website does not list is dead
+        (
+            "001013900",
+            ("radd", "terma"),
+            (Quantity.TEMPERATURE, Quantity.SOLAR_RADIATION),
+        ),
+        # Files unknown: the letters stand in for them
+        (
+            "001013900",
+            None,
+            (Quantity.TEMPERATURE, Quantity.PRESSURE, Quantity.SOLAR_RADIATION),
+        ),
+        # No file on the website at all
+        (None, ("baro", "radd"), (Quantity.TEMPERATURE,)),
+    ],
+)
+def test_quantities_only_the_website_gives(
+    sensor_id: str | None,
+    website_params: tuple[str, ...] | None,
+    quantities: tuple[Quantity, ...],
+) -> None:
+    """Test the pressure and the radiation, by the files of the website."""
+    station = StationConfig(
+        "142", "Avigliana", sensor_id, "BRT", Thresholds(), website_params
+    )
+
+    assert station.quantities == quantities
+    assert StationConfig.from_data(station.as_data()) == station
+
+
+def test_source_leaves_out_what_only_the_website_gives() -> None:
+    """Test that the pressure, always from the website, does not hide Meteo 3R."""
+    pressure = reading(970.2, ONE, Source.ARPA_WEBSITE)
+
+    assert (
+        StationSnapshot(
+            {Quantity.TEMPERATURE: reading(1.3, TWO), Quantity.PRESSURE: pressure}
+        ).source
+        is Source.METEO3R
+    )
+    assert StationSnapshot({Quantity.PRESSURE: pressure}).source is None

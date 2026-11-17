@@ -35,6 +35,8 @@ The sources themselves are documented in the libraries:
 | Charts: SVG drawn by the integration, from the Meteo 3R series (3–4 days) | the threshold colours; no extra download |
 | Dashboard strategy like DPC's (native cards, no build), and a card | the user's choice |
 | Top of the level gauge: the highest threshold plus 25 %, or the level when higher; no gauge without thresholds | the user's choice, 2026-11-17 |
+| Pressure and solar radiation: keys `pressure`, `solar_radiation`; the stations the website lists; charts too | the user's choices, 2026-11-17 |
+| Breaking changes allowed without migrations while nobody uses the integration | the user, 2026-11-17 |
 | One risk binary sensor (device class safety) derived from `level_status`, on from pre-alarm (pre_alarm, guard, danger), instead of three binaries per band | the user asked to derive a risk sensor from `sensor.arpa_piemonte_pray_sessera_level_status`; the user confirmed the on-from-pre-alarm rule on 2026-11-17 |
 | Marketplace instead of HACS in README, AGENTS, pyproject, release.sh, .github | done |
 
@@ -111,8 +113,18 @@ One phase at a time; the maintainer commits and approves between phases.
    user asked for it too). The Add dashboard dialog lists custom strategies
    from Home Assistant 2026.5 (frontend 20260429); before, the dashboard is
    added with its YAML.
-5. **Pressure and solar radiation** from the website files `baro` and `radd`
-   (45 and 64 stations), only where `sensors.geojson` lists them.
+5. **Pressure and solar radiation** (done, unreleased) from the website files
+   `baro` and `radd`, the only source of them: Meteo 3R has no such series
+   (checked on all 374 files, and again on 3 B/R stations, 2026-11-17).
+   Unique ID keys `pressure` and `solar_radiation` (the user's choice). The
+   stations are those `sensors.geojson` lists (45 and 64), stored in the
+   subentry as `website_params`: the letters B and R name 47 and 66, the 4
+   others with a file that is empty (Mombaldone), stale since 2025-01
+   (Torino Reiss Romoli) or 2026-03 (Borgofranco), or missing (Sestriere). No
+   migration (the user: nobody uses the integration yet): without
+   `website_params`, the letters stand in. Charts of both, from the hourly
+   files, over the 76 hours of Meteo 3R. The pressure is at the station, not
+   at sea level (Avigliana, 344 m: 952 to 983 hPa).
 6. **Natural risks.** In aioarpapiemonte first the stable machine-readable
    sources (CAP alert, widget JSON per municipality, `pie_neve`, earthquakes,
    heat, EAWS avalanches, snow sectors, seismic class), plus a static ISTAT
@@ -127,7 +139,6 @@ One phase at a time; the maintainer commits and approves between phases.
 
 - **Meteo 3R:**
   - the window at midnight;
-  - whether B/R stations carry pressure or radiation series;
   - the meaning of the letters G, W, F and S.
 - **Website files:**
   - whether ETags change every 15 min without new data;

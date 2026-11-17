@@ -109,6 +109,8 @@ export const READINGS = {
   gust_speed: 6,
   gust_direction: 6,
   snow_depth: 6,
+  pressure: 6,
+  solar_radiation: 6,
 };
 
 /** The charts of a station, by the key of their image entity, in the order they are shown. */
@@ -119,6 +121,8 @@ export const CHARTS = [
   "humidity_chart",
   "snow_chart",
   "wind_chart",
+  "pressure_chart",
+  "radiation_chart",
 ];
 
 /** The source of the readings when Meteo 3R answers: the data source shows only otherwise. */

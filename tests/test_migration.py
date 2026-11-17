@@ -25,6 +25,7 @@ from custom_components.arpa_piemonte.const import (
     CONF_STATION_CODE,
     CONF_STATION_NAME,
     CONF_THRESHOLDS,
+    CONF_WEBSITE_PARAMS,
     DOMAIN,
 )
 from custom_components.arpa_piemonte.station_places import (
@@ -46,9 +47,12 @@ from . import (
 )
 
 PRAY_V1_DATA = {
-    key: value for key, value in PRAY_DATA.items() if key != CONF_STATION_NAME
+    key: value
+    for key, value in PRAY_DATA.items()
+    if key not in (CONF_STATION_NAME, CONF_WEBSITE_PARAMS)
 }
-"""The data of the entry of Pray in version 1: no name, it was the title."""
+"""The data of the entry of Pray in version 1: no name, it was the title, and no
+files of the website."""
 VINADIO = "004248"
 COLLE_LOMBARDA = "001"
 NERAISSA = "126"
@@ -169,7 +173,8 @@ async def test_migrate_a_station(
     (subentry,) = entry.subentries.values()
     assert subentry.title == "Sessera"
     assert subentry.unique_id == UNIQUE_ID
-    assert dict(subentry.data) == PRAY_DATA
+    # Its files on the website are unknown until it is read again
+    assert dict(subentry.data) == {**PRAY_DATA, CONF_WEBSITE_PARAMS: None}
     moved = entity_registry.async_get("sensor.sessera_at_pray")
     assert moved is not None
     assert moved.unique_id == f"{UNIQUE_ID}-temperature"

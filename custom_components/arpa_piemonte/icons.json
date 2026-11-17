@@ -27,6 +27,12 @@
             },
             "wind_chart": {
                 "default": "mdi:chart-line"
+            },
+            "pressure_chart": {
+                "default": "mdi:chart-line"
+            },
+            "radiation_chart": {
+                "default": "mdi:chart-line"
             }
         },
         "sensor": {
@@ -62,6 +68,12 @@
             },
             "snow_depth": {
                 "default": "mdi:snowflake"
+            },
+            "pressure": {
+                "default": "mdi:gauge"
+            },
+            "solar_radiation": {
+                "default": "mdi:weather-sunny"
             },
             "level_status": {
                 "default": "mdi:waves",

@@ -31,6 +31,7 @@ from custom_components.arpa_piemonte.const import (
     CONF_STATION_CODE,
     CONF_STATION_NAME,
     CONF_THRESHOLDS,
+    CONF_WEBSITE_PARAMS,
     DOMAIN,
     SUBENTRY_STATION,
 )
@@ -57,7 +58,7 @@ PRAY_ON_THE_WEBSITE = Sensor(
     latitude=45.67389,
     longitude=8.22167,
     altitude=409.0,
-    params=frozenset({Param.LEVEL, Param.TEMPERATURE}),
+    params=frozenset({Param.LEVEL, Param.RAIN_10_MIN, Param.TEMPERATURE}),
 )
 DOWN = Meteo3rConnectionError("down")
 ARPA_DOWN = ArpaPiemonteConnectionError("down")
@@ -306,30 +307,36 @@ async def test_identifier_by_coordinates(hass: HomeAssistant, clients: Clients) 
 
     (subentry,) = result["result"].subentries.values()
     assert subentry.data[CONF_SENSOR_ID] == PRAY_SENSOR
+    assert subentry.data[CONF_WEBSITE_PARAMS] == ["idro", "pluv", "terma"]
 
 
 async def test_identifier_not_on_the_website(
     hass: HomeAssistant, clients: Clients
 ) -> None:
-    """Test that an identifier the website does not list is not kept."""
+    """Test that an identifier the website does not list is not kept, nor files."""
     clients.get_sensors.return_value = ()
 
     result = await choose(hass, (await start(hass))["flow_id"])
 
     (subentry,) = result["result"].subentries.values()
     assert subentry.data[CONF_SENSOR_ID] is None
+    assert subentry.data[CONF_WEBSITE_PARAMS] == []
 
 
 async def test_identifier_when_the_website_list_fails(
     hass: HomeAssistant, clients: Clients
 ) -> None:
-    """Test that the identifier of the api_realtime is kept without the website list."""
+    """Test that the identifier of the api_realtime is kept without the website list.
+
+    Its files are unknown: the letters of its sensors stand in for them.
+    """
     clients.get_sensors.side_effect = ARPA_DOWN
 
     result = await choose(hass, (await start(hass))["flow_id"])
 
     (subentry,) = result["result"].subentries.values()
     assert subentry.data[CONF_SENSOR_ID] == PRAY_SENSOR
+    assert subentry.data[CONF_WEBSITE_PARAMS] is None
 
 
 async def test_read_a_municipality_again(hass: HomeAssistant, clients: Clients) -> None:

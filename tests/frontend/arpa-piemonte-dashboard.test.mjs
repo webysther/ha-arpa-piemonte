@@ -372,6 +372,37 @@ describe("section of a hydrometer", () => {
   });
 });
 
+describe("section of a station with a barometer and a radiometer", () => {
+  it("shows the pressure and the solar radiation last, and their charts", () => {
+    const extra = ["pressure", "solar_radiation", "pressure_chart", "radiation_chart"].map(
+      (key) => ({
+        entity_id: entityId("colle", key.endsWith("_chart") ? "image" : "sensor", key),
+        platform: "arpa_piemonte",
+        device_id: "colle",
+        translation_key: key,
+      }),
+    );
+    const section = sectionOf("colle", homeAssistant({ entities: extra }));
+
+    const tiles = section.cards.filter((card) => card.type === "tile");
+    assert.deepEqual(
+      tiles
+        .slice(-3)
+        .map((card) => [card.entity.split("_lombarda_")[1], card.grid_options.columns]),
+      [
+        ["snow_depth", 6],
+        ["pressure", 6],
+        ["solar_radiation", 6],
+      ],
+    );
+    const charts = section.cards.filter((card) => card.type === "picture-entity");
+    assert.deepEqual(
+      charts.slice(-2).map((card) => card.entity.split("_lombarda_")[1]),
+      ["pressure_chart", "radiation_chart"],
+    );
+  });
+});
+
 describe("section of a hydrometer without thresholds", () => {
   it("has the tile of the level, without gauge nor status", () => {
     const section = sectionOf("devero");

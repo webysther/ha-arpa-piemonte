@@ -97,6 +97,12 @@
             },
             "wind_chart": {
                 "name": "Wind chart"
+            },
+            "pressure_chart": {
+                "name": "Pressure chart"
+            },
+            "radiation_chart": {
+                "name": "Solar radiation chart"
             }
         },
         "sensor": {
@@ -132,6 +138,12 @@
             },
             "snow_depth": {
                 "name": "Snow depth"
+            },
+            "pressure": {
+                "name": "Atmospheric pressure"
+            },
+            "solar_radiation": {
+                "name": "Solar radiation"
             },
             "level_status": {
                 "name": "Level status",

@@ -13,7 +13,7 @@ from dataclasses import replace
 from types import MappingProxyType
 from typing import Any
 
-from aioarpapiemonte import ArpaPiemonteError
+from aioarpapiemonte import ArpaPiemonteError, Sensor
 from aiometeo3r import Meteo3rError
 
 try:  # Home Assistant 2026.9 and newer validate with probatio
@@ -73,13 +73,16 @@ async def async_station_catalog(sources: ArpaSources) -> StationCatalog:
     return StationCatalog(StationChoice.of_realtime(station) for station in realtime)
 
 
-async def async_sensor_id(sources: ArpaSources, choice: StationChoice) -> str | None:
-    """Return the identifier of the station on the Arpa website; None without one.
+async def async_website_station(
+    sources: ArpaSources, choice: StationChoice
+) -> tuple[str | None, tuple[str, ...] | None]:
+    """Return the identifier of the station on the Arpa website, and its files.
 
-    The api_realtime gives it. Without it, the coordinates of Meteo 3R equal
-    those of the website exactly (373 of 373 stations, measured on
-    2026-11-17). An identifier the website does not list is dropped: one
-    station has none.
+    The api_realtime gives the identifier. Without it, the coordinates of
+    Meteo 3R equal those of the website exactly (373 of 373 stations, measured
+    on 2026-11-17). The list of stations of the website names the files of the
+    station ("baro", "radd"...); an identifier it does not list is dropped:
+    one station has none. Without the list, the files are unknown (None).
     """
     candidate = choice.sensor_id
     if candidate is None:
@@ -100,18 +103,28 @@ async def async_sensor_id(sources: ArpaSources, choice: StationChoice) -> str | 
         sensors = await sources.arpa.get_sensors()
     except ArpaPiemonteError as err:
         LOGGER.debug("The stations of the Arpa website are not available: %s", err)
-        return candidate
-    if candidate is not None:
-        return candidate if any(sensor.id == candidate for sensor in sensors) else None
-    return next(
+        return candidate, None
+    sensor = next(
         (
-            sensor.id
+            sensor
             for sensor in sensors
-            if (sensor.latitude, sensor.longitude)
-            == (choice.latitude, choice.longitude)
+            if sensor.id == candidate
+            or (
+                candidate is None
+                and (sensor.latitude, sensor.longitude)
+                == (choice.latitude, choice.longitude)
+            )
         ),
         None,
     )
+    if sensor is None:
+        return None, ()
+    return sensor.id, _files_of(sensor)
+
+
+def _files_of(sensor: Sensor) -> tuple[str, ...]:
+    """Return the files of a station of the website, by name, sorted."""
+    return tuple(sorted(param.value for param in sensor.params))
 
 
 async def async_station_answers(sources: ArpaSources, code: str) -> bool:
@@ -136,12 +149,14 @@ async def async_station_config(
     """Return a station to store, read from Arpa; None when it does not answer."""
     if not await async_station_answers(sources, choice.code):
         return None
+    sensor_id, website_params = await async_website_station(sources, choice)
     return StationConfig(
         station_code=choice.code,
         name=choice.name,
-        sensor_id=await async_sensor_id(sources, choice),
+        sensor_id=sensor_id,
         sensor_letters=choice.sensor_letters,
         thresholds=choice.thresholds,
+        website_params=website_params,
     )
 
 

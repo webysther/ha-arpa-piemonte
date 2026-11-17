@@ -21,8 +21,10 @@ from homeassistant.const import (
     PERCENTAGE,
     EntityCategory,
     Platform,
+    UnitOfIrradiance,
     UnitOfLength,
     UnitOfPrecipitationDepth,
+    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
 )
@@ -110,6 +112,22 @@ MEASUREMENTS: tuple[MeasurementDescription, ...] = (
         quantity=Quantity.SNOW_DEPTH,
         device_class=SensorDeviceClass.DISTANCE,
         native_unit_of_measurement=UnitOfLength.CENTIMETERS,
+        suggested_display_precision=0,
+    ),
+    # At the station, not at sea level: Avigliana, at 344 m, read 952 to 983 hPa
+    # (measured on 2026-11-17)
+    MeasurementDescription(
+        key=Quantity.PRESSURE.value,
+        quantity=Quantity.PRESSURE,
+        device_class=SensorDeviceClass.ATMOSPHERIC_PRESSURE,
+        native_unit_of_measurement=UnitOfPressure.HPA,
+        suggested_display_precision=1,
+    ),
+    MeasurementDescription(
+        key=Quantity.SOLAR_RADIATION.value,
+        quantity=Quantity.SOLAR_RADIATION,
+        device_class=SensorDeviceClass.IRRADIANCE,
+        native_unit_of_measurement=UnitOfIrradiance.WATTS_PER_SQUARE_METER,
         suggested_display_precision=0,
     ),
 )

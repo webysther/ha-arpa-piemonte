@@ -30,7 +30,8 @@ stations of the Piedmont network.
 - One device per station, with the sensors it has: a hydrometer gets its water
   level, its status against the thresholds (normal, pre-alarm, guard, danger)
   and a flood risk, on from the pre-alarm threshold; a weather station its
-  rain, temperature, humidity, wind and snow.
+  rain, temperature, humidity, wind and snow, and with a barometer or a
+  radiometer, the atmospheric pressure and the solar radiation.
 - The stations grouped by municipality: one entry per municipality, with its
   stations under it.
 - The freshest readings: those of the Meteo 3R app of Arpa Piemonte, every 30
@@ -40,8 +41,9 @@ stations of the Piedmont network.
   api_realtime. The sensor **Data source** says which one is shown.
 - The time of the measurement, not of the download: **Last measurement**.
 - Charts of the last 3 to 4 days, as images: the level with its thresholds,
-  the rain of each hour with its total, temperature, humidity, snow and wind.
-  The integration draws them from the readings of Meteo 3R it already has.
+  the rain of each hour with its total, temperature, humidity, snow, wind,
+  pressure and solar radiation. The integration draws them from the readings
+  it already has.
 - A [dashboard](#dashboard): a tab per municipality, a section per station,
   with the level in the colors of the alert maps and a gauge with its
   thresholds; and a [card](#card) of a station, in the card picker.
@@ -103,11 +105,13 @@ was measured.
 | --- | --- | --- | --- |
 | Meteo 3R | every 30 min | ~40 min | every 10 min |
 | Files of the Arpa website (level, temperature, humidity, snow) | hourly | ~40 min | only as a fallback, every 20 min at most |
-| api_realtime of Arpa Piemonte (everything) | hourly | ~3 h 40 min | only as a fallback, every 30 min at most |
+| Files of the Arpa website (pressure, solar radiation) | hourly | ~40 min | every 20 min: the only source |
+| api_realtime of Arpa Piemonte (everything else) | hourly | ~3 h 40 min | only as a fallback, every 30 min at most |
 
 Each sensor shows the newest reading of all the sources; on the same time,
 Meteo 3R. A reading older than 6 hours is not shown: the sensor becomes
-unavailable.
+unavailable. **Data source** says where the readings Meteo 3R can give come
+from; the pressure and the solar radiation always come from the website.
 
 ## Known limitations
 
@@ -117,6 +121,9 @@ unavailable.
 - Only the stations of Piedmont. Meteo 3R also shows those of Liguria and
   Valle d'Aosta, which belong to other bodies, under other terms.
 - When only the api_realtime answers, the readings are about 4 hours old.
+- The pressure and the solar radiation come only from the files of the
+  website, hourly: while it does not answer, they become unavailable after 6
+  hours, as their charts keep their last readings.
 - Before Home Assistant 2026.3, the integration shows no icon: it ships its
   icon in its own folder, which older versions do not read.
 - The data is validated automatically only, and Arpa Piemonte may correct it
@@ -164,9 +171,11 @@ Of each station, those of its sensors:
 | Wind speed, gust speed | km/h | anemometer |
 | Wind direction, gust direction | ° | anemometer |
 | Snow depth | cm | snow gauge |
+| Atmospheric pressure, at the station, not at sea level | hPa | barometer |
+| Solar radiation | W/m² | radiometer |
 | Data source (diagnostic): Meteo 3R, Arpa website, Arpa api_realtime | | every station |
 | Last measurement (diagnostic) | | every station |
-| Level, rain, temperature, humidity, snow, wind chart (image) | | the sensor it shows |
+| Level, rain, temperature, humidity, snow, wind, pressure, solar radiation chart (image) | | the sensor it shows |
 
 The entity IDs are in English: `sensor.arpa_piemonte_pray_sessera_level`,
 `binary_sensor.arpa_piemonte_pray_sessera_flood_risk`,
@@ -176,7 +185,15 @@ The state of a chart is the time of its newest reading. The charts carry no
 words, only units and values: the dashed lines of the level are the
 pre-alarm (yellow), guard (orange) and danger (red) thresholds, the bars of
 the rain are the rain of each hour, and the line its total over the chart
-(right axis, Σ mm); the dots of the wind are the gusts.
+(right axis, Σ mm); the dots of the wind are the gusts. The charts of the
+pressure and the solar radiation have a reading every hour, from the files of
+the website, over the same days as the others.
+
+The barometers and radiometers are those the list of stations of the Arpa
+website names: 45 and 64 on 2026-11-17, while the letters of the sensors in
+Meteo 3R name 47 and 66, whose files are empty, years old or missing. When
+that list did not answer as a station was added, the letters stand in for it:
+**Read the station again** fixes it.
 
 ## Automation examples
 

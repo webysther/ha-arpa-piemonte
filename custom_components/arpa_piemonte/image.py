@@ -1,4 +1,7 @@
-"""The charts of a station, as images: the recent readings of Meteo 3R.
+"""The charts of a station, as images.
+
+The recent readings of Meteo 3R, and of the Arpa website for the pressure and
+the solar radiation.
 
 Each chart is drawn when new readings arrive, and kept until the next ones:
 it is served from memory, without asking any source. Its state is the time of
@@ -22,6 +25,8 @@ from .charts import (
     draw,
     humidity_chart,
     level_chart,
+    pressure_chart,
+    radiation_chart,
     rain_chart,
     snow_chart,
     temperature_chart,
@@ -89,6 +94,20 @@ CHARTS: tuple[ChartDescription, ...] = (
             snapshot.series.get(Quantity.GUST_SPEED, ()),
         ),
     ),
+    ChartDescription(
+        key="pressure_chart",
+        quantity=Quantity.PRESSURE,
+        chart_fn=lambda snapshot: pressure_chart(
+            snapshot.series.get(Quantity.PRESSURE, ())
+        ),
+    ),
+    ChartDescription(
+        key="radiation_chart",
+        quantity=Quantity.SOLAR_RADIATION,
+        chart_fn=lambda snapshot: radiation_chart(
+            snapshot.series.get(Quantity.SOLAR_RADIATION, ())
+        ),
+    ),
 )
 
 
@@ -113,7 +132,7 @@ async def async_setup_entry(
 class ChartImage(ArpaPiemonteEntity, ImageEntity):
     """A chart of the recent readings of a station, as SVG.
 
-    Unavailable while Meteo 3R has given no reading of its quantity.
+    Unavailable while its source has given no reading of its quantity.
     """
 
     entity_description: ChartDescription

@@ -14,6 +14,7 @@ from .const import (
     CONF_STATION_CODE,
     CONF_STATION_NAME,
     CONF_THRESHOLDS,
+    CONF_WEBSITE_PARAMS,
     MUNICIPALITY_ID_PREFIX,
     STATION_ID_PREFIX,
 )
@@ -33,6 +34,8 @@ class Quantity(StrEnum):
     GUST_SPEED = "gust_speed"
     GUST_DIRECTION = "gust_direction"
     SNOW_DEPTH = "snow_depth"
+    PRESSURE = "pressure"
+    SOLAR_RADIATION = "solar_radiation"
 
 
 SENSOR_QUANTITIES: Final[Mapping[str, tuple[Quantity, ...]]] = {
@@ -47,11 +50,26 @@ SENSOR_QUANTITIES: Final[Mapping[str, tuple[Quantity, ...]]] = {
         Quantity.GUST_DIRECTION,
     ),
     "N": (Quantity.SNOW_DEPTH,),
+    "B": (Quantity.PRESSURE,),
+    "R": (Quantity.SOLAR_RADIATION,),
 }
 """The quantities of each letter of the sensors of a station.
 
 Measured on 2026-11-17 on the 374 stations: one station had a series without
 its letter, 23 a letter without readings (a sensor that does not answer).
+"""
+
+WEBSITE_QUANTITIES: Final[Mapping[str, Quantity]] = {
+    "baro": Quantity.PRESSURE,
+    "radd": Quantity.SOLAR_RADIATION,
+}
+"""The quantities only the files of the Arpa website give, by the name of their
+file: Meteo 3R and the api_realtime have no pressure nor radiation (measured on
+2026-11-17).
+
+The list of stations of the website names the files a station has. The
+letters B and R say more: 2 of the 47 barometers and 2 of the 66 radiometers
+have a file that is empty, years old or missing (measured on 2026-11-17).
 """
 
 
@@ -161,14 +179,25 @@ class StationSnapshot:
     measurements: Mapping[Quantity, Measurement] = field(default_factory=dict)
     thresholds: Thresholds | None = None
     series: Mapping[Quantity, Series] = field(default_factory=dict)
-    """The recent readings of each quantity, of Meteo 3R only: 3 to 4 days,
-    every 30 minutes. Kept as they were while Meteo 3R does not answer."""
+    """The recent readings of each quantity: those of Meteo 3R, 3 to 4 days
+    every 30 minutes, and of the website for the pressure and the solar
+    radiation, every hour. Kept as they were while their source does not
+    answer."""
 
     @property
     def source(self) -> Source | None:
-        """Return the slowest source among the readings shown; None without any."""
+        """Return the slowest source among the readings Meteo 3R can give.
+
+        The pressure and the solar radiation always come from the website:
+        they would hide whether Meteo 3R answers. None without any reading.
+        """
+        website_only = set(WEBSITE_QUANTITIES.values())
         return max(
-            (measurement.source for measurement in self.measurements.values()),
+            (
+                measurement.source
+                for quantity, measurement in self.measurements.items()
+                if quantity not in website_only
+            ),
             key=lambda source: source.priority,
             default=None,
         )
@@ -209,16 +238,24 @@ class StationConfig:
     sensor_id: str | None
     sensor_letters: str
     thresholds: Thresholds
+    website_params: tuple[str, ...] | None = None
+    """The files of the station on the Arpa website, sorted; None when unknown."""
 
     @classmethod
     def from_data(cls, data: Mapping[str, Any]) -> StationConfig:
-        """Return the station of the data of its config subentry."""
+        """Return the station of the data of its config subentry.
+
+        A station added before its files on the website were stored has none:
+        its letters stand in for them.
+        """
+        params = data.get(CONF_WEBSITE_PARAMS)
         return cls(
             station_code=data[CONF_STATION_CODE],
             name=data[CONF_STATION_NAME],
             sensor_id=data.get(CONF_SENSOR_ID),
             sensor_letters=data.get(CONF_SENSOR_LETTERS, ""),
             thresholds=Thresholds.from_dict(data.get(CONF_THRESHOLDS)),
+            website_params=None if params is None else tuple(sorted(params)),
         )
 
     def as_data(self) -> dict[str, Any]:
@@ -229,6 +266,9 @@ class StationConfig:
             CONF_SENSOR_ID: self.sensor_id,
             CONF_SENSOR_LETTERS: self.sensor_letters,
             CONF_THRESHOLDS: self.thresholds.as_dict(),
+            CONF_WEBSITE_PARAMS: (
+                None if self.website_params is None else list(self.website_params)
+            ),
         }
 
     @property
@@ -238,12 +278,26 @@ class StationConfig:
 
     @property
     def quantities(self) -> tuple[Quantity, ...]:
-        """Return the quantities of the station, from its sensors, in order."""
+        """Return the quantities of the station, from its sensors, in order.
+
+        The pressure and the solar radiation need a file on the website: those
+        its list names, or else those of the letters of the sensors.
+        """
         found = {
             quantity
             for letter in self.sensor_letters.upper()
             for quantity in SENSOR_QUANTITIES.get(letter, ())
         }
+        website_only = set(WEBSITE_QUANTITIES.values())
+        if self.sensor_id is None:
+            found -= website_only
+        elif self.website_params is not None:
+            found -= website_only
+            found |= {
+                WEBSITE_QUANTITIES[param]
+                for param in self.website_params
+                if param in WEBSITE_QUANTITIES
+            }
         return tuple(quantity for quantity in Quantity if quantity in found)
 
     @property

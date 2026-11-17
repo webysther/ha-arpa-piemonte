@@ -28,6 +28,11 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 - The ARPA Piemonte card, in the card picker: the section of a station as a
   single card, with a visual editor that chooses the station and what it
   shows.
+- **Atmospheric pressure** and **solar radiation** of the stations with a
+  barometer or a radiometer, with their charts, from the files of the Arpa
+  website, the only source of them, read every 20 minutes. The barometers and
+  radiometers are those the website lists when the station is added: **Read
+  the station again** on a station added before finds them.
 
 ### Changed
 

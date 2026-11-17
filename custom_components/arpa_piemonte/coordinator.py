@@ -7,6 +7,9 @@ website are asked for the level, temperature, humidity and snow (hourly, about
 40 minutes late). Each quantity shows the newest reading of all; on the same
 time, Meteo 3R. The official sources are asked only when they could give a
 newer reading than the one shown, and not more often than their pace.
+
+The pressure and the solar radiation only the website gives: as Meteo 3R never
+has them, it is asked for them at its pace.
 """
 
 from __future__ import annotations
@@ -30,6 +33,7 @@ from .adapters import (
     from_realtime,
     from_website,
     series_of_meteo3r,
+    series_of_website,
     thresholds_of_meteo3r,
     thresholds_of_website,
 )
@@ -64,8 +68,8 @@ class SourceResult:
 
     measurements: dict[Quantity, Measurement] = field(default_factory=dict)
     thresholds: Thresholds | None = None
-    series: dict[Quantity, Series] | None = None
-    """The recent readings of each quantity, when the source gives them."""
+    series: dict[Quantity, Series] = field(default_factory=dict)
+    """The recent readings of the quantities the source gives them of."""
     error: SourceError | None = None
     """The first failure, when only part of the source answered."""
 
@@ -81,7 +85,7 @@ class SourceTracker:
         self.measurements: dict[Quantity, Measurement] = {}
         self.thresholds: Thresholds | None = None
         self.series: dict[Quantity, Series] = {}
-        """The latest series the source gave, kept when it fails."""
+        """The latest series of each quantity, kept when the source fails."""
         self.error: SourceError | None = None
         """Why the last request failed; None when it succeeded."""
         self.attempted_at: datetime | None = None
@@ -106,8 +110,7 @@ class SourceTracker:
         self.measurements.update(result.measurements)
         if result.thresholds is not None:
             self.thresholds = result.thresholds
-        if result.series is not None:
-            self.series = result.series
+        self.series.update(result.series)
         if result.error is not None:
             self._failed(result.error)
             return
@@ -193,7 +196,9 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
             now,
         )
         snapshot = StationSnapshot(
-            dict(self._shown), self._thresholds(), dict(self.meteo3r.series)
+            dict(self._shown),
+            self._thresholds(),
+            {**self.meteo3r.series, **self.website.series},
         )
         errors = [tracker.error for tracker in self.trackers if tracker.error]
         if not snapshot.measurements and errors:
@@ -259,6 +264,7 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
         if result.error is not None and not files:
             raise result.error
         result.measurements = from_website(files)
+        result.series = series_of_website(files)
         return result
 
     async def _fetch_realtime(self) -> SourceResult:
