@@ -6,6 +6,8 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 
 ## [Unreleased]
 
+## [2026.11.0] - 2026-11-17
+
 First release.
 
 ### Added
@@ -22,4 +24,5 @@ First release.
 - The icon of Arpa Piemonte, shown from Home Assistant 2026.3.
 - Texts in English, Italian and Brazilian Portuguese.
 
-[Unreleased]: https://github.com/webysther/ha-arpa-piemonte/commits/main
+[Unreleased]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.0...HEAD
+[2026.11.0]: https://github.com/webysther/ha-arpa-piemonte/releases/tag/v2026.11.0
