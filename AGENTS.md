@@ -54,6 +54,7 @@ custom_components/arpa_piemonte/
 tests/             pytest-homeassistant-custom-component; the sources served by
                    aioclient_mock with unmodified files in tests/fixtures
 release.sh         releases, run by the maintainer
+docs/research.md   decisions, DPC parity, roadmap and what is still unverified
 ```
 
 ## Checks
@@ -75,6 +76,13 @@ CI runs them (`tests.yaml`), with hassfest and the checks of the Marketplace
 `custom_components/arpa_piemonte` at 100%.
 
 ## The sources
+
+Read [docs/research.md](docs/research.md) before researching the sources or
+planning a feature: the decisions taken with the maintainer, what DPC offers
+and what Arpa can feed, the roadmap, and what is still unverified. It links
+the studies of the sources in the two libraries
+(`aio-meteo3r/docs/meteo3r-data.md`, `aio-arpa-piemonte/docs/arpa-data.md`
+and `docs/arpa-risk-products.md`).
 
 Measured on 2026-11-16 and 17, see the libraries for the details:
 
