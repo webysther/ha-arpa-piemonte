@@ -39,6 +39,13 @@ The sources themselves are documented in the libraries:
 | Breaking changes allowed without migrations while nobody uses the integration | the user, 2026-11-17 |
 | One risk binary sensor (device class safety) derived from `level_status`, on from pre-alarm (pre_alarm, guard, danger), instead of three binaries per band | the user asked to derive a risk sensor from `sensor.arpa_piemonte_pray_sessera_level_status`; the user confirmed the on-from-pre-alarm rule on 2026-11-17 |
 | Marketplace instead of HACS in README, AGENTS, pyproject, release.sh, .github | done |
+| Natural risks from the whole widget of the municipality (each risk today and tomorrow, the danger now, the operational phase), although the widget asks to keep its layout unless only its bell is used | the user's choice, 2026-11-17 |
+| Risk products: alerts by risk, earthquakes, heat waves, avalanches (EAWS) | the user's choice, 2026-11-17 |
+| Risk entities like DPC: a risk device per municipality; per risk and day a level and a safety binary sensor, on from a warning level option (yellow by default); the highest alert; the bulletin as diagnostics | the user's choice, 2026-11-17 |
+| Dashboard: a section of the risks at the top of each municipality | the user's choice, 2026-11-17 |
+| The library first (aioarpapiemonte 0.2.0, published by the maintainer), then the integration | the user's choice, 2026-11-17 |
+| Earthquakes and avalanches: an option for the position, the home or the stations of the municipality; earthquakes within 50 km by default, as DPC | the user's choice, 2026-11-17 |
+| Heat waves: an option for the city, the capital of the province or the nearest capital | the user's choice, 2026-11-17 |
 
 ## What DPC offers, and what Arpa can feed
 
@@ -125,13 +132,33 @@ One phase at a time; the maintainer commits and approves between phases.
    `website_params`, the letters stand in. Charts of both, from the hourly
    files, over the 76 hours of Meteo 3R. The pressure is at the station, not
    at sea level (Avigliana, 344 m: 952 to 983 hPa).
-6. **Natural risks.** In aioarpapiemonte first the stable machine-readable
-   sources (CAP alert, widget JSON per municipality, `pie_neve`, earthquakes,
-   heat, EAWS avalanches, snow sectors, seismic class), plus a static ISTAT
-   to zones table; the JSON embedded in the snippet pages (current danger,
-   vigilance, floods, landslides) only as optional; fire danger last. In the
-   integration, a risk device per municipality entry, to be designed with the
-   user.
+6. **Natural risks**, in three stages (the user's choices, see the
+   decisions above). The CAP alert, `pie_neve`, the snow sectors, the
+   seismic class and the JSON embedded in the snippet pages (vigilance,
+   floods, landslides, fire) are left out: the widget gives the alerts, the
+   danger now and the phase of the municipality.
+   - **6a, aioarpapiemonte 0.2.0** (done, unreleased):
+     `get_municipality_alerts()` (the widget), `get_earthquakes()`,
+     `get_heat_forecast()` (the 8 capitals, `HeatCity.capital_of()` and
+     `nearest()`), `get_avalanche_bulletin()` (EAWS, by micro-region) and
+     `get_micro_region()`, with the 14 micro-regions of EAWS shipped in the
+     package (CC0) and their names. Measured on 2026-11-18: the widget, the
+     earthquakes and EAWS answer 304; the bulletin of the day comes out
+     around 13:00, so in the morning the `day_0` of the widget is yesterday
+     and today is `day_1` (`MunicipalityAlerts.level_on(risk, date)`); the
+     names of the micro-regions in the EAWS bulletins are those before
+     2022-03-04, numbered otherwise, so the names come from EAWS.
+   - **6b, the integration** (after the release of 0.2.0): a risk device per
+     municipality entry, from the widget: per risk and day a level enum
+     sensor and a safety binary sensor on from the warning level option
+     (yellow by default), the highest alert, the danger now, the operational
+     phase, the bulletin and its times as diagnostics, the alert zones; the
+     risk section at the top of each municipality in the dashboard.
+   - **6c, the integration**: the earthquakes as `geo_location` within a
+     radius (50 km by default), the heat-wave level of the chosen city, and
+     the avalanche danger of the micro-region of the chosen position (the
+     home, or the stations of the municipality, which then need their
+     coordinates in the subentry).
 
 ## Still unverified
 
@@ -144,14 +171,16 @@ One phase at a time; the maintainer commits and approves between phases.
   - whether ETags change every 15 min without new data;
   - `pluv_hh` and `nivo_v`, which the library does not read.
 - **Risk products:**
-  - a `304` on the products;
   - the cadence of current danger;
   - `vig_2..4` and `PROBABILITA` values;
   - the names of the fire levels;
-  - the JSON of the 7 other heat cities;
-  - the time zone of earthquake `time_upd`.
-- **AINEVA:** the licence and headers, and whether the micro-regions match
-  Arpa's sectors.
+  - the colours of the widget other than VERDE and BIANCO (GIALLO,
+    ARANCIONE and ROSSO are the names of its colour keys), and the phases
+    other than "Nessuna Fase Operativa" (the names of its legend);
+  - the time zone of earthquake `time_upd`, and `dati_elaborati` of an
+    automatic event (all 28 of 2026-11-18 were "rivisti").
+- **AINEVA:** the licence of the bulletins, and whether the micro-regions
+  match Arpa's sectors.
 - **Snippets not opened:** listed in the risk products doc.
 - **Avalanches:** which host carries the IT-21 CAAML in season
   (`bollettini.aineva.it` or `static.avalanche.report`), and the bulletin
@@ -209,6 +238,9 @@ on 2025.4.0 and 2026.10.
   regions.avalanches.org, webservices.ingv.it, dati.gov.it and GitHub, with a
   generic User-Agent. More than planned: keep future checks to a few
   requests, and throttle webgis.
+- On 2026-11-18, for Phase 6a, about 26 requests: the samples again, the
+  heat-wave widgets of the 8 capitals, the names of the micro-regions, the
+  304 checks and the example of the README of the library.
 - Measurements on the fixtures of the repositories with throwaway scripts
   outside them.
 - Documents read: Arpa's "Formato CAP-XML per allertamento meteoidrologico
