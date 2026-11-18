@@ -28,6 +28,10 @@ avalanche danger.
 > validated automatically only. Do not rely on it for safety: for alerts,
 > follow the official bulletins and the civil protection.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/dashboard-acceglio.png" alt="The dashboard of Acceglio: its natural risks, the earthquakes nearby on a map, and its station with its charts" width="800">
+</p>
+
 ## Features
 
 - One device per station, with the sensors it has: a hydrometer gets its water
@@ -98,9 +102,19 @@ Piedmont with a station, and finds "Mondovì" as Arpa Piemonte writes it,
 rivers first, then the weather stations. Choose the point of the river that
 matters to you, not necessarily the nearest one.
 
-Each municipality is an entry, with its stations under it. To add another
-station of a municipality, choose **Add station** on its entry, or add the
-integration again and choose the same municipality.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/config-municipality.png" alt="Add a station: the municipality, searched" width="400">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/config-station.png" alt="The stations of Acceglio" width="400">
+</p>
+
+Each municipality is an entry, with its stations under it, and a device of
+its natural risks beside them. To add another station of a municipality,
+choose **Add station** on its entry, or add the integration again and choose
+the same municipality.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/config-devices.png" alt="The devices of Acceglio: its natural risks and its station" width="400">
+</p>
 
 To read the sensors and thresholds of a station again from Arpa Piemonte,
 choose **Read the station again** on the station. **Reconfigure** on the
@@ -253,6 +267,10 @@ The entity IDs are in English: `sensor.arpa_piemonte_pray_sessera_level`,
 `binary_sensor.arpa_piemonte_pray_sessera_flood_risk`,
 `image.arpa_piemonte_pray_sessera_level_chart`.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/device-station.png" alt="The device of the station of Acceglio" width="800">
+</p>
+
 Of each municipality, its natural risks, on the device **Pray · Natural
 risks**:
 
@@ -280,6 +298,10 @@ the bulletin does not cover yet is unknown: tomorrow, in the morning. The
 earthquakes, the heat waves and the avalanches exist only where the
 municipality has them: a position, a capital, a micro-region.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/device-risks.png" alt="The device of the natural risks of Acceglio, with the earthquakes nearby" width="800">
+</p>
+
 The state of a chart is the time of its newest reading. The charts carry no
 words, only units and values: the dashed lines of the level are the
 pre-alarm (yellow), guard (orange) and danger (red) thresholds, the bars of
@@ -287,6 +309,12 @@ the rain are the rain of each hour, and the line its total over the chart
 (right axis, Σ mm); the dots of the wind are the gusts. The charts of the
 pressure and the solar radiation have a reading every hour, from the files of
 the website, over the same days as the others.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/chart-rain.png" alt="The rain chart of Acceglio: the rain of each hour and its total" width="800">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/chart-temperature.png" alt="The temperature chart of Acceglio, with 0 °C" width="800">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/chart-humidity.png" alt="The humidity chart of Acceglio" width="800">
+</p>
 
 The barometers and radiometers are those the list of stations of the Arpa
 website names: 45 and 64 on 2026-11-17, while the letters of the sensors in
@@ -386,6 +414,10 @@ magnitude.
 
 Then a section for each station, the hydrometers first:
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/dashboard-pray.png" alt="The dashboard of Pray: its natural risks, and the hydrometer of the Sessera with the gauge of its level" width="800">
+</p>
+
 - **The heading**: the name of the station, its flood risk in the color of its
   level, the time of its last measurement and, while it is not Meteo 3R, the
   source of its readings.
@@ -437,6 +469,10 @@ the section of the station in the dashboard, as a single card made of the
 cards of Home Assistant: it finds the entities of the station even after you
 rename them, colors the level status and the flood risk as the level is, and
 shows the charts that have data.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/card.png" alt="The card of Pray Sessera" width="360">
+</p>
 
 The visual editor chooses the station and what the card shows. In YAML, an
 option left out shows everything:
