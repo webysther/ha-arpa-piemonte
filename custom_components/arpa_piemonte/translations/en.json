@@ -4,7 +4,7 @@
         "step": {
             "user": {
                 "title": "Add a station",
-                "description": "The readings of the stations of Arpa Piemonte: river level, rain, temperature, humidity, wind and snow, as each station measures them. Not an official app of Arpa Piemonte.",
+                "description": "The readings of the stations of Arpa Piemonte: river level, rain, temperature, humidity, wind and snow, as each station measures them, and the natural risks of their municipality. Not an official app of Arpa Piemonte.",
                 "data": {
                     "municipality": "Municipality"
                 },
@@ -73,10 +73,68 @@
             }
         }
     },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Natural risks of {municipality}",
+                "description": "The binary sensor of each risk of {municipality}, today and tomorrow, turns on from this level of alert up.",
+                "data": {
+                    "warning_level": "Minimum level of warning"
+                },
+                "data_description": {
+                    "warning_level": "Yellow by default, the first level of alert."
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "Yellow alert",
+                "orange": "Orange alert",
+                "red": "Red alert"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · Natural risks"
+        }
+    },
     "entity": {
         "binary_sensor": {
             "flood_risk": {
                 "name": "Flood risk"
+            },
+            "hydrogeological_risk_today": {
+                "name": "Hydrogeological risk today"
+            },
+            "hydraulic_risk_today": {
+                "name": "Hydraulic risk today"
+            },
+            "thunderstorm_risk_today": {
+                "name": "Thunderstorm risk today"
+            },
+            "snow_risk_today": {
+                "name": "Snow risk today"
+            },
+            "avalanche_risk_today": {
+                "name": "Avalanche risk today"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "Hydrogeological risk tomorrow"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "Hydraulic risk tomorrow"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "Thunderstorm risk tomorrow"
+            },
+            "snow_risk_tomorrow": {
+                "name": "Snow risk tomorrow"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "Avalanche risk tomorrow"
             }
         },
         "image": {
@@ -173,12 +231,153 @@
             },
             "last_measurement": {
                 "name": "Last measurement"
+            },
+            "highest_alert": {
+                "name": "Highest alert",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "current_danger": {
+                "name": "Current danger",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "Green",
+                    "yellow": "Yellow",
+                    "orange": "Orange",
+                    "red": "Red"
+                }
+            },
+            "operational_phase": {
+                "name": "Operational phase",
+                "state": {
+                    "none": "No operational phase",
+                    "attention": "Attention",
+                    "pre_alarm": "Pre-alarm",
+                    "alarm": "Alarm"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "Hydrogeological risk level today",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "Hydraulic risk level today",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "Thunderstorm risk level today",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "Snow risk level today",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "Avalanche risk level today",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "Hydrogeological risk level tomorrow",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "Hydraulic risk level tomorrow",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "Thunderstorm risk level tomorrow",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "Snow risk level tomorrow",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "Avalanche risk level tomorrow",
+                "state": {
+                    "not_evaluated": "Not evaluated",
+                    "green": "No alert",
+                    "yellow": "Yellow alert",
+                    "orange": "Orange alert",
+                    "red": "Red alert"
+                }
+            },
+            "alert_zone": {
+                "name": "Alert zone"
+            },
+            "alert_bulletin": {
+                "name": "Alert bulletin"
+            },
+            "next_alert_bulletin": {
+                "name": "Next alert bulletin"
             }
         }
     },
     "exceptions": {
         "update_failed": {
             "message": "No source of Arpa Piemonte answered: {error}"
+        },
+        "risks_update_failed": {
+            "message": "The natural risks of {municipality} are not available: {error}"
         }
     }
 }

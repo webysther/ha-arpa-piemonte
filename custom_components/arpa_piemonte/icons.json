@@ -7,6 +7,66 @@
                     "on": "mdi:home-flood",
                     "off": "mdi:check-circle-outline"
                 }
+            },
+            "hydrogeological_risk_today": {
+                "default": "mdi:waves",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "hydraulic_risk_today": {
+                "default": "mdi:home-flood",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "thunderstorm_risk_today": {
+                "default": "mdi:weather-lightning",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "snow_risk_today": {
+                "default": "mdi:snowflake-alert",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "avalanche_risk_today": {
+                "default": "mdi:image-filter-hdr",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "hydrogeological_risk_tomorrow": {
+                "default": "mdi:waves",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "hydraulic_risk_tomorrow": {
+                "default": "mdi:home-flood",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "thunderstorm_risk_tomorrow": {
+                "default": "mdi:weather-lightning",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "snow_risk_tomorrow": {
+                "default": "mdi:snowflake-alert",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
+            },
+            "avalanche_risk_tomorrow": {
+                "default": "mdi:image-filter-hdr",
+                "state": {
+                    "off": "mdi:check-circle-outline"
+                }
             }
         },
         "image": {
@@ -103,6 +163,74 @@
             },
             "last_measurement": {
                 "default": "mdi:clock-outline"
+            },
+            "highest_alert": {
+                "default": "mdi:shield-alert-outline",
+                "state": {
+                    "not_evaluated": "mdi:shield-outline",
+                    "green": "mdi:shield-check",
+                    "yellow": "mdi:alert-outline",
+                    "orange": "mdi:alert",
+                    "red": "mdi:alert-octagon"
+                }
+            },
+            "current_danger": {
+                "default": "mdi:alert-rhombus-outline",
+                "state": {
+                    "not_evaluated": "mdi:shield-outline",
+                    "green": "mdi:shield-check",
+                    "yellow": "mdi:alert-outline",
+                    "orange": "mdi:alert",
+                    "red": "mdi:alert-octagon"
+                }
+            },
+            "operational_phase": {
+                "default": "mdi:account-hard-hat",
+                "state": {
+                    "none": "mdi:check-circle-outline",
+                    "attention": "mdi:alert-circle-outline",
+                    "pre_alarm": "mdi:alert",
+                    "alarm": "mdi:alarm-light"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "default": "mdi:waves"
+            },
+            "hydraulic_risk_level_today": {
+                "default": "mdi:home-flood"
+            },
+            "thunderstorm_risk_level_today": {
+                "default": "mdi:weather-lightning"
+            },
+            "snow_risk_level_today": {
+                "default": "mdi:snowflake-alert"
+            },
+            "avalanche_risk_level_today": {
+                "default": "mdi:image-filter-hdr"
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "default": "mdi:waves"
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "default": "mdi:home-flood"
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "default": "mdi:weather-lightning"
+            },
+            "snow_risk_level_tomorrow": {
+                "default": "mdi:snowflake-alert"
+            },
+            "avalanche_risk_level_tomorrow": {
+                "default": "mdi:image-filter-hdr"
+            },
+            "alert_zone": {
+                "default": "mdi:map-marker-radius"
+            },
+            "alert_bulletin": {
+                "default": "mdi:file-document-alert"
+            },
+            "next_alert_bulletin": {
+                "default": "mdi:calendar-clock"
             }
         }
     }

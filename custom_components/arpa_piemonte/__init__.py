@@ -1,8 +1,9 @@
-"""ARPA Piemonte: the readings of the stations of Arpa Piemonte.
+"""ARPA Piemonte: the readings of the stations of Arpa Piemonte, and the risks.
 
 River levels, rain, temperature, humidity, wind and snow, from the Meteo 3R
 app of Arpa Piemonte and, when it fails, from the official sources of Arpa
-Piemonte. Not affiliated with Arpa Piemonte.
+Piemonte; the natural risks of each municipality, from its widget on the Arpa
+website. Not affiliated with Arpa Piemonte.
 """
 
 from __future__ import annotations
@@ -14,11 +15,12 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN, PLATFORMS, SUBENTRY_STATION
+from .const import DOMAIN, LOGGER, PLATFORMS, SUBENTRY_STATION
 from .coordinator import (
     ArpaPiemonteConfigEntry,
     ArpaPiemonteCoordinator,
     ArpaPiemonteData,
+    MunicipalityRisksCoordinator,
 )
 from .dashboard import async_offer_the_frontend
 from .migration import async_migrate_integration
@@ -43,11 +45,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 async def async_setup_entry(
     hass: HomeAssistant, entry: ArpaPiemonteConfigEntry
 ) -> bool:
-    """Set up the stations of a municipality.
+    """Set up the stations of a municipality, and its natural risks.
 
     Raises ConfigEntryNotReady while no station answers, so that Home Assistant
     tries again soon. A station that does not answer while another does is
-    asked again at its next update.
+    asked again at its next update, as are the risks.
     """
     sources = async_get_sources(hass)
     stations = {
@@ -57,8 +59,11 @@ async def async_setup_entry(
         for subentry_id, subentry in entry.subentries.items()
         if subentry.subentry_type == SUBENTRY_STATION
     }
+    risks = MunicipalityRisksCoordinator(hass, entry, sources)
     await _async_first_refresh(stations.values())
-    entry.runtime_data = ArpaPiemonteData(stations)
+    await _async_first_refresh_of_the_risks(risks)
+    entry.runtime_data = ArpaPiemonteData(stations, risks)
+    risks.async_follow_the_days()
     entry.async_on_unload(entry.add_update_listener(_async_reload))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
@@ -81,8 +86,22 @@ async def _async_first_refresh(
         raise not_ready
 
 
+async def _async_first_refresh_of_the_risks(
+    risks: MunicipalityRisksCoordinator,
+) -> None:
+    """Read the risks of the municipality once; the stations do not wait for them.
+
+    Without an answer, their entities are unavailable until the next update.
+    """
+    try:
+        await risks.async_config_entry_first_refresh()
+    except ConfigEntryNotReady as err:
+        # The failed update, whose message names the municipality and the error
+        LOGGER.warning("%s", err.__cause__ or err)
+
+
 async def _async_reload(hass: HomeAssistant, entry: ArpaPiemonteConfigEntry) -> None:
-    """Reload the municipality when a station is added, read again or removed."""
+    """Reload the municipality when a station or an option changes."""
     await hass.config_entries.async_reload(entry.entry_id)
 
 

@@ -31,6 +31,7 @@ from custom_components.arpa_piemonte.const import (
     CONF_STATION_CODE,
     CONF_STATION_NAME,
     CONF_THRESHOLDS,
+    CONF_WARNING_LEVEL,
     CONF_WEBSITE_PARAMS,
     DOMAIN,
     SUBENTRY_STATION,
@@ -521,3 +522,32 @@ async def test_read_a_station_again_without_answer(
 
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"base": "cannot_connect"}
+
+
+@pytest.mark.parametrize(
+    ("options", "shown"), [({}, "yellow"), ({CONF_WARNING_LEVEL: "red"}, "red")]
+)
+async def test_warning_level(
+    hass: HomeAssistant, options: dict[str, Any], shown: str
+) -> None:
+    """Test the options of a municipality: the warning level of its risks."""
+    entry = municipality_entry(
+        PRAY_MUNICIPALITY, "Pray", station_subentry(PRAY_DATA), options=options
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "init"
+    assert result["description_placeholders"] == {"municipality": "Pray"}
+    assert options_of(result, CONF_WARNING_LEVEL) == ["yellow", "orange", "red"]
+    # The level shown when the form opens: yellow without one
+    assert result["data_schema"]({}) == {CONF_WARNING_LEVEL: shown}
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {CONF_WARNING_LEVEL: "orange"}
+    )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options == {CONF_WARNING_LEVEL: "orange"}

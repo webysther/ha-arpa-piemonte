@@ -137,7 +137,7 @@ One phase at a time; the maintainer commits and approves between phases.
    seismic class and the JSON embedded in the snippet pages (vigilance,
    floods, landslides, fire) are left out: the widget gives the alerts, the
    danger now and the phase of the municipality.
-   - **6a, aioarpapiemonte 0.2.0** (done, unreleased):
+   - **6a, aioarpapiemonte 0.2.0** (done, released on 2026-11-18):
      `get_municipality_alerts()` (the widget), `get_earthquakes()`,
      `get_heat_forecast()` (the 8 capitals, `HeatCity.capital_of()` and
      `nearest()`), `get_avalanche_bulletin()` (EAWS, by micro-region) and
@@ -148,17 +148,33 @@ One phase at a time; the maintainer commits and approves between phases.
      and today is `day_1` (`MunicipalityAlerts.level_on(risk, date)`); the
      names of the micro-regions in the EAWS bulletins are those before
      2022-03-04, numbered otherwise, so the names come from EAWS.
-   - **6b, the integration** (after the release of 0.2.0): a risk device per
-     municipality entry, from the widget: per risk and day a level enum
-     sensor and a safety binary sensor on from the warning level option
-     (yellow by default), the highest alert, the danger now, the operational
-     phase, the bulletin and its times as diagnostics, the alert zones; the
-     risk section at the top of each municipality in the dashboard.
+   - **6b, the integration** (done, unreleased): a device of the risks per
+     municipality entry, `ISTAT_<code>`, in the entry without subentry, named
+     "Pray · Natural risks" and linked to the page of the widget
+     (`/rischi_naturali/widget/comuni/<ISTAT>/`, the page Arpa shows the
+     widget in). Per risk and day (today and tomorrow in Italy) a level enum
+     sensor and a safety binary sensor, on from the warning level option
+     (yellow by default, orange or red); the highest alert of the two days;
+     the danger now; the operational phase; the alert zone and the times of
+     the bulletin as diagnostics. The widget is asked every 10 minutes, the
+     entities change day at midnight in Italy, and the stations do not wait
+     for it at setup. The dashboard has the section of the risks at the top of
+     each municipality: the highest alert and the danger now in the colors of
+     the alert maps, the phase in the colors of the legend of the widget, and
+     the level of each risk on each day, tomorrow hidden until the bulletin
+     covers it. aioarpapiemonte 0.2.0 pinned.
    - **6c, the integration**: the earthquakes as `geo_location` within a
      radius (50 km by default), the heat-wave level of the chosen city, and
      the avalanche danger of the micro-region of the chosen position (the
      home, or the stations of the municipality, which then need their
      coordinates in the subentry).
+   - **A chore of aioarpapiemonte**, for its next release: read the `ETag`
+     and `Last-Modified` of an answer without depending on how aiohttp names
+     the headers, as aiometeo3r does. The client turns them into a `dict` and
+     looks for `hdrs.ETAG` (`Etag`): the C parser of aiohttp names a known
+     header that way, so the `ETag` of Arpa is found; the pure Python parser
+     and the mock of the Home Assistant tests keep the name the server sent,
+     and lose it (checked on 2026-11-18; the `Last-Modified` still works).
 
 ## Still unverified
 
@@ -171,7 +187,8 @@ One phase at a time; the maintainer commits and approves between phases.
   - whether ETags change every 15 min without new data;
   - `pluv_hh` and `nivo_v`, which the library does not read.
 - **Risk products:**
-  - the cadence of current danger;
+  - the cadence of current danger: assessed at 06:50 and at 09:51 on
+    2026-11-18, about every 3 hours, from two readings only;
   - `vig_2..4` and `PROBABILITA` values;
   - the names of the fire levels;
   - the colours of the widget other than VERDE and BIANCO (GIALLO,
@@ -228,7 +245,16 @@ on 2025.4.0 and 2026.10.
 - **Minimum version locally:** `pytest-homeassistant-custom-component==0.13.232`
   pins Home Assistant 2025.4.0 (Python 3.13). There, the diagnostics tests
   fail with `HAFakeDatetime` (freezegun in that harness), as they did before
-  this change.
+  this change. Run again for Phase 6b on 2026-11-18, with aiometeo3r 0.1.0 and
+  aioarpapiemonte 0.2.0 from PyPI: the rest passes.
+- **Frontend of 2025.4** (`home-assistant-frontend==20250401.0`, read on
+  2026-11-18): it has every icon of `icons.json` and of the dashboard, the
+  `heading_style` subtitle of the heading card, and the `or` condition of the
+  visibility of cards, which the section of the risks uses. The `alert` card
+  of DPC is not there (Home Assistant 2026.9).
+- **The `last_reported` of a state** is updated in place when the state is
+  written again unchanged: a test compares the time kept before, after moving
+  the clock.
 
 ## How this study was made
 
@@ -241,6 +267,10 @@ on 2025.4.0 and 2026.10.
 - On 2026-11-18, for Phase 6a, about 26 requests: the samples again, the
   heat-wave widgets of the 8 capitals, the names of the micro-regions, the
   304 checks and the example of the README of the library.
+- On 2026-11-18, for Phase 6b, one request: the page of the widget of Pray,
+  the link of the device of the risks (it showed the bulletin of 2026-11-17
+  for 17/11 and 18/11, and the danger now of 09:51). The frontend of 2025.4
+  came from PyPI.
 - Measurements on the fixtures of the repositories with throwaway scripts
   outside them.
 - Documents read: Arpa's "Formato CAP-XML per allertamento meteoidrologico

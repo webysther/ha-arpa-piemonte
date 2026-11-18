@@ -1,0 +1,58 @@
+{
+  "nome_comune": "Pray",
+  "allerta": "VERDE",
+  "emesso_il": "2026-11-17T11:57:30+01:00",
+  "emissione": "2026-11-17T00:00:00+01:00",
+  "prossimo_aggiornamento": "2026-11-18T13:00:00+01:00",
+  "idrogeologico_day_0": "VERDE",
+  "idrogeologico_day_1": "VERDE",
+  "idraulico_day_0": "VERDE",
+  "idraulico_day_1": "VERDE",
+  "temporali_day_0": "VERDE",
+  "temporali_day_1": "VERDE",
+  "neve_day_0": "VERDE",
+  "neve_day_1": "VERDE",
+  "valanghe_day_0": "BIANCO",
+  "valanghe_day_1": "BIANCO",
+  "aggiornamento_livello_di_pericolo_attuale": "2026-11-18T06:50:53+0100",
+  "pericolo_attuale": "VERDE",
+  "aggiornamento_fase_operativa_comunale_attuata": "2026-11-17T14:30:12+0100",
+  "fase_operativa_comunale_attuata": "Nessuna Fase Operativa",
+  "numero_bollettino": "334/2026",
+  "zone_di_allerta": "Piem-B",
+  "campanella_VERDE": "https://www.arpa.piemonte.it/rischi_naturali/images/campanella-nessuna-allerta.svg",
+  "campanella_GIALLO": "https://www.arpa.piemonte.it/rischi_naturali/images/campanella-allerta-gialla.svg",
+  "campanella_ARANCIONE": "https://www.arpa.piemonte.it/rischi_naturali/images/campanella-allerta-arancione.svg",
+  "campanella_ROSSO": "https://www.arpa.piemonte.it/rischi_naturali/images/campanella-allerta-rossa.svg",
+  "colore_allerta_VERDE_hex": "#6EBB00",
+  "colore_allerta_GIALLO_hex": "#FFFF00",
+  "colore_allerta_ARANCIONE_hex": "#FFA500",
+  "colore_allerta_ROSSO_hex": "#FF0000",
+  "colore_allerta_BIANCO_SOLO_VALANGHE_NON_VALUTATO_hex": "#ffffff",
+  "colore_fase_operativa_comunale_attuata_rgb": "255 255 255",
+  "legenda_VERDE": "Assenza di fenomeni significativi prevedibili",
+  "legenda_GIALLO": "Fenomeni localizzati",
+  "legenda_ARANCIONE": "Fenomeni diffusi",
+  "legenda_ROSSO": "Numerosi e/o estesi fenomeni",
+  "fase_operativa_comunale_legenda": [
+    {
+      "descrizione": "Nessuna Fase Operativa",
+      "colore_rgb": "255 255 255"
+    },
+    {
+      "descrizione": "Attenzione",
+      "colore_rgb": "199 255 240"
+    },
+    {
+      "descrizione": "Preallarme",
+      "colore_rgb": "204 153 255"
+    },
+    {
+      "descrizione": "Allarme",
+      "colore_rgb": "112 48 160"
+    }
+  ],
+  "link_al_servizio": "https://www.arpa.piemonte.it/rischi_naturali/snippets_arpa/allerta/",
+  "link_al_widget_arpa": "https://www.arpa.piemonte.it/rischi_naturali/snippets_arpa/widget_comune/",
+  "nota_implementazione_widget": "Si richiede di citare la fonte e di mantenere lo stesso layout del widget visibile al link link_al_widget_arpa a meno che non si usi solamente la campanella"
+}

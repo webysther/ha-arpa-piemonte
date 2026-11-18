@@ -10,19 +10,23 @@ newer reading than the one shown, and not more often than their pace.
 
 The pressure and the solar radiation only the website gives: as Meteo 3R never
 has them, it is asked for them at its pace.
+
+The natural risks of the municipality come from its widget on the Arpa
+website, asked by a coordinator of their own.
 """
 
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from functools import partial
 
-from aioarpapiemonte import ArpaPiemonteError, ParamSeries
+from aioarpapiemonte import ArpaPiemonteError, MunicipalityAlerts, ParamSeries
 from aiometeo3r import Meteo3rError
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -38,11 +42,14 @@ from .adapters import (
     thresholds_of_website,
 )
 from .const import (
+    CONF_MUNICIPALITY_CODE,
     DOMAIN,
     LOGGER,
     PRIMARY_STALE_AFTER,
     REALTIME_LAG,
     REALTIME_MIN_INTERVAL,
+    RISKS_UPDATE_INTERVAL,
+    ROME_TZ,
     UPDATE_INTERVAL,
     WEBSITE_LAG,
     WEBSITE_MIN_INTERVAL,
@@ -56,6 +63,7 @@ from .models import (
     StationSnapshot,
     Thresholds,
 )
+from .risks import italian_date
 from .selection import newest, select
 from .sources import ArpaSources
 
@@ -272,12 +280,84 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
         return SourceResult(from_realtime(data))
 
 
+class MunicipalityRisksCoordinator(DataUpdateCoordinator[MunicipalityAlerts]):
+    """Keep the natural risks of a municipality, from its widget on the Arpa website.
+
+    The widget answers ``304 Not Modified`` while it does not change, and the
+    alerts compare by value: an update without news writes nothing.
+    """
+
+    config_entry: ArpaPiemonteConfigEntry
+
+    def __init__(
+        self, hass: HomeAssistant, entry: ConfigEntry, sources: ArpaSources
+    ) -> None:
+        """Initialize the coordinator of the risks of the municipality of an entry."""
+        self.municipality_code: str = entry.data[CONF_MUNICIPALITY_CODE]
+        self._sources = sources
+        self._unsub_midnight: CALLBACK_TYPE | None = None
+        super().__init__(
+            hass,
+            LOGGER,
+            config_entry=entry,
+            name=f"{DOMAIN} {entry.title} risks",
+            update_interval=RISKS_UPDATE_INTERVAL,
+            always_update=False,
+        )
+
+    async def _async_update_data(self) -> MunicipalityAlerts:
+        """Return the alerts, the danger now and the phase of the municipality."""
+        try:
+            return await self._sources.arpa.get_municipality_alerts(
+                self.municipality_code
+            )
+        except ArpaPiemonteError as err:
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="risks_update_failed",
+                translation_placeholders={
+                    "municipality": self.config_entry.title,
+                    "error": str(err),
+                },
+            ) from err
+
+    @callback
+    def async_follow_the_days(self) -> None:
+        """Update the entities at the next midnight in Italy, then every midnight.
+
+        They show today and tomorrow: at midnight, tomorrow becomes today
+        without a new bulletin, and nothing else would update them.
+        """
+        tomorrow = italian_date(dt_util.utcnow()) + timedelta(days=1)
+        self._unsub_midnight = async_track_point_in_utc_time(
+            self.hass,
+            self._async_new_day,
+            datetime.combine(tomorrow, time(), tzinfo=ROME_TZ),
+        )
+
+    @callback
+    def _async_new_day(self, now: datetime) -> None:
+        """Show the risks of the new day, and wait for the next one."""
+        del now
+        self.async_follow_the_days()
+        self.async_update_listeners()
+
+    async def async_shutdown(self) -> None:
+        """Stop the updates, and the change of day."""
+        await super().async_shutdown()
+        if self._unsub_midnight is not None:
+            self._unsub_midnight()
+            self._unsub_midnight = None
+
+
 @dataclass(frozen=True, slots=True)
 class ArpaPiemonteData:
     """What the entry of a municipality keeps while it is loaded."""
 
     stations: Mapping[str, ArpaPiemonteCoordinator]
     """The coordinator of each station, by the ID of its subentry."""
+    risks: MunicipalityRisksCoordinator
+    """The coordinator of the natural risks of the municipality."""
 
 
 type ArpaPiemonteConfigEntry = ConfigEntry[ArpaPiemonteData]

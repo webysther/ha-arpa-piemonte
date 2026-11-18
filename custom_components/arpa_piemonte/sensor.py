@@ -1,15 +1,18 @@
-"""The sensors of a station.
+"""The sensors of a station, and of the natural risks of its municipality.
 
-Its readings, the level against its thresholds, and where the readings come
-from.
+Of a station: its readings, the level against its thresholds, and where the
+readings come from. Of the risks: the highest alert, the danger now, the
+operational phase, the level of each risk today and tomorrow, and the
+bulletin.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 
+from aioarpapiemonte import MunicipalityAlerts, RiskType
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -31,9 +34,22 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .coordinator import ArpaPiemonteConfigEntry, ArpaPiemonteCoordinator
-from .entity import ArpaPiemonteEntity
+from .coordinator import (
+    ArpaPiemonteConfigEntry,
+    ArpaPiemonteCoordinator,
+    MunicipalityRisksCoordinator,
+)
+from .entity import ArpaPiemonteEntity, MunicipalityRisksEntity
 from .models import LevelStatus, Quantity, Source, StationSnapshot, Thresholds
+from .risks import (
+    ALERT_LEVELS,
+    PHASES,
+    RISK_KEYS,
+    RiskDay,
+    highest_alert,
+    level_state,
+    phase_state,
+)
 
 # The coordinator updates the entities
 PARALLEL_UPDATES = 0
@@ -185,17 +201,83 @@ STATION_SENSORS: tuple[StationDescription, ...] = (
 )
 
 
+@dataclass(frozen=True, kw_only=True)
+class RiskSensorDescription(SensorEntityDescription):
+    """A sensor of the natural risks of a municipality."""
+
+    value_fn: Callable[[MunicipalityAlerts, date], str | datetime | None]
+    """Return the value, from the alerts and the date of today in Italy."""
+
+
+def _risk_level(risk: RiskType, day: RiskDay) -> RiskSensorDescription:
+    """Return the sensor of the level of a risk on a day: hydraulic_risk_level_today."""
+    return RiskSensorDescription(
+        key=f"{RISK_KEYS[risk]}_risk_level_{day}",
+        device_class=SensorDeviceClass.ENUM,
+        options=ALERT_LEVELS,
+        value_fn=lambda alerts, today: level_state(
+            alerts.level_on(risk, day.date(today))
+        ),
+    )
+
+
+RISK_SENSORS: tuple[RiskSensorDescription, ...] = (
+    RiskSensorDescription(
+        key="highest_alert",
+        device_class=SensorDeviceClass.ENUM,
+        options=ALERT_LEVELS,
+        value_fn=lambda alerts, today: level_state(highest_alert(alerts, today)),
+    ),
+    RiskSensorDescription(
+        key="current_danger",
+        device_class=SensorDeviceClass.ENUM,
+        options=ALERT_LEVELS,
+        value_fn=lambda alerts, _: level_state(alerts.current_danger),
+    ),
+    RiskSensorDescription(
+        key="operational_phase",
+        device_class=SensorDeviceClass.ENUM,
+        options=PHASES,
+        value_fn=lambda alerts, _: phase_state(alerts.phase),
+    ),
+    *(_risk_level(risk, day) for day in RiskDay for risk in RiskType),
+    RiskSensorDescription(
+        key="alert_zone",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        # "Piem-B"; "Piem-G, Piem-L" for a municipality in two zones, as Asti
+        value_fn=lambda alerts, _: ", ".join(alerts.zones) or None,
+    ),
+    RiskSensorDescription(
+        key="alert_bulletin",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda alerts, _: alerts.issued,
+    ),
+    RiskSensorDescription(
+        key="next_alert_bulletin",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda alerts, _: alerts.next_update,
+    ),
+)
+"""The sensors of the risks: the highest alert of today and tomorrow, the danger
+now, the operational phase, the level of each risk on each day, then the zone
+and the bulletin as diagnostics."""
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ArpaPiemonteConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the sensors of each station, in its subentry."""
+    """Set up the sensors of each station, in its subentry, and of the risks."""
     del hass
     for subentry_id, coordinator in entry.runtime_data.stations.items():
         async_add_entities(
             _station_sensors(coordinator), config_subentry_id=subentry_id
         )
+    risks = entry.runtime_data.risks
+    async_add_entities(RisksSensor(risks, description) for description in RISK_SENSORS)
 
 
 def _station_sensors(coordinator: ArpaPiemonteCoordinator) -> list[SensorEntity]:
@@ -264,3 +346,23 @@ class StationSensor(ArpaPiemonteEntity, SensorEntity):
     def native_value(self) -> str | float | datetime | None:
         """Return the value of the station."""
         return self.entity_description.value_fn(self.coordinator.data)
+
+
+class RisksSensor(MunicipalityRisksEntity, SensorEntity):
+    """A sensor of the natural risks of a municipality."""
+
+    entity_description: RiskSensorDescription
+
+    def __init__(
+        self,
+        coordinator: MunicipalityRisksCoordinator,
+        description: RiskSensorDescription,
+    ) -> None:
+        """Initialize a sensor of the risks."""
+        super().__init__(coordinator, Platform.SENSOR, description.key)
+        self.entity_description = description
+
+    @property
+    def native_value(self) -> str | datetime | None:
+        """Return the value, today in Italy."""
+        return self.entity_description.value_fn(self.coordinator.data, self.today)

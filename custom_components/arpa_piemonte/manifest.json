@@ -10,6 +10,6 @@
 	"iot_class": "cloud_polling",
 	"issue_tracker": "https://github.com/webysther/ha-arpa-piemonte/issues",
 	"loggers": ["aiometeo3r", "aioarpapiemonte"],
-	"requirements": ["aiometeo3r==0.1.0", "aioarpapiemonte==0.1.1"],
+	"requirements": ["aiometeo3r==0.1.0", "aioarpapiemonte==0.2.0"],
 	"version": "0.0.0"
 }

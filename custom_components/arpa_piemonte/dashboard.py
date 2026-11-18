@@ -1,9 +1,10 @@
 """The ARPA Piemonte dashboard and card, offered by the frontend of Home Assistant.
 
 The dashboard is a strategy (frontend/arpa-piemonte-dashboard.js): a script
-the frontend runs to build the dashboard from the entities of the stations,
-with native cards only. The card (frontend/arpa-piemonte-card.js) shows a
-station, with the helpers of the strategy. The integration serves both and
+the frontend runs to build the dashboard from the entities of the stations
+and of the risks of their municipalities, with native cards only. The card
+(frontend/arpa-piemonte-card.js) shows a station, with the helpers of the
+strategy. The integration serves both and
 has the frontend load them, so the dashboard can be added and the card is in
 the card picker as soon as the integration is installed.
 """

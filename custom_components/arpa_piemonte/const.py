@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 import logging
 from typing import Final
+from zoneinfo import ZoneInfo
 
 from homeassistant.const import Platform
 
@@ -43,6 +44,14 @@ Meteo 3R and the api_realtime give it: the widget of the municipality on the
 Arpa website uses the same code."""
 CONF_MUNICIPALITY: Final = "municipality"
 """The field of the config flow where the municipality is chosen or typed."""
+
+# Config entry options: the natural risks of the municipality
+CONF_WARNING_LEVEL: Final = "warning_level"
+"""The lowest level of a risk that turns its binary sensor on: "yellow",
+"orange" or "red", as the levels of aioarpapiemonte name them."""
+DEFAULT_WARNING_LEVEL: Final = "yellow"
+"""A risk is on from the yellow alert, the first alert of the bulletin, as in
+DPC."""
 
 # Config subentry data: a station of the municipality
 SUBENTRY_STATION: Final = "station"
@@ -116,3 +125,17 @@ slowest source gives normally (4 h 40 min, the api_realtime)."""
 
 MAX_CLOCK_SKEW: Final = timedelta(minutes=10)
 """A reading later than now by more than this is wrong, and not shown."""
+
+RISKS_UPDATE_INTERVAL: Final = timedelta(minutes=10)
+"""How often the widget of the municipality is asked for its natural risks.
+
+Arpa rebuilds the widget about every 10 minutes, and answers ``304 Not
+Modified`` when it did not change (measured on 2026-11-17 and 18). Its parts
+change less often: the alert bulletin once a day, around 12:00 to 13:00; the
+danger now every few hours (assessed at 06:50 and at 09:51 on 2026-11-18); the
+operational phase when the municipality declares one.
+"""
+
+ROME_TZ: Final = ZoneInfo("Europe/Rome")
+"""The time zone of the days of the alert bulletin: today and tomorrow are
+those of Italy, whatever the time zone of Home Assistant."""

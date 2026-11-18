@@ -3,12 +3,13 @@
 An entry is a municipality, and each of its stations is a subentry: the
 integration page groups the stations by municipality. A station is added by
 choosing its municipality, then the station when the municipality has
-several, or from the entry of its municipality.
+several, or from the entry of its municipality. The options of the entry
+choose the warning level of the risks of the municipality.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import replace
 from types import MappingProxyType
 from typing import Any
@@ -27,6 +28,7 @@ from homeassistant.config_entries import (
     ConfigSubentry,
     ConfigSubentryData,
     ConfigSubentryFlow,
+    OptionsFlow,
     SubentryFlowResult,
 )
 from homeassistant.core import HomeAssistant, callback
@@ -42,11 +44,13 @@ from .const import (
     CONF_MUNICIPALITY,
     CONF_MUNICIPALITY_CODE,
     CONF_STATION_CODE,
+    CONF_WARNING_LEVEL,
     DOMAIN,
     LOGGER,
     SUBENTRY_STATION,
 )
 from .models import StationConfig, municipality_unique_id
+from .risks import WARNING_LEVELS, warning_level
 from .sources import ArpaSources, async_get_sources
 
 
@@ -234,6 +238,23 @@ def station_schema(stations: Iterable[StationChoice]) -> vol.Schema:
     )
 
 
+def options_schema(options: Mapping[str, Any]) -> vol.Schema:
+    """Return the form of the options of a municipality: the warning level."""
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_WARNING_LEVEL, default=str(warning_level(options))
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=WARNING_LEVELS,
+                    translation_key=CONF_WARNING_LEVEL,
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            )
+        }
+    )
+
+
 def station_subentry_data(
     choice: StationChoice, station: StationConfig
 ) -> ConfigSubentryData:
@@ -265,6 +286,13 @@ class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
         """Return the subentries of a municipality: its stations."""
         del config_entry
         return {SUBENTRY_STATION: StationFlowHandler}
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> ArpaPiemonteOptionsFlow:
+        """Return the options of a municipality: the warning level of its risks."""
+        del config_entry
+        return ArpaPiemonteOptionsFlow()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -401,6 +429,27 @@ class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
             title=self._municipality.name,
             data={CONF_MUNICIPALITY_CODE: self._municipality.code},
             subentries=[subentry],
+        )
+
+
+class ArpaPiemonteOptionsFlow(OptionsFlow):
+    """Choose the warning level of the risks of a municipality.
+
+    The entry reloads with the new options, as when a station changes.
+    """
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Choose the level from which the binary sensor of a risk turns on."""
+        if user_input is not None:
+            return self.async_create_entry(
+                data={**self.config_entry.options, **user_input}
+            )
+        return self.async_show_form(
+            step_id="init",
+            data_schema=options_schema(self.config_entry.options),
+            description_placeholders={"municipality": self.config_entry.title},
         )
 
 

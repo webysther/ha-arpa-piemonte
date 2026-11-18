@@ -91,6 +91,58 @@ export const ENTRIES = [
   { entry_id: "baceno_entry", title: "Baceno", domain: "arpa_piemonte" },
 ];
 
+/** The risks of the alert bulletin, as the keys of their entities name them. */
+const RISKS = ["hydrogeological", "hydraulic", "thunderstorm", "snow", "avalanche"];
+
+/** The keys of the entities of the natural risks of a municipality, by domain. */
+export const RISK_ENTITIES = {
+  sensor: [
+    "highest_alert",
+    "current_danger",
+    "operational_phase",
+    ...["today", "tomorrow"].flatMap((day) => RISKS.map((risk) => `${risk}_risk_level_${day}`)),
+    "alert_zone",
+    "alert_bulletin",
+    "next_alert_bulletin",
+  ],
+  binary_sensor: ["today", "tomorrow"].flatMap((day) => RISKS.map((risk) => `${risk}_risk_${day}`)),
+};
+
+/** The devices of the natural risks, one per municipality, by their ID. */
+export const MUNICIPALITIES = {
+  pray_risks: { entry: "pray_entry", code: "096050", title: "Pray" },
+  vinadio_risks: { entry: "vinadio_entry", code: "004248", title: "Vinadio" },
+  baceno_risks: { entry: "baceno_entry", code: "103006", title: "Baceno" },
+};
+
+/** Return the entity ID of an entity of the risks of a municipality, as the integration suggests it. */
+export function riskEntityId(device, domain, key) {
+  return `${domain}.arpa_piemonte_${MUNICIPALITIES[device].title.toLowerCase()}_${key}`;
+}
+
+/** Return the device of the risks of a municipality. */
+export function risksDevice(device) {
+  const { code, title, entry } = MUNICIPALITIES[device];
+  return {
+    id: device,
+    name: `${title} · Natural risks`,
+    identifiers: [["arpa_piemonte", `ISTAT_${code}`]],
+    config_entries: [entry],
+  };
+}
+
+/** Return the registry entries of the entities of the risks of a municipality. */
+export function riskEntities(device) {
+  return Object.entries(RISK_ENTITIES).flatMap(([domain, keys]) =>
+    keys.map((key) => ({
+      entity_id: riskEntityId(device, domain, key),
+      platform: "arpa_piemonte",
+      device_id: device,
+      translation_key: key,
+    })),
+  );
+}
+
 /** Return the entity ID of an entity of a station, as the integration suggests it. */
 export function entityId(station, domain, key) {
   const slug = STATIONS[station].name.toLowerCase().replaceAll(" ", "_");
@@ -142,6 +194,23 @@ export const STATES = {
   [entityId("devero", "sensor", "guard_threshold")]: "unknown",
   [entityId("devero", "sensor", "danger_threshold")]: "unknown",
   [entityId("colle", "sensor", "data_source")]: "arpa_realtime",
+  // The bulletin of the day before covers today; tomorrow, not yet
+  [riskEntityId("pray_risks", "sensor", "highest_alert")]: "orange",
+  [riskEntityId("pray_risks", "sensor", "current_danger")]: "yellow",
+  [riskEntityId("pray_risks", "sensor", "operational_phase")]: "attention",
+  [riskEntityId("pray_risks", "sensor", "hydrogeological_risk_level_today")]: "green",
+  [riskEntityId("pray_risks", "sensor", "hydraulic_risk_level_today")]: "orange",
+  [riskEntityId("pray_risks", "sensor", "thunderstorm_risk_level_today")]: "yellow",
+  [riskEntityId("pray_risks", "sensor", "snow_risk_level_today")]: "green",
+  [riskEntityId("pray_risks", "sensor", "avalanche_risk_level_today")]: "not_evaluated",
+  ...Object.fromEntries(
+    RISKS.map((risk) => [
+      riskEntityId("pray_risks", "sensor", `${risk}_risk_level_tomorrow`),
+      "unknown",
+    ]),
+  ),
+  [riskEntityId("pray_risks", "sensor", "alert_zone")]: "Piem-B",
+  [riskEntityId("pray_risks", "sensor", "alert_bulletin")]: "2026-11-16T10:57:30+00:00",
 };
 
 /** Return states, as Home Assistant has them. */
@@ -151,8 +220,8 @@ export const statesOf = (states) =>
   );
 
 /**
- * Return a Home Assistant with the four stations, whose websocket gives the
- * municipalities.
+ * Return a Home Assistant with the four stations and the risks of their three
+ * municipalities, whose websocket gives the municipalities.
  */
 export function homeAssistant({
   version = "2026.11.0",
@@ -163,6 +232,7 @@ export function homeAssistant({
 } = {}) {
   const all = [
     ...Object.keys(STATIONS).flatMap(stationEntities),
+    ...Object.keys(MUNICIPALITIES).flatMap(riskEntities),
     // Another integration on the same device is not shown
     { entity_id: "sensor.other", platform: "other", device_id: "pray" },
     ...entities,
@@ -170,9 +240,10 @@ export function homeAssistant({
   return {
     config: { version },
     locale: { language },
-    devices: Object.fromEntries(
-      Object.keys(STATIONS).map((station) => [station, stationDevice(station)]),
-    ),
+    devices: Object.fromEntries([
+      ...Object.keys(STATIONS).map((station) => [station, stationDevice(station)]),
+      ...Object.keys(MUNICIPALITIES).map((device) => [device, risksDevice(device)]),
+    ]),
     entities: Object.fromEntries(all.map((entry) => [entry.entity_id, entry])),
     states: statesOf({ ...STATES, ...states }),
     callWS: async (message) => {

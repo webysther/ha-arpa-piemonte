@@ -4,13 +4,14 @@
 # and its version comes from the git tag of each release (see release.sh).
 name = "ha-arpa-piemonte"
 version = "0.0.0"
-description = "River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte in Home Assistant"
+description = "River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte, and the natural risks of their municipalities, in Home Assistant"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.md"]
 authors = [{ name = "Webysther Sperandio" }]
 requires-python = ">=3.13"
 keywords = [
+  "allerta",
   "arpa piemonte",
   "home assistant",
   "hydrometer",
@@ -18,6 +19,7 @@ keywords = [
   "italy",
   "marketplace",
   "meteo 3r",
+  "natural risks",
   "piemonte",
   "river level",
 ]

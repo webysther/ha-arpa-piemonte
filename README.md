@@ -7,7 +7,7 @@
 
 <h1 align="center">ARPA Piemonte</h1>
 
-<p align="center">River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte in Home Assistant</p>
+<p align="center">River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte, and the natural risks of their municipalities, in Home Assistant</p>
 
 <p align="center">
   <a href="https://github.com/webysther/ha-arpa-piemonte/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/webysther/ha-arpa-piemonte?label=release&color=41BDF5"></a>
@@ -19,7 +19,9 @@
 The readings of the stations of [Arpa Piemonte](https://www.arpa.piemonte.it)
 in Home Assistant: **river levels**, with the alert thresholds of each
 hydrometer, **rain**, temperature, humidity, wind and snow, for any of the 374
-stations of the Piedmont network.
+stations of the Piedmont network; and the **natural risks** of their
+municipalities: the alerts of the bulletin today and tomorrow, the danger now
+and the operational phase.
 
 > Not an official app of Arpa Piemonte, and not endorsed by it. The data is
 > validated automatically only. Do not rely on it for safety: for alerts,
@@ -44,14 +46,25 @@ stations of the Piedmont network.
   the rain of each hour with its total, temperature, humidity, snow, wind,
   pressure and solar radiation. The integration draws them from the readings
   it already has.
-- A [dashboard](#dashboard): a tab per municipality, a section per station,
-  with the level in the colors of the alert maps and a gauge with its
-  thresholds; and a [card](#card) of a station, in the card picker.
+- The natural risks of each municipality, on a device of their own, as the
+  widget of the municipality on the Arpa website gives them: the level of each
+  risk of the alert bulletin (hydrogeological, hydraulic, thunderstorms, snow,
+  avalanches) today and tomorrow, each with a safety binary sensor on from the
+  warning level you choose; the highest alert; the danger now, from the rain
+  and the rivers measured; and the operational phase the municipality
+  declared.
+- A [dashboard](#dashboard): a tab per municipality, with its risks at the top
+  and a section per station, the level in the colors of the alert maps and a
+  gauge with its thresholds; and a [card](#card) of a station, in the card
+  picker.
 
 ## Use cases
 
 - Be warned when the river near home reaches the pre-alarm threshold, before
   the official bulletins.
+- Be warned in the afternoon when the bulletin puts your municipality in an
+  orange alert tomorrow, or when the municipality declares an operational
+  phase.
 - Follow the rain of the last 24 hours upstream of a river.
 - Close the shutters when the wind gusts, cover the plants when it freezes.
 
@@ -85,14 +98,20 @@ To read the sensors and thresholds of a station again from Arpa Piemonte,
 choose **Read the station again** on the station. **Reconfigure** on the
 entry of a municipality reads all its stations again.
 
-The integration has no options.
+### Options
+
+**Configure** on the entry of a municipality:
+
+| Option | What it does |
+| --- | --- |
+| Minimum level of warning | The binary sensor of each risk, today and tomorrow, turns on from this level of the bulletin: yellow (the default), orange or red. |
 
 ## Removal
 
 **Settings → Devices & services → ARPA Piemonte**: **Delete** in the three
 dots of a station removes it; in those of a municipality, it removes the
-municipality with its stations. To remove the integration, delete every
-municipality, then uninstall it from the Marketplace.
+municipality with its stations and its risks. To remove the integration,
+delete every municipality, then uninstall it from the Marketplace.
 
 ## How the data is updated
 
@@ -112,6 +131,15 @@ Each sensor shows the newest reading of all the sources; on the same time,
 Meteo 3R. A reading older than 6 hours is not shown: the sensor becomes
 unavailable. **Data source** says where the readings Meteo 3R can give come
 from; the pressure and the solar radiation always come from the website.
+
+The natural risks come from the widget of the municipality on the Arpa
+website, asked every 10 minutes, most of the time without a download: Arpa
+rebuilds it about every 10 minutes, but its parts change less often. The
+alert bulletin is issued once a day, around 13:00, for that day and the next;
+the danger now is assessed every few hours from the rain and the river levels
+of the last 24 hours; the operational phase changes when the municipality
+declares one. Today and tomorrow are the days in Italy: at midnight, tomorrow
+becomes today, and the new tomorrow is unknown until the next bulletin.
 
 ## Known limitations
 
@@ -138,6 +166,11 @@ from; the pressure and the solar radiation always come from the website.
   dashboard**: add it with its YAML (see [Dashboard](#dashboard)).
 - The dashboard reads the thresholds when it opens: the gauge of a station
   that had not answered yet appears after reloading the page.
+- Every morning, the risks of tomorrow are unknown until the bulletin of the
+  day, around 13:00, and the dashboard hides them.
+- The risks are those the widget gives the municipality, from the alert
+  zones it lies in: most are in one, a few in two (Asti, Piem-G and Piem-L).
+  The avalanches are not evaluated out of season.
 
 ## Troubleshooting
 
@@ -149,6 +182,9 @@ from; the pressure and the solar radiation always come from the website.
   goes back to it as soon as it does.
 - **The station cannot be added**: Arpa Piemonte did not answer; try again
   later.
+- **The risks are unavailable**: the widget of the municipality did not
+  answer; the integration asks again every 10 minutes. The device of the risks
+  links to the page of the widget on the Arpa website.
 - Otherwise, download the diagnostics (the three dots of the municipality on
   the page of the integration, or the page of the device of the station) and
   open an
@@ -180,6 +216,24 @@ Of each station, those of its sensors:
 The entity IDs are in English: `sensor.arpa_piemonte_pray_sessera_level`,
 `binary_sensor.arpa_piemonte_pray_sessera_flood_risk`,
 `image.arpa_piemonte_pray_sessera_level_chart`.
+
+Of each municipality, its natural risks, on the device **Pray · Natural
+risks**:
+
+| Entity | States |
+| --- | --- |
+| Highest alert, of today and tomorrow | not evaluated, no alert (green), yellow, orange or red alert |
+| Current danger, from the rain and the rivers measured | not evaluated, green, yellow, orange, red |
+| Operational phase of the municipality | no operational phase, attention, pre-alarm, alarm |
+| Hydrogeological, hydraulic, thunderstorm, snow and avalanche risk level, today and tomorrow | as the highest alert |
+| Hydrogeological, hydraulic, thunderstorm, snow and avalanche risk, today and tomorrow (safety) | on from the minimum level of warning |
+| Alert zone (diagnostic) | the zone of the bulletin: `Piem-B` |
+| Alert bulletin, next alert bulletin (diagnostic) | when it was issued, when the next one is due |
+
+Their entity IDs: `sensor.arpa_piemonte_pray_highest_alert`,
+`sensor.arpa_piemonte_pray_hydraulic_risk_level_tomorrow`,
+`binary_sensor.arpa_piemonte_pray_hydraulic_risk_tomorrow`. A risk of a day
+the bulletin does not cover yet is unknown: tomorrow, in the morning.
 
 The state of a chart is the time of its newest reading. The charts carry no
 words, only units and values: the dashed lines of the level are the
@@ -215,6 +269,27 @@ automation:
             {{ states('sensor.arpa_piemonte_pray_sessera_level_status') }}
 ```
 
+Be warned of an alert tomorrow, as soon as the bulletin is issued:
+
+```yaml
+automation:
+  - alias: "Alert tomorrow in Pray"
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.arpa_piemonte_pray_hydrogeological_risk_tomorrow
+          - binary_sensor.arpa_piemonte_pray_hydraulic_risk_tomorrow
+          - binary_sensor.arpa_piemonte_pray_thunderstorm_risk_tomorrow
+          - binary_sensor.arpa_piemonte_pray_snow_risk_tomorrow
+          - binary_sensor.arpa_piemonte_pray_avalanche_risk_tomorrow
+        to: "on"
+    actions:
+      - action: notify.notify
+        data:
+          title: "Pray: alert tomorrow"
+          message: "{{ trigger.to_state.name }}"
+```
+
 Be warned when the river rises fast:
 
 ```yaml
@@ -234,7 +309,13 @@ automation:
 
 The integration comes with a dashboard made of the cards of Home Assistant,
 with the names of the entities in the language of each user. It has a tab for
-each municipality and a section for each station, the hydrometers first:
+each municipality, whose first section is its **natural risks**: the alert
+zone and the time of the bulletin, the highest alert and the danger now in the
+colors of the alert maps, the operational phase in the colors of the widget of
+Arpa, and the level of each risk today and tomorrow. Tomorrow appears with the
+bulletin of the day.
+
+Then a section for each station, the hydrometers first:
 
 - **The heading**: the name of the station, its flood risk in the color of its
   level, the time of its last measurement and, while it is not Meteo 3R, the
@@ -324,7 +405,8 @@ The data is by **Arpa Piemonte**, under the
 [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 license ([legal notes](https://www.arpa.piemonte.it/note-legali)): "Fonte: Arpa
 Piemonte - www.arpa.piemonte.it". Every entity carries this attribution, and
-each device links to the page of its station.
+each device links to the page of its station, or for the natural risks, to the
+page of the widget of the municipality, where Arpa shows them.
 
 The integration reads Meteo 3R with
 [aiometeo3r](https://github.com/webysther/aio-meteo3r) and the official

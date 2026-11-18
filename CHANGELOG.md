@@ -33,6 +33,18 @@ All notable changes to ARPA Piemonte are documented here. The format follows
   website, the only source of them, read every 20 minutes. The barometers and
   radiometers are those the website lists when the station is added: **Read
   the station again** on a station added before finds them.
+- **Natural risks** of each municipality, on a device of their own, from the
+  widget of the municipality on the Arpa website: the level of each risk of
+  the alert bulletin (hydrogeological, hydraulic, thunderstorms, snow and
+  avalanches) today and tomorrow in Italy, each with a safety binary sensor;
+  the highest alert of the two days; the danger now; the operational phase the
+  municipality declared; and, as diagnostics, the alert zone and when the
+  bulletin was issued and the next one is due. Tomorrow is known from the
+  bulletin of the day, around 13:00.
+- **Configure** on a municipality chooses the minimum level of warning of its
+  risks: yellow (the default), orange or red.
+- The dashboard shows the natural risks of each municipality at the top of its
+  tab, in the colors of the alert maps.
 
 ### Changed
 

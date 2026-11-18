@@ -5,10 +5,11 @@ from __future__ import annotations
 from http import HTTPStatus
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 from aioarpapiemonte import Param
-from aioarpapiemonte.urls import data_pie_url, series_url
+from aioarpapiemonte.urls import data_pie_url, municipality_alerts_url, series_url
 from aiometeo3r import Host
 from aiometeo3r.urls import station_path
 from homeassistant.config_entries import ConfigSubentryData
@@ -40,6 +41,12 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 The newest readings: Meteo 3R and the Arpa website at 02:00 UTC, the
 api_realtime at 23:00 UTC of the day before.
+
+The widgets of the municipalities, downloaded on 2026-11-18 at about 06:04 UTC
+(copies of those of the tests of aioarpapiemonte): Pray (``widget_096050.json``)
+and Asti, in two alert zones (``widget_005005.json``). Their bulletin was
+issued on 2026-11-17 at 11:57: its days are 2026-11-17 and 18, all green but
+the avalanches, not evaluated.
 """
 
 NOW = "2026-11-17 02:40:00+00:00"
@@ -98,6 +105,9 @@ RAIN_URL = series_url(Param.RAIN_10_MIN, PRAY_SENSOR)
 REALTIME_URL = data_pie_url(PRAY)
 PRESSURE_URL = series_url(Param.PRESSURE, AVIGLIANA_SENSOR)
 RADIATION_URL = series_url(Param.RADIATION, AVIGLIANA_SENSOR)
+WIDGET_URL = municipality_alerts_url(PRAY_MUNICIPALITY)
+WIDGETS = re.compile(r"/rischi_naturali/widget/comuni/\d{6}/index\.json$")
+"""The widget of any municipality: each entry asks for its own as it is set up."""
 
 
 def fixture_text(name: str) -> str:
@@ -170,9 +180,25 @@ def serve_avigliana(
             aioclient_mock.get(url, status=status)
 
 
+def serve_widget(
+    aioclient_mock: AiohttpClientMocker,
+    widget: dict[str, Any] | HTTPStatus,
+    headers: dict[str, str] | None = None,
+) -> None:
+    """Serve a widget for every municipality; an error status for all of them."""
+    if isinstance(widget, HTTPStatus):
+        aioclient_mock.get(WIDGETS, status=widget, headers=headers)
+    else:
+        aioclient_mock.get(WIDGETS, text=json.dumps(widget), headers=headers)
+
+
 def requested(aioclient_mock: AiohttpClientMocker) -> list[str]:
-    """Return the URLs requested, in order."""
-    return [str(url) for _, url, _, _ in aioclient_mock.mock_calls]
+    """Return the URLs of the stations requested, in order: not the widgets."""
+    return [
+        str(url)
+        for _, url, _, _ in aioclient_mock.mock_calls
+        if not WIDGETS.search(str(url))
+    ]
 
 
 def station_subentry(
@@ -188,9 +214,12 @@ def station_subentry(
 
 
 def municipality_entry(
-    code: str, title: str, *stations: ConfigSubentryData
+    code: str,
+    title: str,
+    *stations: ConfigSubentryData,
+    options: dict[str, Any] | None = None,
 ) -> MockConfigEntry:
-    """Return the entry of a municipality with its stations."""
+    """Return the entry of a municipality with its stations, and its options."""
     return MockConfigEntry(
         domain=DOMAIN,
         title=title,
@@ -198,6 +227,7 @@ def municipality_entry(
         minor_version=1,
         unique_id=municipality_unique_id(code),
         data={CONF_MUNICIPALITY_CODE: code},
+        options=options or {},
         subentries_data=stations,
     )
 

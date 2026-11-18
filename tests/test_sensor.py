@@ -11,7 +11,7 @@ from homeassistant.const import (
     ATTR_UNIT_OF_MEASUREMENT,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
@@ -27,6 +27,7 @@ from custom_components.arpa_piemonte.const import (
 )
 
 from . import (
+    device_of,
     entity_id_of,
     fixture_text,
     municipality_entry,
@@ -82,13 +83,10 @@ async def test_sensors_of_a_hydrometer(
 
 async def test_device(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test the device of the station, in its subentry, linked to its page."""
-    devices = dr.async_entries_for_config_entry(
-        dr.async_get(hass), init_integration.entry_id
-    )
+    device = device_of(hass, init_integration.entry_id)
     (subentry_id,) = init_integration.subentries
 
-    assert len(devices) == 1
-    device = devices[0]
+    assert device is not None
     assert subentry_of_device(device) == subentry_id
     assert device.identifiers == {(DOMAIN, "PIE_188")}
     assert device.name == "Pray Sessera"
@@ -96,9 +94,7 @@ async def test_device(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     assert device.model_id == "188"
     assert device.configuration_url is not None
     assert device.configuration_url.endswith("?id=002105900&param=idro")
-    entities = er.async_entries_for_config_entry(
-        er.async_get(hass), init_integration.entry_id
-    )
+    entities = er.async_entries_for_device(er.async_get(hass), device.id)
     assert len(entities) == 15
     assert {entity.config_subentry_id for entity in entities} == {subentry_id}
 
@@ -145,5 +141,6 @@ async def test_sensors_of_a_weather_station(
         )
         is None
     )
-    (device,) = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
+    device = device_of(hass, entry.entry_id, COLLE_LOMBARDA_ID)
+    assert device is not None
     assert device.configuration_url is None

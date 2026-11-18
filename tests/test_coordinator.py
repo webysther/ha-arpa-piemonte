@@ -102,6 +102,8 @@ async def test_unchanged_file_writes_nothing(
     await setup_integration(hass, mock_config_entry)
     before = hass.states.get(entity_id_of(hass, "level"))
     assert before is not None
+    # Home Assistant updates the time of the state it has, when written again
+    reported = before.last_reported
 
     aioclient_mock.clear_requests()
     serve_meteo3r(
@@ -112,7 +114,7 @@ async def test_unchanged_file_writes_nothing(
 
     after = hass.states.get(entity_id_of(hass, "level"))
     assert after is not None
-    assert after.last_reported == before.last_reported
+    assert after.last_reported == reported
     assert aioclient_mock.mock_calls[0][3]["If-None-Match"] == ETAG
 
 

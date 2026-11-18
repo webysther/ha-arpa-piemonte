@@ -10,9 +10,9 @@
  * configuration of a dashboard. The integration serves this file and has the frontend load it
  * (custom_components/arpa_piemonte/dashboard.py).
  *
- * A tab per municipality, a section per station. The entities are found by
- * their translation key and the device of their station, never by their
- * entity ID, which users can rename.
+ * A tab per municipality: the section of its natural risks at the top, then a
+ * section per station. The entities are found by their translation key and
+ * their device, never by their entity ID, which users can rename.
  */
 
 /**
@@ -23,7 +23,7 @@
  * @property {string | null} [translation_key]
  * @property {boolean} [hidden]
  *
- * @typedef {object} DeviceEntry The registry entry of a device: a station.
+ * @typedef {object} DeviceEntry The registry entry of a device: a station, or the risks of a municipality.
  * @property {string} id
  * @property {string | null} [name]
  * @property {string | null} [name_by_user]
@@ -65,11 +65,20 @@ export const STRATEGY = "arpa-piemonte";
 /** The prefix of the identifier of the device of a station: "PIE_188". */
 export const STATION_PREFIX = "PIE_";
 
+/**
+ * The prefix of the identifier of the device of the risks of a municipality,
+ * its ISTAT code: "ISTAT_096050".
+ */
+export const RISKS_PREFIX = "ISTAT_";
+
 /** The icon of the dashboard, and of a station with a hydrometer. */
 export const ICON = "mdi:waves-arrow-up";
 
 /** The icon of a station without hydrometer. */
 export const WEATHER_ICON = "mdi:weather-partly-rainy";
+
+/** The icon of the natural risks of a municipality. */
+export const RISKS_ICON = "mdi:shield-alert";
 
 /** The colors of the levels, as on the alert maps: normal, then each threshold. */
 const LEVEL_COLORS = ["#90c985", "#f8f865", "#f0bf01", "#fd6767"];
@@ -78,6 +87,26 @@ const LEVEL_COLORS = ["#90c985", "#f8f865", "#f0bf01", "#fd6767"];
 export const LEVEL_STATUS_COLORS = Object.fromEntries(
   ["normal", "pre_alarm", "guard", "danger"].map((status, index) => [status, LEVEL_COLORS[index]]),
 );
+
+/**
+ * Color of each level of the alert bulletin and of the danger now, as on the
+ * alert maps; not evaluated (white on the maps), without color.
+ */
+export const ALERT_COLORS = Object.fromEntries(
+  ["green", "yellow", "orange", "red"].map((level, index) => [level, LEVEL_COLORS[index]]),
+);
+
+/**
+ * Color of each operational phase of a municipality, as the legend of the
+ * widget of Arpa; none (white in the legend), without color.
+ */
+export const PHASE_COLORS = { attention: "#c7fff0", pre_alarm: "#cc99ff", alarm: "#7030a0" };
+
+/** The risks of the alert bulletin, by the key of their entities, in the order of the widget. */
+export const RISKS = ["hydrogeological", "hydraulic", "thunderstorm", "snow", "avalanche"];
+
+/** The days of the risks, as the keys of their entities end. */
+export const DAYS = ["today", "tomorrow"];
 
 /** The sensors of the thresholds of a hydrometer, from the lowest, and the color above each. */
 export const THRESHOLD_COLORS = {
@@ -139,7 +168,7 @@ const TEXTS = {
   en: {
     integration_name: "ARPA Piemonte",
     description:
-      "River levels, rain, temperature, wind and snow of your stations of Arpa Piemonte.",
+      "River levels, rain, temperature, wind and snow of your stations of Arpa Piemonte, and the natural risks of their municipalities.",
     no_stations: "Add a station of the ARPA Piemonte integration to see its readings here.",
     station: "Station",
     heading: "Heading",
@@ -148,11 +177,19 @@ const TEXTS = {
     readings: "Readings",
     charts: "Charts",
     columns: "Columns",
+    natural_risks: "Natural risks",
+    today: "Today",
+    tomorrow: "Tomorrow",
+    hydrogeological: "Hydrogeological",
+    hydraulic: "Hydraulic",
+    thunderstorm: "Thunderstorms",
+    snow: "Snow",
+    avalanche: "Avalanches",
   },
   it: {
     integration_name: "ARPA Piemonte",
     description:
-      "Livelli dei fiumi, pioggia, temperatura, vento e neve delle tue stazioni di Arpa Piemonte.",
+      "Livelli dei fiumi, pioggia, temperatura, vento e neve delle tue stazioni di Arpa Piemonte, e i rischi naturali dei loro comuni.",
     no_stations: "Aggiungi una stazione dell'integrazione ARPA Piemonte per vederne qui le misure.",
     station: "Stazione",
     heading: "Intestazione",
@@ -161,11 +198,19 @@ const TEXTS = {
     readings: "Misure",
     charts: "Grafici",
     columns: "Colonne",
+    natural_risks: "Rischi naturali",
+    today: "Oggi",
+    tomorrow: "Domani",
+    hydrogeological: "Idrogeologico",
+    hydraulic: "Idraulico",
+    thunderstorm: "Temporali",
+    snow: "Neve",
+    avalanche: "Valanghe",
   },
   "pt-BR": {
     integration_name: "ARPA Piemonte",
     description:
-      "Nível dos rios, chuva, temperatura, vento e neve das suas estações da Arpa Piemonte.",
+      "Nível dos rios, chuva, temperatura, vento e neve das suas estações da Arpa Piemonte, e os riscos naturais dos municípios delas.",
     no_stations: "Adicione uma estação da integração ARPA Piemonte para ver as medições dela aqui.",
     station: "Estação",
     heading: "Cabeçalho",
@@ -174,6 +219,14 @@ const TEXTS = {
     readings: "Medições",
     charts: "Gráficos",
     columns: "Colunas",
+    natural_risks: "Riscos naturais",
+    today: "Hoje",
+    tomorrow: "Amanhã",
+    hydrogeological: "Hidrogeológico",
+    hydraulic: "Hidráulico",
+    thunderstorm: "Tempestades",
+    snow: "Neve",
+    avalanche: "Avalanches",
   },
 };
 
@@ -275,8 +328,20 @@ export function stationCode(device) {
   return undefined;
 }
 
-/** A station: its device and its entities, by domain and translation key. */
-export class Station {
+/**
+ * Return whether a device is that of the risks of a municipality: its
+ * identifier is ["arpa_piemonte", "ISTAT_096050"].
+ *
+ * @param {DeviceEntry} device
+ */
+export function isRisksDevice(device) {
+  return (device.identifiers ?? []).some(
+    ([domain, id]) => domain === PLATFORM && String(id).startsWith(RISKS_PREFIX),
+  );
+}
+
+/** A device of the integration: its entities, by domain and translation key. */
+class Device {
   /**
    * @param {DeviceEntry} device
    * @param {EntityEntry[]} entities
@@ -286,28 +351,13 @@ export class Station {
     this.entries = entities;
   }
 
-  /** The name of the station, as the user sees its device. */
-  get name() {
-    return this.device.name_by_user || this.device.name || this.code;
-  }
-
-  /** The code of the station in the network: "188". */
-  get code() {
-    return stationCode(this.device) ?? this.device.id;
-  }
-
   /** The entry of its municipality. */
   get municipality() {
     return this.device.config_entries?.[0];
   }
 
-  /** Whether the station measures a water level. */
-  get isHydrometer() {
-    return this.entity("sensor", "level") !== undefined;
-  }
-
   /**
-   * Return the entity ID of an entity of the station, if it is enabled.
+   * Return the entity ID of an entity of the device, if it is enabled.
    *
    * @param {string} domain e.g. "sensor"
    * @param {string} translationKey e.g. "level"
@@ -320,6 +370,53 @@ export class Station {
   }
 }
 
+/** A station: its device and its entities, by domain and translation key. */
+export class Station extends Device {
+  /** The name of the station, as the user sees its device. */
+  get name() {
+    return this.device.name_by_user || this.device.name || this.code;
+  }
+
+  /** The code of the station in the network: "188". */
+  get code() {
+    return stationCode(this.device) ?? this.device.id;
+  }
+
+  /** Whether the station measures a water level. */
+  get isHydrometer() {
+    return this.entity("sensor", "level") !== undefined;
+  }
+}
+
+/** The natural risks of a municipality: their device and their entities. */
+export class Risks extends Device {
+  /** The name of the device, as the user sees it: "Pray · Natural risks". */
+  get name() {
+    return this.device.name_by_user || this.device.name || this.device.id;
+  }
+}
+
+/**
+ * Return the visible entities of the integration on the devices a test
+ * accepts, by device.
+ *
+ * @param {Hass} hass
+ * @param {(device: DeviceEntry) => boolean} accepts
+ * @returns {Array<[DeviceEntry, EntityEntry[]]>}
+ */
+function entitiesByDevice(hass, accepts) {
+  /** @type {Map<string, EntityEntry[]>} */
+  const byDevice = new Map();
+  for (const entry of Object.values(hass.entities)) {
+    const device = entry.device_id ? hass.devices[entry.device_id] : undefined;
+    if (entry.platform !== PLATFORM || !device || entry.hidden || !accepts(device)) {
+      continue;
+    }
+    byDevice.set(device.id, [...(byDevice.get(device.id) ?? []), entry]);
+  }
+  return [...byDevice].map(([deviceId, entities]) => [hass.devices[deviceId], entities]);
+}
+
 /**
  * Return the stations, from the devices of the visible entities of the
  * integration: those with a hydrometer first, then by name.
@@ -328,22 +425,24 @@ export class Station {
  * @returns {Station[]}
  */
 export function findStations(hass) {
-  /** @type {Map<string, EntityEntry[]>} */
-  const entitiesByDevice = new Map();
-  for (const entry of Object.values(hass.entities)) {
-    const device = entry.device_id ? hass.devices[entry.device_id] : undefined;
-    if (entry.platform !== PLATFORM || !device || entry.hidden || !stationCode(device)) {
-      continue;
-    }
-    const entities = entitiesByDevice.get(device.id) ?? [];
-    entities.push(entry);
-    entitiesByDevice.set(device.id, entities);
-  }
-  return [...entitiesByDevice]
-    .map(([deviceId, entities]) => new Station(hass.devices[deviceId], entities))
+  return entitiesByDevice(hass, (device) => stationCode(device) !== undefined)
+    .map(([device, entities]) => new Station(device, entities))
     .sort(
       (a, b) => Number(b.isHydrometer) - Number(a.isHydrometer) || a.name.localeCompare(b.name),
     );
+}
+
+/**
+ * Return the risks of the municipalities, from the devices of the visible
+ * entities of the integration.
+ *
+ * @param {Hass} hass
+ * @returns {Risks[]}
+ */
+export function findRisks(hass) {
+  return entitiesByDevice(hass, isRisksDevice).map(
+    ([device, entities]) => new Risks(device, entities),
+  );
 }
 
 /**
@@ -441,16 +540,17 @@ export function levelGauge(hass, station) {
 /**
  * Return the variants of a card, one per state of an entity, each in the color
  * of its state and visible only in that state; and the card without color for
- * any other state, as without data.
+ * any other state, as without data, but those it hides.
  *
  * Cards have a fixed color: the variants give them the color of the state.
  *
  * @param {Card} card
  * @param {string} entity The entity whose state gives the color.
  * @param {Record<string, string>} colors The color of each state.
+ * @param {string[]} [hidden] The states in which the card is not shown.
  * @returns {Card[]}
  */
-export function colorByState(card, entity, colors) {
+export function colorByState(card, entity, colors, hidden = []) {
   const states = Object.keys(colors);
   return [
     ...states.map((state) => ({
@@ -458,7 +558,7 @@ export function colorByState(card, entity, colors) {
       color: colors[state],
       visibility: [{ condition: "state", entity, state }],
     })),
-    { ...card, visibility: [{ condition: "state", entity, state_not: states }] },
+    { ...card, visibility: [{ condition: "state", entity, state_not: [...states, ...hidden] }] },
   ];
 }
 
@@ -564,17 +664,116 @@ export function stationSection(hass, station) {
   };
 }
 
+/** The state of a level of a risk until the bulletin covers its day: tomorrow, in the morning. */
+const NOT_COVERED = "unknown";
+
 /**
- * Return the view of the stations of a municipality: a section for each.
+ * Return the cards of the risks of a day: its name, and the level of each risk
+ * in the colors of the alert maps, named after the risk. Shown while the
+ * bulletin covers the day: tomorrow, from the bulletin of the day, around
+ * 13:00.
+ *
+ * @param {Hass} hass
+ * @param {Risks} risks
+ * @param {string} day e.g. "tomorrow"
+ * @returns {Card[]}
+ */
+export function riskDayCards(hass, risks, day) {
+  const texts = /** @type {Record<string, string>} */ (textsOf(hass));
+  const levels = RISKS.flatMap((risk) => {
+    const entity = risks.entity("sensor", `${risk}_risk_level_${day}`);
+    return entity ? [{ risk, entity }] : [];
+  });
+  if (!levels.length) {
+    return [];
+  }
+  return [
+    {
+      type: "heading",
+      heading: texts[day],
+      heading_style: "subtitle",
+      visibility: [
+        {
+          condition: "or",
+          conditions: levels.map(({ entity }) => ({
+            condition: "state",
+            entity,
+            state_not: [NOT_COVERED],
+          })),
+        },
+      ],
+    },
+    ...levels.flatMap(({ risk, entity }) =>
+      colorByState(
+        tile(hass, entity, { name: texts[risk], grid_options: { columns: 6 } }),
+        entity,
+        ALERT_COLORS,
+        [NOT_COVERED],
+      ),
+    ),
+  ];
+}
+
+/**
+ * Return the section of the natural risks of a municipality: their heading,
+ * with the alert zone and the time of the bulletin; the highest alert of
+ * today and tomorrow, the danger now and the operational phase, in the colors
+ * of Arpa; then the level of each risk, today and tomorrow.
+ *
+ * @param {Hass} hass
+ * @param {Risks} risks
+ * @returns {Section}
+ */
+export function risksSection(hass, risks) {
+  /** @param {string} key */
+  const sensor = (key) => risks.entity("sensor", key);
+  /**
+   * @param {string} key
+   * @param {Record<string, string>} colors
+   * @param {number} columns
+   */
+  const colored = (key, colors, columns) => {
+    const entity = sensor(key);
+    return entity
+      ? colorByState(tile(hass, entity, { grid_options: { columns } }), entity, colors)
+      : [];
+  };
+  return {
+    type: "grid",
+    cards: [
+      {
+        type: "heading",
+        heading: textsOf(hass).natural_risks,
+        icon: RISKS_ICON,
+        badges: ["alert_zone", "alert_bulletin"].flatMap((key) => {
+          const entity = sensor(key);
+          return entity ? [{ type: "entity", entity }] : [];
+        }),
+      },
+      ...colored("highest_alert", ALERT_COLORS, 12),
+      ...colored("current_danger", ALERT_COLORS, 6),
+      ...colored("operational_phase", PHASE_COLORS, 6),
+      ...DAYS.flatMap((day) => riskDayCards(hass, risks, day)),
+    ],
+  };
+}
+
+/**
+ * Return the view of a municipality: the section of its risks, then a section
+ * for each of its stations.
  *
  * @param {Hass} hass
  * @param {Station[]} stations
+ * @param {Risks} [risks]
  */
-export function municipalityView(hass, stations) {
+export function municipalityView(hass, stations, risks) {
   return {
     type: "sections",
     max_columns: 3,
-    sections: stations.map((station) => stationSection(hass, station)),
+    sections: [
+      ...(risks ? [risksSection(hass, risks)] : []),
+      ...stations.map((station) => stationSection(hass, station)),
+    ],
   };
 }
 
@@ -613,25 +812,40 @@ export async function municipalityEntries(hass) {
 }
 
 /**
- * Return the municipalities of the stations, by name: the entry of each, its
- * name (or else the name of its first station) and its stations.
+ * Return the municipalities of the stations and of the risks, by name: the
+ * entry of each, its name (or else the name of its first station, or of its
+ * risks), its stations and its risks.
  *
  * @param {Station[]} stations
  * @param {ConfigEntry[]} entries
+ * @param {Risks[]} [risks]
  */
-export function municipalitiesOf(stations, entries) {
+export function municipalitiesOf(stations, entries, risks = []) {
   const titles = new Map(entries.map((entry) => [entry.entry_id, entry.title]));
-  /** @type {Map<string, Station[]>} */
+  /** @type {Map<string, { stations: Station[], risks?: Risks }>} */
   const byEntry = new Map();
+  /** @param {string | undefined} entryId */
+  const municipality = (entryId) => {
+    const key = entryId ?? "";
+    const found = byEntry.get(key) ?? { stations: [] };
+    byEntry.set(key, found);
+    return found;
+  };
   for (const station of stations) {
-    const entryId = station.municipality ?? "";
-    byEntry.set(entryId, [...(byEntry.get(entryId) ?? []), station]);
+    municipality(station.municipality).stations.push(station);
+  }
+  for (const item of risks) {
+    municipality(item.municipality).risks = item;
   }
   return [...byEntry]
     .map(([entryId, members]) => ({
       entryId,
-      name: titles.get(entryId) || members[0].name,
-      stations: members,
+      name:
+        titles.get(entryId) ||
+        members.stations[0]?.name ||
+        /** @type {Risks} */ (members.risks).name,
+      stations: members.stations,
+      risks: members.risks,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -652,10 +866,11 @@ function noStationsView(hass) {
  */
 export async function generateDashboard(hass) {
   const stations = findStations(hass);
-  if (!stations.length) {
+  const risks = findRisks(hass);
+  if (!stations.length && !risks.length) {
     return { views: [noStationsView(hass)] };
   }
-  const municipalities = municipalitiesOf(stations, await municipalityEntries(hass));
+  const municipalities = municipalitiesOf(stations, await municipalityEntries(hass), risks);
   /** @type {Set<string>} */
   const paths = new Set();
   return {
@@ -672,16 +887,18 @@ export async function generateDashboard(hass) {
 }
 
 /**
- * Return the view of the stations of a municipality, for `custom:arpa-piemonte` in a view.
+ * Return the view of a municipality, its risks and its stations, for
+ * `custom:arpa-piemonte` in a view.
  *
  * @param {{ entry_id?: string }} config
  * @param {Hass} hass
  */
 export function generateView(config, hass) {
-  const stations = findStations(hass).filter(
-    (station) => (station.municipality ?? "") === (config.entry_id ?? ""),
-  );
-  return stations.length ? municipalityView(hass, stations) : noStationsView(hass);
+  /** @param {{ municipality: string | undefined }} item */
+  const ofTheEntry = (item) => (item.municipality ?? "") === (config.entry_id ?? "");
+  const stations = findStations(hass).filter(ofTheEntry);
+  const risks = findRisks(hass).find(ofTheEntry);
+  return stations.length || risks ? municipalityView(hass, stations, risks) : noStationsView(hass);
 }
 
 // The strategies, as Home Assistant looks them up: a custom element per kind,

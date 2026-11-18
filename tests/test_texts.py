@@ -8,16 +8,24 @@ from typing import Any
 
 import pytest
 
-from custom_components.arpa_piemonte.binary_sensor import FLOOD_RISK
+from custom_components.arpa_piemonte.binary_sensor import FLOOD_RISK, RISKS
+from custom_components.arpa_piemonte.entity import RISKS_DEVICE
 from custom_components.arpa_piemonte.image import CHARTS
 from custom_components.arpa_piemonte.models import LevelStatus, Quantity, Source
-from custom_components.arpa_piemonte.sensor import MEASUREMENTS, STATION_SENSORS
+from custom_components.arpa_piemonte.risks import ALERT_LEVELS, PHASES, WARNING_LEVELS
+from custom_components.arpa_piemonte.sensor import (
+    MEASUREMENTS,
+    RISK_SENSORS,
+    STATION_SENSORS,
+)
 
 INTEGRATION = Path(__file__).parent.parent / "custom_components" / "arpa_piemonte"
 STRINGS = json.loads((INTEGRATION / "strings.json").read_text(encoding="utf-8"))
 ICONS = json.loads((INTEGRATION / "icons.json").read_text(encoding="utf-8"))
 LANGUAGES = sorted(path.stem for path in (INTEGRATION / "translations").glob("*.json"))
-KEYS = [description.key for description in (*MEASUREMENTS, *STATION_SENSORS)]
+KEYS = [
+    description.key for description in (*MEASUREMENTS, *STATION_SENSORS, *RISK_SENSORS)
+]
 
 
 def paths(data: Any, prefix: str = "") -> set[str]:
@@ -66,7 +74,7 @@ def test_every_entity_has_a_name_and_an_icon() -> None:
     assert set(sensors) == set(KEYS) == set(icons)
     assert (
         set(STRINGS["entity"]["binary_sensor"])
-        == {FLOOD_RISK.key}
+        == {FLOOD_RISK.key, *(risk.key for risk in RISKS)}
         == set(ICONS["entity"]["binary_sensor"])
     )
     assert (
@@ -82,3 +90,20 @@ def test_every_entity_has_a_name_and_an_icon() -> None:
         status.value for status in LevelStatus
     }
     assert set(sensors["data_source"]["state"]) == {source.value for source in Source}
+
+
+def test_every_state_of_the_risks_has_a_text_and_an_icon() -> None:
+    """Test the states of the risks, the warning levels and the device."""
+    sensors = STRINGS["entity"]["sensor"]
+    icons = ICONS["entity"]["sensor"]
+
+    for description in RISK_SENSORS:
+        if description.options is not None:
+            assert list(sensors[description.key]["state"]) == description.options
+    assert sensors["highest_alert"]["state"].keys() == set(ALERT_LEVELS)
+    assert sensors["operational_phase"]["state"].keys() == set(PHASES)
+    for key in ("highest_alert", "current_danger"):
+        assert icons[key]["state"].keys() == set(ALERT_LEVELS)
+    assert icons["operational_phase"]["state"].keys() == set(PHASES)
+    assert list(STRINGS["selector"]["warning_level"]["options"]) == WARNING_LEVELS
+    assert "{municipality}" in STRINGS["device"][RISKS_DEVICE]["name"]

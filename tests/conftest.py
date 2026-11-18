@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
+from http import HTTPStatus
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
@@ -18,10 +19,12 @@ from . import (
     NOW,
     PRAY_DATA,
     PRAY_MUNICIPALITY,
+    fixture_json,
     municipality_entry,
     serve_meteo3r,
     serve_realtime,
     serve_website,
+    serve_widget,
     setup_integration,
     station_subentry,
 )
@@ -37,6 +40,20 @@ def frozen_time(freezer: FrozenDateTimeFactory) -> FrozenDateTimeFactory:
     """Freeze the clock 40 minutes after the newest reading of the fixtures."""
     freezer.move_to(NOW)
     return freezer
+
+
+@pytest.fixture
+def widget() -> dict[str, Any] | HTTPStatus:
+    """Return the widget of Pray; parametrize it to change it, or with an error."""
+    return fixture_json("widget_096050.json")
+
+
+@pytest.fixture(autouse=True)
+def mock_widget(
+    aioclient_mock: AiohttpClientMocker, widget: dict[str, Any] | HTTPStatus
+) -> None:
+    """Serve the widget for every municipality: each entry asks for its own."""
+    serve_widget(aioclient_mock, widget)
 
 
 @pytest.fixture

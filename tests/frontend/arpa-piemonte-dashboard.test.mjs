@@ -3,18 +3,23 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  ALERT_COLORS,
   LEVEL_STATUS_COLORS,
+  PHASE_COLORS,
   colorByState,
   dashboardSuggestion,
   entityName,
+  findRisks,
   findStations,
   generateDashboard,
   generateView,
   isAtLeast,
+  isRisksDevice,
   levelGauge,
   municipalitiesOf,
   municipalityEntries,
   numberOf,
+  risksSection,
   slugify,
   stationCode,
   stationSection,
@@ -23,7 +28,14 @@ import {
   tile,
   withTexts,
 } from "../../custom_components/arpa_piemonte/frontend/arpa-piemonte-dashboard.js";
-import { ENTRIES, entityId, homeAssistant, stationDevice, stationEntities } from "./fixtures.mjs";
+import {
+  ENTRIES,
+  entityId,
+  homeAssistant,
+  riskEntityId,
+  stationDevice,
+  stationEntities,
+} from "./fixtures.mjs";
 
 /** The texts of the integration in Portuguese, some of them. */
 const PORTUGUESE = {
@@ -52,6 +64,15 @@ const sectionOf = (id, hass = homeAssistant()) => stationSection(hass, stationIn
 
 /** Return the cards of a section for an entity. */
 const cardsFor = (section, entity) => section.cards.filter((card) => card.entity === entity);
+
+/** Return the risks of a Home Assistant by the ID of their device. */
+const risksIn = (hass, id) => findRisks(hass).find((risks) => risks.device.id === id);
+
+/** Return the section of the risks of Pray of a Home Assistant. */
+const risksOfPray = (hass = homeAssistant()) => risksSection(hass, risksIn(hass, "pray_risks"));
+
+/** Return the entity ID of an entity of the risks of Pray. */
+const prayRisk = (key, domain = "sensor") => riskEntityId("pray_risks", domain, key);
 
 describe("dashboard", () => {
   it("has a tab per municipality, sorted by name, from the entries of the integration", async () => {
@@ -112,14 +133,32 @@ describe("dashboard", () => {
     assert.match(view.cards[0].content, /Aggiungi una stazione/);
   });
 
-  it("has a section per station of the municipality, the hydrometers first", () => {
+  it("has the risks of the municipality, then a section per station, the hydrometers first", () => {
     const view = generateView({ entry_id: "baceno_entry" }, homeAssistant());
 
     assert.equal(view.type, "sections");
     assert.equal(view.max_columns, 3);
     assert.deepEqual(
       view.sections.map((section) => section.cards[0].heading),
-      ["Baceno Devero", "Alpe Devero"],
+      ["Natural risks", "Baceno Devero", "Alpe Devero"],
+    );
+  });
+
+  it("has a tab for a municipality without stations, with its risks", async () => {
+    const hass = homeAssistant();
+    hass.entities = Object.fromEntries(
+      Object.entries(hass.entities).filter(
+        ([, entry]) => !["alpe", "devero"].includes(entry.device_id),
+      ),
+    );
+
+    const titles = (await generateDashboard(hass)).views.map((view) => view.title);
+    const view = generateView({ entry_id: "baceno_entry" }, hass);
+
+    assert.deepEqual(titles, ["Baceno", "Pray", "Vinadio"]);
+    assert.deepEqual(
+      view.sections.map((section) => section.cards[0].heading),
+      ["Natural risks"],
     );
   });
 
@@ -211,6 +250,171 @@ describe("stations", () => {
     assert.deepEqual(
       views.sections.map((section) => section.cards[0].heading),
       ["Pray Sessera", "Colle Lombarda"],
+    );
+  });
+});
+
+describe("risks", () => {
+  it("are the devices of the risks of the municipalities, not stations", () => {
+    const hass = homeAssistant();
+
+    assert.deepEqual(
+      findRisks(hass).map((risks) => [risks.name, risks.municipality]),
+      [
+        ["Pray · Natural risks", "pray_entry"],
+        ["Vinadio · Natural risks", "vinadio_entry"],
+        ["Baceno · Natural risks", "baceno_entry"],
+      ],
+    );
+    assert.equal(isRisksDevice(hass.devices.pray_risks), true);
+    assert.equal(isRisksDevice(hass.devices.pray), false);
+    assert.equal(findStations(hass).length, 4);
+  });
+
+  it("are named as the user named their device, or by its ID", () => {
+    const hass = homeAssistant();
+    hass.devices.pray_risks.name_by_user = "Allerta Pray";
+    hass.devices.vinadio_risks.name = null;
+
+    assert.equal(risksIn(hass, "pray_risks").name, "Allerta Pray");
+    assert.equal(risksIn(hass, "vinadio_risks").name, "vinadio_risks");
+  });
+
+  it("name a municipality without its entry nor stations", () => {
+    const hass = homeAssistant();
+
+    const municipalities = municipalitiesOf([], [], findRisks(hass));
+
+    assert.deepEqual(
+      municipalities.map(({ name, stations }) => [name, stations.length]),
+      [
+        ["Baceno · Natural risks", 0],
+        ["Pray · Natural risks", 0],
+        ["Vinadio · Natural risks", 0],
+      ],
+    );
+  });
+
+  it("head with the alert zone and the time of the bulletin", () => {
+    const [heading] = risksOfPray().cards;
+
+    assert.deepEqual(heading, {
+      type: "heading",
+      heading: "Natural risks",
+      icon: "mdi:shield-alert",
+      badges: [
+        { type: "entity", entity: prayRisk("alert_zone") },
+        { type: "entity", entity: prayRisk("alert_bulletin") },
+      ],
+    });
+  });
+
+  it("show the highest alert, the danger now and the phase in the colors of Arpa", () => {
+    const section = risksOfPray();
+    const highest = cardsFor(section, prayRisk("highest_alert"));
+    const danger = cardsFor(section, prayRisk("current_danger"));
+    const phase = cardsFor(section, prayRisk("operational_phase"));
+
+    assert.deepEqual(
+      highest.map((card) => card.color),
+      ["#90c985", "#f8f865", "#f0bf01", "#fd6767", undefined],
+    );
+    assert.deepEqual(highest[0].grid_options, { columns: 12 });
+    assert.deepEqual(
+      danger.map((card) => card.color),
+      [...Object.values(ALERT_COLORS), undefined],
+    );
+    assert.deepEqual(danger[0].grid_options, { columns: 6 });
+    assert.deepEqual(
+      phase.map((card) => card.color),
+      ["#c7fff0", "#cc99ff", "#7030a0", undefined],
+    );
+    // No phase, as not evaluated, unknown or unavailable: without color, shown
+    assert.deepEqual(phase[3].visibility, [
+      {
+        condition: "state",
+        entity: prayRisk("operational_phase"),
+        state_not: Object.keys(PHASE_COLORS),
+      },
+    ]);
+  });
+
+  it("show the level of each risk on each day, named after the risk", () => {
+    const section = risksOfPray();
+    const headings = section.cards.filter((card) => card.heading_style === "subtitle");
+    const hydraulic = cardsFor(section, prayRisk("hydraulic_risk_level_today"));
+
+    assert.deepEqual(
+      headings.map((card) => card.heading),
+      ["Today", "Tomorrow"],
+    );
+    assert.deepEqual(
+      hydraulic.map((card) => [card.name, card.color]),
+      [
+        ["Hydraulic", "#90c985"],
+        ["Hydraulic", "#f8f865"],
+        ["Hydraulic", "#f0bf01"],
+        ["Hydraulic", "#fd6767"],
+        ["Hydraulic", undefined],
+      ],
+    );
+    assert.deepEqual(hydraulic[0].grid_options, { columns: 6 });
+    // Ten levels, four colors each and one without color
+    assert.equal(section.cards.filter((card) => /_risk_level_/.test(card.entity ?? "")).length, 50);
+  });
+
+  it("hide a day until the bulletin covers it: tomorrow, in the morning", () => {
+    const section = risksOfPray();
+    const tomorrow = section.cards.find((card) => card.heading === "Tomorrow");
+    const [, , , , uncolored] = cardsFor(section, prayRisk("snow_risk_level_tomorrow"));
+
+    assert.deepEqual(tomorrow.visibility, [
+      {
+        condition: "or",
+        conditions: ["hydrogeological", "hydraulic", "thunderstorm", "snow", "avalanche"].map(
+          (risk) => ({
+            condition: "state",
+            entity: prayRisk(`${risk}_risk_level_tomorrow`),
+            state_not: ["unknown"],
+          }),
+        ),
+      },
+    ]);
+    assert.deepEqual(uncolored.visibility, [
+      {
+        condition: "state",
+        entity: prayRisk("snow_risk_level_tomorrow"),
+        state_not: ["green", "yellow", "orange", "red", "unknown"],
+      },
+    ]);
+  });
+
+  it("speak the language of the user", () => {
+    const hass = homeAssistant({ language: "it" });
+    const section = risksOfPray(hass);
+
+    assert.equal(section.cards[0].heading, "Rischi naturali");
+    assert.equal(section.cards.find((card) => card.heading_style).heading, "Oggi");
+    assert.equal(cardsFor(section, prayRisk("thunderstorm_risk_level_today"))[0].name, "Temporali");
+  });
+
+  it("leave out the entities the user disabled, and a day without any", () => {
+    const hass = homeAssistant();
+    hass.entities = Object.fromEntries(
+      Object.entries(hass.entities).filter(
+        ([id]) => !/_risk_level_tomorrow$|highest_alert$|alert_zone$/.test(id),
+      ),
+    );
+
+    const section = risksOfPray(hass);
+
+    assert.deepEqual(section.cards[0].badges, [
+      { type: "entity", entity: prayRisk("alert_bulletin") },
+    ]);
+    assert.equal(cardsFor(section, prayRisk("highest_alert")).length, 0);
+    assert.equal(
+      section.cards.some((card) => card.heading === "Tomorrow"),
+      false,
     );
   });
 });
@@ -477,6 +681,16 @@ describe("helpers", () => {
         entity: "a",
         visibility: [{ condition: "state", entity: "b", state_not: ["on"] }],
       },
+    ]);
+  });
+
+  it("hide a card colored by state in the states asked", () => {
+    const [, uncolored] = colorByState({ type: "tile", entity: "a" }, "a", { on: "red" }, [
+      "unknown",
+    ]);
+
+    assert.deepEqual(uncolored.visibility, [
+      { condition: "state", entity: "a", state_not: ["on", "unknown"] },
     ]);
   });
 

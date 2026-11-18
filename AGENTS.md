@@ -8,15 +8,17 @@ installed from the Marketplace of Home Assistant. It turns a station of the
 Piedmont network of Arpa Piemonte into a device with the sensors the station
 has: water level, its status against the thresholds and its flood risk, rain,
 temperature, humidity, wind, snow. Each municipality is a config entry, and
-each of its stations a subentry.
+each of its stations a subentry; the entry has a device of the natural risks
+of the municipality too, from its widget on the Arpa website.
 
 Everything that talks to the sources or parses their files lives in two
 libraries, maintained alongside this repository:
 [aiometeo3r](https://github.com/webysther/aio-meteo3r) (the Meteo 3R app, the
 primary source) and
 [aioarpapiemonte](https://github.com/webysther/aio-arpa-piemonte) (the files
-of the Arpa website and the api_realtime, the fallback). This repository holds
-the Home Assistant side only, and the choice among the sources.
+of the Arpa website and the api_realtime, the fallback, and the natural
+risks). This repository holds the Home Assistant side only, and the choice
+among the sources.
 
 ## Ground rules
 
@@ -39,21 +41,28 @@ the Home Assistant side only, and the choice among the sources.
 ```text
 custom_components/arpa_piemonte/
   __init__.py      setup and unload of a municipality, a coordinator per station
+                   and one of its risks
   config_flow.py   a municipality (searched), then its station; the subentry
-                   flow adds another; reconfigure reads the stations again
+                   flow adds another; reconfigure reads the stations again; the
+                   options choose the warning level of the risks
   catalog.py       the stations of the list by municipality, rivers first (pure)
   migration.py     version 1 (an entry per station) merged by municipality, in
                    async_setup; station_places.py is its table
   sources.py       the clients of the sources, shared by every station
   coordinator.py   ArpaPiemonteCoordinator, one per station: Meteo 3R at every
-                   update, the official sources as a fallback (SourceTracker)
+                   update, the official sources as a fallback (SourceTracker);
+                   MunicipalityRisksCoordinator, the widget of the municipality,
+                   and the change of day at midnight in Italy
+  risks.py         the days of the risks in Italy, their keys, states and
+                   warning level (pure)
   selection.py     which reading of the sources a station shows (pure)
   adapters.py      the readings of each source as readings of the integration,
                    and which source gives which quantity (pure)
   models.py        Quantity, Source, Thresholds, Measurement, StationSnapshot,
                    StationConfig (pure)
-  entity.py        the device of the station; sensor.py, binary_sensor.py (the
-                   flood risk, from the level status), diagnostics.py
+  entity.py        the device of the station, and of the risks; sensor.py,
+                   binary_sensor.py (the flood risk, from the level status, and
+                   each risk on each day), diagnostics.py
   charts.py        the charts of the Meteo 3R series, drawn as SVG (pure);
                    image.py serves them, one image entity per chart
   dashboard.py     serves frontend/ and has the frontend load its modules
@@ -135,6 +144,23 @@ How a station chooses (`coordinator.py`, `selection.py`):
 - The snapshot holds no download time: an update without new readings is
   equal to the previous one and writes nothing (`always_update=False`).
 
+The natural risks of a municipality (`risks.py`, the second coordinator),
+measured on 2026-11-17 and 18:
+
+- The widget of the municipality (`/rischi_naturali/widget/comuni/<ISTAT>/`),
+  by its current ISTAT code, the code of the entry. Arpa rebuilds it about
+  every 10 minutes and answers 304 when it did not change: it is asked every
+  10 minutes (`RISKS_UPDATE_INTERVAL`), and an unchanged answer writes
+  nothing. Its page is the link of the device of the risks.
+- The alert bulletin is issued around 13:00 for that day and the next: in the
+  morning, its first day is yesterday. The entities show today and tomorrow
+  in Italy (`ROME_TZ`), with `MunicipalityAlerts.level_on`, and change day at
+  midnight in Italy without a download (`async_follow_the_days`).
+- The danger now is assessed every few hours (06:50 and 09:51 on 2026-11-18),
+  from the rain and the river levels of the last 24 hours.
+- The risks do not stop the stations: without the widget at setup, their
+  entities are unavailable until it answers.
+
 ## Compatibility
 
 Users' automations and dashboards depend on what the integration exposes.
@@ -142,9 +168,14 @@ Users' automations and dashboards depend on what the integration exposes.
 - Never change unique IDs: entries are `ISTAT_<municipality code>` (the
   current ISTAT code), stations are subentries `PIE_<station code>`, as their
   devices, and entities `PIE_<station code>-<key>`, with the keys of
-  `Quantity`, of `STATION_SENSORS`, of `CHARTS` and `flood_risk`. Version 1 had an entry `PIE_<station
-  code>` per station: `migration.py` moves them.
-- Never rename the states of the enum sensors (`LevelStatus`, `Source`).
+  `Quantity`, of `STATION_SENSORS`, of `CHARTS` and `flood_risk`. The device
+  of the risks of a municipality is `ISTAT_<municipality code>`, in its entry
+  without subentry, and its entities `ISTAT_<municipality code>-<key>`, with
+  the keys of `RISK_SENSORS` and of `RISKS` (binary_sensor.py). Version 1 had
+  an entry `PIE_<station code>` per station: `migration.py` moves them.
+- Never rename the states of the enum sensors (`LevelStatus`, `Source`, and of
+  the risks: `ALERT_LEVELS`, `PHASES`), nor the values of the options
+  (`warning_level`: yellow, orange, red).
 - Changing the shape of entry or subentry data needs a migration and a new
   `MINOR_VERSION` (or `VERSION` when older releases cannot load it). Merging
   or splitting entries happens in `async_setup`, before they load, as
@@ -176,16 +207,19 @@ Users' automations and dashboards depend on what the integration exposes.
   it. The License section of the README
   says the trademarks belong to their owners, as in DPC Alert: keep it.
 - The dashboard and the card find the stations by the identifier of their
-  device (`["arpa_piemonte", "PIE_<code>"]`) and the entities by their
+  device (`["arpa_piemonte", "PIE_<code>"]`), the risks by that of theirs
+  (`["arpa_piemonte", "ISTAT_<code>"]`), and the entities by their
   translation key, never by entity ID; the municipalities are the entries,
   named by `config_entries/get`, which needs no admin. They color the level
-  status and the flood risk with the colors of the alert maps
-  (`LEVEL_STATUS_COLORS`), name the entities in the language of the user
-  (`withTexts`), and gate what newer versions of Home Assistant have with
-  `isAtLeast`: check each card option against the frontend of 2025.4
-  (`home-assistant-frontend==20250401.0`). The Add dashboard dialog lists
-  custom strategies from 2026.5 only, and a strategy is generated again when
-  its `registryDependencies` change from 2026.7; before, when the page loads.
+  status, the flood risk and the levels of the risks with the colors of the
+  alert maps (`LEVEL_STATUS_COLORS`, `ALERT_COLORS`), the operational phase
+  with those of the legend of the widget (`PHASE_COLORS`), name the entities
+  in the language of the user (`withTexts`), and gate what newer versions of
+  Home Assistant have with `isAtLeast`: check each card option against the
+  frontend of 2025.4 (`home-assistant-frontend==20250401.0`). The Add
+  dashboard dialog lists custom strategies from 2026.5 only, and a strategy is
+  generated again when its `registryDependencies` change from 2026.7; before,
+  when the page loads.
 - The card draws nothing of its own: an `ha-card` with native cards inside,
   created with `loadCardHelpers`, without their own background. Its visual
   editor is an `ha-form`, which the frontend defines only with the editor of
@@ -202,7 +236,15 @@ Users' automations and dashboards depend on what the integration exposes.
   matching route wins: `clear_requests()` before serving again), or patch the
   methods of the clients in the config flow tests.
 - Never depend on the clock: the time is frozen at `NOW` (`tests/__init__.py`),
-  40 minutes after the newest reading of the fixtures.
+  40 minutes after the newest reading of the fixtures. The tests of the risks
+  move it to the morning or the afternoon of the bulletin of the widgets.
+- Every entry asks for the widget of its municipality as it is set up: the
+  fixture `mock_widget` serves the widget of Pray for every municipality
+  (parametrize `widget` to change it, or with an error status), and
+  `requested()` leaves the widgets out.
+- Home Assistant updates the `last_reported` of the state it has when it is
+  written again: keep the value before, and move the clock, to check that
+  nothing was written.
 
 ## The libraries
 
