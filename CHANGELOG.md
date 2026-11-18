@@ -6,6 +6,8 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 
 ## [Unreleased]
 
+## [2026.11.1] - 2026-11-18
+
 ### Added
 
 - A station is found by its municipality: type the name, with or without its
@@ -91,5 +93,6 @@ First release.
 - The icon of Arpa Piemonte, shown from Home Assistant 2026.3.
 - Texts in English, Italian and Brazilian Portuguese.
 
-[Unreleased]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.0...HEAD
+[Unreleased]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.1...HEAD
+[2026.11.1]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.0...v2026.11.1
 [2026.11.0]: https://github.com/webysther/ha-arpa-piemonte/releases/tag/v2026.11.0
