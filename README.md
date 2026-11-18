@@ -29,7 +29,7 @@ avalanche danger.
 > follow the official bulletins and the civil protection.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/dashboard-acceglio.png" alt="The dashboard of Acceglio: its natural risks, the earthquakes nearby on a map, and its station with its charts" width="800">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/dashboard-pray.png" alt="The dashboard of Pray: its natural risks, and the hydrometer of the Sessera with the gauge of its level" width="800">
 </p>
 
 ## Features
@@ -415,7 +415,7 @@ magnitude.
 Then a section for each station, the hydrometers first:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/dashboard-pray.png" alt="The dashboard of Pray: its natural risks, and the hydrometer of the Sessera with the gauge of its level" width="800">
+  <img src="https://raw.githubusercontent.com/webysther/ha-arpa-piemonte/main/docs/images/dashboard-acceglio.png" alt="The dashboard of Acceglio: its natural risks, the earthquakes nearby on a map, and its station with its charts" width="800">
 </p>
 
 - **The heading**: the name of the station, its flood risk in the color of its
