@@ -1,0 +1,55 @@
+{
+  "emissione": "2026-09-30T00:00:00+02:00",
+  "prossimo_aggiornamento": "2026-10-01T00:00:00+02:00",
+  "note": "",
+  "TORINO": {
+    "2026-09-30T00:00:00+02:00": {
+      "livello_disagio": "0",
+      "livello_disagio_descrizione": "Nessun disagio",
+      "livello_disagio_dettalio": "Condizioni meteo che non comportano un disagio bioclimatico sulla popolazione.",
+      "temperatura_massima": "26",
+      "temperatura_massima_percepita": "26",
+      "temperatura_minima":  "17",
+      "temperatura_minima_percepita": "18",
+      "giorni_consecutivi_caldo": "0",
+      "unita_misura_temperature":  "°C"
+    },
+    "2026-10-01T00:00:00+02:00": {
+      "livello_disagio": "0",
+      "livello_disagio_descrizione": "Nessun disagio",
+      "livello_disagio_dettalio": "Condizioni meteo che non comportano un disagio bioclimatico sulla popolazione.",
+      "temperatura_massima": "22",
+      "temperatura_massima_percepita": "22",
+      "temperatura_minima":  "18",
+      "temperatura_minima_percepita": "19",
+      "giorni_consecutivi_caldo": "0",
+      "unita_misura_temperature":  "°C"
+    },
+    "2026-10-02T00:00:00+02:00": {
+      "livello_disagio": "0",
+      "livello_disagio_descrizione": "Nessun disagio",
+      "livello_disagio_dettalio": "Condizioni meteo che non comportano un disagio bioclimatico sulla popolazione.",
+      "temperatura_massima": "24",
+      "temperatura_massima_percepita": "25",
+      "temperatura_minima":  "16",
+      "temperatura_minima_percepita": "17",
+      "giorni_consecutivi_caldo": "0",
+      "unita_misura_temperature":  "°C"
+    }
+  },
+  "icona_livello_disagio_0": "https://www.arpa.piemonte.it/rischi_naturali/images/LIV-0.png",
+  "icona_livello_disagio_1": "https://www.arpa.piemonte.it/rischi_naturali/images/LIV-1.png",
+  "icona_livello_disagio_2": "https://www.arpa.piemonte.it/rischi_naturali/images/LIV-2.png",
+  "icona_livello_disagio_3": "https://www.arpa.piemonte.it/rischi_naturali/images/LIV-3.png",
+  "colore_livello_disagio_0_hex": "#18EA2C",
+  "colore_livello_disagio_1_hex": "#FFFF00",
+  "colore_livello_disagio_2_hex": "#FFA500",
+  "colore_livello_disagio_3_hex": "#FF0000",
+  "link_al_servizio": "https://www.arpa.piemonte.it/rischi_naturali/snippets_arpa/caldo_regione/",
+  "link_pdf_torino": "https://www.arpa.piemonte.it/rischi_naturali/boll/bollettino_calore_comune_torino.pdf",
+  "link_pdf": "https://www.arpa.piemonte.it/rischi_naturali/boll/bollettino_calore.pdf",
+  "link_al_guida_lettura": "https://www.arpa.piemonte.it/media/4792",
+  "link_al_widget_arpa": "https://www.arpa.piemonte.it/rischi_naturali/snippets_arpa/widget_caldo/",
+  "nota_implementazione_widget": "Si richiede di citare la fonte e di mantenere lo stesso layout del widget visibile al link link_al_widget_arpa"
+}
+  

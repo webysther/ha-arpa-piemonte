@@ -148,7 +148,7 @@ One phase at a time; the maintainer commits and approves between phases.
      and today is `day_1` (`MunicipalityAlerts.level_on(risk, date)`); the
      names of the micro-regions in the EAWS bulletins are those before
      2022-03-04, numbered otherwise, so the names come from EAWS.
-   - **6b, the integration** (done, unreleased): a device of the risks per
+   - **6b, the integration** (done, unreleased; committed on 2026-11-18): a device of the risks per
      municipality entry, `ISTAT_<code>`, in the entry without subentry, named
      "Pray · Natural risks" and linked to the page of the widget
      (`/rischi_naturali/widget/comuni/<ISTAT>/`, the page Arpa shows the
@@ -163,11 +163,28 @@ One phase at a time; the maintainer commits and approves between phases.
      the alert maps, the phase in the colors of the legend of the widget, and
      the level of each risk on each day, tomorrow hidden until the bulletin
      covers it. aioarpapiemonte 0.2.0 pinned.
-   - **6c, the integration**: the earthquakes as `geo_location` within a
-     radius (50 km by default), the heat-wave level of the chosen city, and
-     the avalanche danger of the micro-region of the chosen position (the
-     home, or the stations of the municipality, which then need their
-     coordinates in the subentry).
+   - **6c, the integration** (done, unreleased): the options of the
+     municipality choose the position (the mean of its stations, or the home),
+     the radius of the earthquakes (50 km) and the heat-wave city (the capital
+     of the province, or the nearest). The stations store their position in
+     their subentry; those added before find it in `station_places.py`, the
+     list of 2026-11-17, checked by the tests. A coordinator per risk: the
+     earthquakes of the last 30 days within the radius, as `geo_location`
+     entities (source `arpa_piemonte`, the magnitude on the map) and a count;
+     the heat of today and tomorrow of the city (levels 0 to 3 of Arpa as
+     green to red; the names of levels 1 to 3 are in an image of the guide,
+     so the states say "discomfort level 1"); the avalanche danger of today
+     and tomorrow of the micro-region, the highest of the bulletin, with the
+     attribution of AINEVA. The micro-region is that of the position or, when
+     the mean of the stations is in none, of the first station in one: the
+     mean falls outside for 6 of the 106 municipalities with a station in a
+     micro-region (Biella, Varallo, Pinerolo, Briga Alta, Cannobio, Barge). The
+     widget, hence the alerts, only for the municipalities of Piedmont:
+     Palestro (province of Pavia) answered 404, and takes the heat of the
+     nearest capital, Vercelli. The diagnostics redact the micro-region and the
+     city when the position is the home, and never give the distances of the
+     earthquakes, which would locate it. The dashboard adds the heat and the
+     avalanche danger to each day, and the earthquakes with a map.
    - **A chore of aioarpapiemonte**, for its next release: read the `ETag`
      and `Last-Modified` of an answer without depending on how aiohttp names
      the headers, as aiometeo3r does. The client turns them into a `dict` and
@@ -189,6 +206,10 @@ One phase at a time; the maintainer commits and approves between phases.
 - **Risk products:**
   - the cadence of current danger: assessed at 06:50 and at 09:51 on
     2026-11-18, about every 3 hours, from two readings only;
+  - the names Arpa gives the heat levels 1 to 3: an image in "Guida alla
+    lettura del Bollettino Ondate di Calore" (media/4792), not its text;
+    level 0 is "Nessun disagio";
+  - the hour the heat-wave bulletin is issued, in season;
   - `vig_2..4` and `PROBABILITA` values;
   - the names of the fire levels;
   - the colours of the widget other than VERDE and BIANCO (GIALLO,
@@ -251,7 +272,13 @@ on 2025.4.0 and 2026.10.
   2026-11-18): it has every icon of `icons.json` and of the dashboard, the
   `heading_style` subtitle of the heading card, and the `or` condition of the
   visibility of cards, which the section of the risks uses. The `alert` card
-  of DPC is not there (Home Assistant 2026.9).
+  of DPC is not there (Home Assistant 2026.9). Its map card takes `entities`
+  with `label_mode: attribute` and an `attribute` (the magnitude of the
+  earthquakes) and `default_zoom`; `label_mode: icon`, which DPC uses, is not
+  there yet.
+- **Geolocation entities:** `GeolocationEvent` is the same in 2025.4 and
+  2026.10 (`_attr_source`, `_attr_distance`, `_attr_latitude`,
+  `_attr_longitude`).
 - **The `last_reported` of a state** is updated in place when the state is
   written again unchanged: a test compares the time kept before, after moving
   the clock.
@@ -271,6 +298,9 @@ on 2025.4.0 and 2026.10.
   the link of the device of the risks (it showed the bulletin of 2026-11-17
   for 17/11 and 18/11, and the danger now of 09:51). The frontend of 2025.4
   came from PyPI.
+- On 2026-11-18, for Phase 6c, two requests: the widget of Palestro (404) and
+  the guide of the heat-wave bulletin (media/4792, PDF, read with pypdf). The
+  heat-wave widgets of the 8 capitals of Phase 6a became test fixtures.
 - Measurements on the fixtures of the repositories with throwaway scripts
   outside them.
 - Documents read: Arpa's "Formato CAP-XML per allertamento meteoidrologico

@@ -20,7 +20,9 @@ from .coordinator import (
     ArpaPiemonteConfigEntry,
     ArpaPiemonteCoordinator,
     ArpaPiemonteData,
-    MunicipalityRisksCoordinator,
+    MunicipalityRisks,
+    async_risk_place,
+    municipality_risks,
 )
 from .dashboard import async_offer_the_frontend
 from .migration import async_migrate_integration
@@ -59,11 +61,18 @@ async def async_setup_entry(
         for subentry_id, subentry in entry.subentries.items()
         if subentry.subentry_type == SUBENTRY_STATION
     }
-    risks = MunicipalityRisksCoordinator(hass, entry, sources)
     await _async_first_refresh(stations.values())
+    place = await async_risk_place(
+        hass,
+        entry,
+        sources,
+        (coordinator.station for coordinator in stations.values()),
+    )
+    risks = municipality_risks(hass, entry, sources, place)
     await _async_first_refresh_of_the_risks(risks)
     entry.runtime_data = ArpaPiemonteData(stations, risks)
-    risks.async_follow_the_days()
+    for coordinator in risks.daily:
+        coordinator.async_follow_the_days()
     entry.async_on_unload(entry.add_update_listener(_async_reload))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
@@ -86,18 +95,18 @@ async def _async_first_refresh(
         raise not_ready
 
 
-async def _async_first_refresh_of_the_risks(
-    risks: MunicipalityRisksCoordinator,
-) -> None:
-    """Read the risks of the municipality once; the stations do not wait for them.
+async def _async_first_refresh_of_the_risks(risks: MunicipalityRisks) -> None:
+    """Read each risk of the municipality once; the stations do not wait for them.
 
-    Without an answer, their entities are unavailable until the next update.
+    Without an answer, the entities of a risk are unavailable until its next
+    update.
     """
-    try:
-        await risks.async_config_entry_first_refresh()
-    except ConfigEntryNotReady as err:
-        # The failed update, whose message names the municipality and the error
-        LOGGER.warning("%s", err.__cause__ or err)
+    for coordinator in risks.coordinators:
+        try:
+            await coordinator.async_config_entry_first_refresh()
+        except ConfigEntryNotReady as err:
+            # The failed update, whose message names the municipality and the error
+            LOGGER.warning("%s", err.__cause__ or err)
 
 
 async def _async_reload(hass: HomeAssistant, entry: ArpaPiemonteConfigEntry) -> None:

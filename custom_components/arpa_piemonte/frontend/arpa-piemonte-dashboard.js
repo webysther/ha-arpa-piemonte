@@ -102,8 +102,32 @@ export const ALERT_COLORS = Object.fromEntries(
  */
 export const PHASE_COLORS = { attention: "#c7fff0", pre_alarm: "#cc99ff", alarm: "#7030a0" };
 
+/**
+ * Color of each avalanche danger, the European scale of EAWS, as the alert maps
+ * draw it: low green, moderate yellow, considerable orange, high red, and very
+ * high, red and black on the scale, a dark red that both themes show; no snow,
+ * without color.
+ */
+export const AVALANCHE_COLORS = {
+  low: LEVEL_COLORS[0],
+  moderate: LEVEL_COLORS[1],
+  considerable: LEVEL_COLORS[2],
+  high: LEVEL_COLORS[3],
+  very_high: "#8b0000",
+};
+
 /** The risks of the alert bulletin, by the key of their entities, in the order of the widget. */
 export const RISKS = ["hydrogeological", "hydraulic", "thunderstorm", "snow", "avalanche"];
+
+/**
+ * The other risks of a day, after those of the bulletin: the heat waves, whose
+ * levels are named after the colors of the alert maps, and the avalanche
+ * danger of EAWS. Each with the start of the key of its sensors.
+ */
+export const DAY_RISKS = [
+  { key: "heat_wave", colors: ALERT_COLORS },
+  { key: "avalanche_danger", colors: AVALANCHE_COLORS },
+];
 
 /** The days of the risks, as the keys of their entities end. */
 export const DAYS = ["today", "tomorrow"];
@@ -180,6 +204,8 @@ const TEXTS = {
     natural_risks: "Natural risks",
     today: "Today",
     tomorrow: "Tomorrow",
+    heat_wave: "Heat wave",
+    avalanche_danger: "Avalanche danger",
     hydrogeological: "Hydrogeological",
     hydraulic: "Hydraulic",
     thunderstorm: "Thunderstorms",
@@ -201,6 +227,8 @@ const TEXTS = {
     natural_risks: "Rischi naturali",
     today: "Oggi",
     tomorrow: "Domani",
+    heat_wave: "Ondata di calore",
+    avalanche_danger: "Pericolo valanghe",
     hydrogeological: "Idrogeologico",
     hydraulic: "Idraulico",
     thunderstorm: "Temporali",
@@ -222,6 +250,8 @@ const TEXTS = {
     natural_risks: "Riscos naturais",
     today: "Hoje",
     tomorrow: "Amanhã",
+    heat_wave: "Onda de calor",
+    avalanche_danger: "Perigo de avalanches",
     hydrogeological: "Hidrogeológico",
     hydraulic: "Hidráulico",
     thunderstorm: "Tempestades",
@@ -363,10 +393,24 @@ class Device {
    * @param {string} translationKey e.g. "level"
    */
   entity(domain, translationKey) {
-    return this.entries.find(
-      (entry) =>
-        entry.entity_id.startsWith(`${domain}.`) && entry.translation_key === translationKey,
-    )?.entity_id;
+    return this.entities(domain, translationKey)[0];
+  }
+
+  /**
+   * Return the entity IDs of the enabled entities of the device that share a
+   * translation key, as the earthquakes, sorted.
+   *
+   * @param {string} domain e.g. "geo_location"
+   * @param {string} translationKey e.g. "earthquake"
+   */
+  entities(domain, translationKey) {
+    return this.entries
+      .filter(
+        (entry) =>
+          entry.entity_id.startsWith(`${domain}.`) && entry.translation_key === translationKey,
+      )
+      .map((entry) => entry.entity_id)
+      .sort();
   }
 }
 
@@ -667,11 +711,15 @@ export function stationSection(hass, station) {
 /** The state of a level of a risk until the bulletin covers its day: tomorrow, in the morning. */
 const NOT_COVERED = "unknown";
 
+/** The zoom of the map of the earthquakes: some 100 km around one alone, the radius and more. */
+const EARTHQUAKE_ZOOM = 8;
+
 /**
- * Return the cards of the risks of a day: its name, and the level of each risk
- * in the colors of the alert maps, named after the risk. Shown while the
- * bulletin covers the day: tomorrow, from the bulletin of the day, around
- * 13:00.
+ * Return the cards of the risks of a day: its name, the level of each risk of
+ * the bulletin, the heat and the avalanche danger, in the colors of the alert
+ * maps, named after the risk. Each shown while its bulletin covers the day:
+ * tomorrow, from the bulletin of the day; the heat in summer, the avalanches
+ * in winter.
  *
  * @param {Hass} hass
  * @param {Risks} risks
@@ -680,9 +728,16 @@ const NOT_COVERED = "unknown";
  */
 export function riskDayCards(hass, risks, day) {
   const texts = /** @type {Record<string, string>} */ (textsOf(hass));
-  const levels = RISKS.flatMap((risk) => {
-    const entity = risks.entity("sensor", `${risk}_risk_level_${day}`);
-    return entity ? [{ risk, entity }] : [];
+  const levels = [
+    ...RISKS.map((risk) => ({
+      name: texts[risk],
+      key: `${risk}_risk_level_${day}`,
+      colors: ALERT_COLORS,
+    })),
+    ...DAY_RISKS.map(({ key, colors }) => ({ name: texts[key], key: `${key}_${day}`, colors })),
+  ].flatMap((level) => {
+    const entity = risks.entity("sensor", level.key);
+    return entity ? [{ ...level, entity }] : [];
   });
   if (!levels.length) {
     return [];
@@ -703,22 +758,51 @@ export function riskDayCards(hass, risks, day) {
         },
       ],
     },
-    ...levels.flatMap(({ risk, entity }) =>
-      colorByState(
-        tile(hass, entity, { name: texts[risk], grid_options: { columns: 6 } }),
-        entity,
-        ALERT_COLORS,
-        [NOT_COVERED],
-      ),
+    ...levels.flatMap(({ name, entity, colors }) =>
+      colorByState(tile(hass, entity, { name, grid_options: { columns: 6 } }), entity, colors, [
+        NOT_COVERED,
+      ]),
     ),
   ];
 }
 
 /**
+ * Return the cards of the earthquakes near a municipality: their number, and a
+ * map of those within the radius, each marked with its magnitude.
+ *
+ * @param {Hass} hass
+ * @param {Risks} risks
+ * @returns {Card[]}
+ */
+export function earthquakeCards(hass, risks) {
+  const count = risks.entity("sensor", "nearby_earthquakes");
+  const earthquakes = risks.entities("geo_location", "earthquake");
+  return [
+    ...(count ? [tile(hass, count, { grid_options: { columns: 12 } })] : []),
+    ...(earthquakes.length
+      ? [
+          {
+            type: "map",
+            entities: earthquakes.map((entity) => ({
+              entity,
+              label_mode: "attribute",
+              attribute: "magnitude",
+            })),
+            // The region, rather than the street of a single earthquake
+            default_zoom: EARTHQUAKE_ZOOM,
+            grid_options: { columns: 12 },
+          },
+        ]
+      : []),
+  ];
+}
+
+/**
  * Return the section of the natural risks of a municipality: their heading,
- * with the alert zone and the time of the bulletin; the highest alert of
- * today and tomorrow, the danger now and the operational phase, in the colors
- * of Arpa; then the level of each risk, today and tomorrow.
+ * with the alert zone, the time of the bulletin, the heat-wave city and the
+ * micro-region of the avalanches; the highest alert of today and tomorrow,
+ * the danger now and the operational phase, in the colors of Arpa; the risks
+ * of today and tomorrow; and the earthquakes nearby.
  *
  * @param {Hass} hass
  * @param {Risks} risks
@@ -745,15 +829,18 @@ export function risksSection(hass, risks) {
         type: "heading",
         heading: textsOf(hass).natural_risks,
         icon: RISKS_ICON,
-        badges: ["alert_zone", "alert_bulletin"].flatMap((key) => {
-          const entity = sensor(key);
-          return entity ? [{ type: "entity", entity }] : [];
-        }),
+        badges: ["alert_zone", "alert_bulletin", "heat_wave_city", "avalanche_region"].flatMap(
+          (key) => {
+            const entity = sensor(key);
+            return entity ? [{ type: "entity", entity }] : [];
+          },
+        ),
       },
       ...colored("highest_alert", ALERT_COLORS, 12),
       ...colored("current_danger", ALERT_COLORS, 6),
       ...colored("operational_phase", PHASE_COLORS, 6),
       ...DAYS.flatMap((day) => riskDayCards(hass, risks, day)),
+      ...earthquakeCards(hass, risks),
     ],
   };
 }

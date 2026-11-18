@@ -46,6 +46,7 @@ from . import (
     fixture_json,
     municipality_entry,
     serve_meteo3r,
+    serve_the_risks,
     serve_widget,
     setup_integration,
     station_subentry,
@@ -100,7 +101,8 @@ async def test_device_of_the_risks(
         "https://www.arpa.piemonte.it/rischi_naturali/widget/comuni/096050/"
     )
     entities = er.async_entries_for_device(er.async_get(hass), device.id)
-    assert len(entities) == 26
+    # 26 of the alerts, 1 of the earthquakes, 3 of the heat; no avalanches
+    assert len(entities) == 30
     assert {entity.config_subentry_id for entity in entities} == {None}
     highest = hass.states.get("sensor.arpa_piemonte_pray_highest_alert")
     assert highest is not None
@@ -312,7 +314,7 @@ async def test_risks_unavailable_at_setup(
 
     mock_sources.clear_requests()
     serve_widget(mock_sources, fixture_json("widget_096050.json"))
-    await mock_config_entry.runtime_data.risks.async_refresh()
+    await mock_config_entry.runtime_data.risks.alerts.async_refresh()
     await hass.async_block_till_done()
 
     # At 03:40 in Italy on 2026-11-17, the first day of the bulletin
@@ -328,7 +330,7 @@ async def test_unchanged_widget_writes_nothing(
     """Test that a 304 of the widget writes nothing, asked with its ETag."""
     aioclient_mock.clear_requests()
     serve_meteo3r(aioclient_mock)
-    serve_widget(aioclient_mock, fixture_json("widget_096050.json"), {"Etag": ETAG})
+    serve_the_risks(aioclient_mock, headers={"Etag": ETAG})
     await setup_integration(hass, mock_config_entry)
     before = hass.states.get("sensor.arpa_piemonte_pray_highest_alert")
     assert before is not None
@@ -338,7 +340,7 @@ async def test_unchanged_widget_writes_nothing(
     aioclient_mock.clear_requests()
     serve_widget(aioclient_mock, HTTPStatus.NOT_MODIFIED, {"Etag": ETAG})
     freezer.tick(timedelta(minutes=10))
-    await mock_config_entry.runtime_data.risks.async_refresh()
+    await mock_config_entry.runtime_data.risks.alerts.async_refresh()
     await hass.async_block_till_done()
 
     after = hass.states.get("sensor.arpa_piemonte_pray_highest_alert")
@@ -360,7 +362,7 @@ async def test_failed_update(
     aioclient_mock.clear_requests()
     serve_widget(aioclient_mock, HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    await init_integration.runtime_data.risks.async_refresh()
+    await init_integration.runtime_data.risks.alerts.async_refresh()
     await hass.async_block_till_done()
 
     assert state(hass, "current_danger") == STATE_UNAVAILABLE

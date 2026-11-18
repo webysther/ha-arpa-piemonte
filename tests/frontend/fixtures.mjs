@@ -104,15 +104,35 @@ export const RISK_ENTITIES = {
     "alert_zone",
     "alert_bulletin",
     "next_alert_bulletin",
+    "nearby_earthquakes",
+    "heat_wave_today",
+    "heat_wave_tomorrow",
+    "heat_wave_city",
   ],
   binary_sensor: ["today", "tomorrow"].flatMap((day) => RISKS.map((risk) => `${risk}_risk_${day}`)),
 };
 
-/** The devices of the natural risks, one per municipality, by their ID. */
+/** The keys of the entities of the avalanches, of a municipality in a micro-region. */
+export const AVALANCHE_ENTITIES = [
+  "avalanche_danger_today",
+  "avalanche_danger_tomorrow",
+  "avalanche_region",
+];
+
+/**
+ * The devices of the natural risks, one per municipality, by their ID: Vinadio
+ * is in a micro-region of the avalanches, with two earthquakes nearby.
+ */
 export const MUNICIPALITIES = {
-  pray_risks: { entry: "pray_entry", code: "096050", title: "Pray" },
-  vinadio_risks: { entry: "vinadio_entry", code: "004248", title: "Vinadio" },
-  baceno_risks: { entry: "baceno_entry", code: "103006", title: "Baceno" },
+  pray_risks: { entry: "pray_entry", code: "096050", title: "Pray", earthquakes: [] },
+  vinadio_risks: {
+    entry: "vinadio_entry",
+    code: "004248",
+    title: "Vinadio",
+    avalanches: true,
+    earthquakes: ["261117064149", "261110081514"],
+  },
+  baceno_risks: { entry: "baceno_entry", code: "103006", title: "Baceno", earthquakes: [] },
 };
 
 /** Return the entity ID of an entity of the risks of a municipality, as the integration suggests it. */
@@ -133,14 +153,20 @@ export function risksDevice(device) {
 
 /** Return the registry entries of the entities of the risks of a municipality. */
 export function riskEntities(device) {
-  return Object.entries(RISK_ENTITIES).flatMap(([domain, keys]) =>
-    keys.map((key) => ({
-      entity_id: riskEntityId(device, domain, key),
-      platform: "arpa_piemonte",
-      device_id: device,
-      translation_key: key,
-    })),
-  );
+  const { avalanches, earthquakes } = MUNICIPALITIES[device];
+  const entity = (domain, key, translationKey = key) => ({
+    entity_id: riskEntityId(device, domain, key),
+    platform: "arpa_piemonte",
+    device_id: device,
+    translation_key: translationKey,
+  });
+  return [
+    ...Object.entries(RISK_ENTITIES).flatMap(([domain, keys]) =>
+      keys.map((key) => entity(domain, key)),
+    ),
+    ...(avalanches ? AVALANCHE_ENTITIES.map((key) => entity("sensor", key)) : []),
+    ...earthquakes.map((event) => entity("geo_location", `earthquake_${event}`, "earthquake")),
+  ];
 }
 
 /** Return the entity ID of an entity of a station, as the integration suggests it. */
@@ -211,6 +237,13 @@ export const STATES = {
   ),
   [riskEntityId("pray_risks", "sensor", "alert_zone")]: "Piem-B",
   [riskEntityId("pray_risks", "sensor", "alert_bulletin")]: "2026-11-16T10:57:30+00:00",
+  // Out of season, the heat waves are not known
+  [riskEntityId("pray_risks", "sensor", "heat_wave_today")]: "unknown",
+  [riskEntityId("pray_risks", "sensor", "heat_wave_city")]: "Biella",
+  [riskEntityId("pray_risks", "sensor", "nearby_earthquakes")]: "0",
+  [riskEntityId("vinadio_risks", "sensor", "avalanche_danger_today")]: "considerable",
+  [riskEntityId("vinadio_risks", "sensor", "avalanche_region")]: "Valle Stura",
+  [riskEntityId("vinadio_risks", "sensor", "nearby_earthquakes")]: "2",
 };
 
 /** Return states, as Home Assistant has them. */

@@ -11,18 +11,29 @@ newer reading than the one shown, and not more often than their pace.
 The pressure and the solar radiation only the website gives: as Meteo 3R never
 has them, it is asked for them at its pace.
 
-The natural risks of the municipality come from its widget on the Arpa
-website, asked by a coordinator of their own.
+The natural risks of the municipality have coordinators of their own: its
+alerts, from its widget on the Arpa website; the earthquakes near it; the
+heat waves of a capital; the avalanches of its micro-region, from EAWS.
 """
 
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass, field
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from functools import partial
+from typing import Any
 
-from aioarpapiemonte import ArpaPiemonteError, MunicipalityAlerts, ParamSeries
+from aioarpapiemonte import (
+    AVALANCHE_ATTRIBUTION,
+    ArpaPiemonteError,
+    ArpaPiemonteNotFoundError,
+    HeatCity,
+    HeatForecast,
+    MunicipalityAlerts,
+    ParamSeries,
+    RegionBulletin,
+)
 from aiometeo3r import Meteo3rError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -42,8 +53,13 @@ from .adapters import (
     thresholds_of_website,
 )
 from .const import (
+    ATTRIBUTION,
+    AVALANCHES_OFF_SEASON_INTERVAL,
+    AVALANCHES_UPDATE_INTERVAL,
     CONF_MUNICIPALITY_CODE,
     DOMAIN,
+    EARTHQUAKES_UPDATE_INTERVAL,
+    HEAT_UPDATE_INTERVAL,
     LOGGER,
     PRIMARY_STALE_AFTER,
     REALTIME_LAG,
@@ -56,6 +72,7 @@ from .const import (
 )
 from .models import (
     Measurement,
+    Position,
     Quantity,
     Series,
     Source,
@@ -63,7 +80,21 @@ from .models import (
     StationSnapshot,
     Thresholds,
 )
-from .risks import italian_date
+from .risks import (
+    AvalancheDays,
+    NearbyEarthquake,
+    PositionChoice,
+    RiskDay,
+    RiskPlace,
+    has_alerts,
+    heat_city,
+    heat_city_choice,
+    italian_date,
+    mean_position,
+    nearby_earthquakes,
+    position_choice,
+    radius_km,
+)
 from .selection import newest, select
 from .sources import ArpaSources
 
@@ -280,19 +311,27 @@ class ArpaPiemonteCoordinator(DataUpdateCoordinator[StationSnapshot]):
         return SourceResult(from_realtime(data))
 
 
-class MunicipalityRisksCoordinator(DataUpdateCoordinator[MunicipalityAlerts]):
-    """Keep the natural risks of a municipality, from its widget on the Arpa website.
+class RisksCoordinator[DataT](DataUpdateCoordinator[DataT]):
+    """Keep a natural risk of a municipality: its alerts, earthquakes, heat or snow.
 
-    The widget answers ``304 Not Modified`` while it does not change, and the
-    alerts compare by value: an update without news writes nothing.
+    The sources answer ``304 Not Modified`` while they do not change, and the
+    data compares by value: an update without news writes nothing. Those
+    shown by day follow the days in Italy (:meth:`async_follow_the_days`).
     """
 
     config_entry: ArpaPiemonteConfigEntry
+    attribution: str = ATTRIBUTION
+    """The credit of the data, which its entities carry."""
 
     def __init__(
-        self, hass: HomeAssistant, entry: ConfigEntry, sources: ArpaSources
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        sources: ArpaSources,
+        kind: str,
+        update_interval: timedelta,
     ) -> None:
-        """Initialize the coordinator of the risks of the municipality of an entry."""
+        """Initialize the coordinator of a kind of risk of a municipality."""
         self.municipality_code: str = entry.data[CONF_MUNICIPALITY_CODE]
         self._sources = sources
         self._unsub_midnight: CALLBACK_TYPE | None = None
@@ -300,26 +339,21 @@ class MunicipalityRisksCoordinator(DataUpdateCoordinator[MunicipalityAlerts]):
             hass,
             LOGGER,
             config_entry=entry,
-            name=f"{DOMAIN} {entry.title} risks",
-            update_interval=RISKS_UPDATE_INTERVAL,
+            name=f"{DOMAIN} {entry.title} {kind}",
+            update_interval=update_interval,
             always_update=False,
         )
 
-    async def _async_update_data(self) -> MunicipalityAlerts:
-        """Return the alerts, the danger now and the phase of the municipality."""
-        try:
-            return await self._sources.arpa.get_municipality_alerts(
-                self.municipality_code
-            )
-        except ArpaPiemonteError as err:
-            raise UpdateFailed(
-                translation_domain=DOMAIN,
-                translation_key="risks_update_failed",
-                translation_placeholders={
-                    "municipality": self.config_entry.title,
-                    "error": str(err),
-                },
-            ) from err
+    def _failed(self, err: ArpaPiemonteError) -> UpdateFailed:
+        """Return the failure of an update, naming the municipality and the error."""
+        return UpdateFailed(
+            translation_domain=DOMAIN,
+            translation_key="risks_update_failed",
+            translation_placeholders={
+                "municipality": self.config_entry.title,
+                "error": str(err),
+            },
+        )
 
     @callback
     def async_follow_the_days(self) -> None:
@@ -350,14 +384,238 @@ class MunicipalityRisksCoordinator(DataUpdateCoordinator[MunicipalityAlerts]):
             self._unsub_midnight = None
 
 
+class AlertsCoordinator(RisksCoordinator[MunicipalityAlerts]):
+    """Keep the alerts of a municipality, from its widget on the Arpa website."""
+
+    def __init__(
+        self, hass: HomeAssistant, entry: ConfigEntry, sources: ArpaSources
+    ) -> None:
+        """Initialize the coordinator of the alerts of the municipality of an entry."""
+        super().__init__(hass, entry, sources, "alerts", RISKS_UPDATE_INTERVAL)
+
+    async def _async_update_data(self) -> MunicipalityAlerts:
+        """Return the alerts, the danger now and the phase of the municipality."""
+        try:
+            return await self._sources.arpa.get_municipality_alerts(
+                self.municipality_code
+            )
+        except ArpaPiemonteError as err:
+            raise self._failed(err) from err
+
+
+class EarthquakesCoordinator(RisksCoordinator[tuple[NearbyEarthquake, ...]]):
+    """Keep the earthquakes of the last 30 days within a radius of a position."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        sources: ArpaSources,
+        position: Position,
+        radius: float,
+    ) -> None:
+        """Initialize the coordinator of the earthquakes near a position, in km."""
+        self.position = position
+        self.radius = radius
+        super().__init__(
+            hass, entry, sources, "earthquakes", EARTHQUAKES_UPDATE_INTERVAL
+        )
+
+    async def _async_update_data(self) -> tuple[NearbyEarthquake, ...]:
+        """Return the earthquakes within the radius, the newest first."""
+        try:
+            earthquakes = await self._sources.arpa.get_earthquakes()
+        except ArpaPiemonteError as err:
+            raise self._failed(err) from err
+        return nearby_earthquakes(earthquakes, self.position, self.radius)
+
+
+class HeatCoordinator(RisksCoordinator[HeatForecast]):
+    """Keep the heat-wave bulletin of one of the 8 capitals of province."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        sources: ArpaSources,
+        city: HeatCity,
+    ) -> None:
+        """Initialize the coordinator of the heat waves of a city."""
+        self.city = city
+        super().__init__(hass, entry, sources, "heat", HEAT_UPDATE_INTERVAL)
+
+    async def _async_update_data(self) -> HeatForecast:
+        """Return the bulletin of the city: out of season, the last one."""
+        try:
+            return await self._sources.arpa.get_heat_forecast(self.city)
+        except ArpaPiemonteError as err:
+            raise self._failed(err) from err
+
+
+class AvalanchesCoordinator(RisksCoordinator[AvalancheDays]):
+    """Keep the avalanche bulletins of a micro-region, today and tomorrow.
+
+    Asked every hour while there is a bulletin for today, and every 6 hours
+    out of season, when there is none.
+    """
+
+    attribution = AVALANCHE_ATTRIBUTION
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        sources: ArpaSources,
+        region_id: str,
+    ) -> None:
+        """Initialize the coordinator of the avalanches of a micro-region of EAWS."""
+        self.region_id = region_id
+        super().__init__(hass, entry, sources, "avalanches", AVALANCHES_UPDATE_INTERVAL)
+
+    async def _async_update_data(self) -> AvalancheDays:
+        """Return the bulletins of the micro-region of today and tomorrow in Italy.
+
+        A day without a bulletin has none: out of season, or tomorrow before
+        it is published, at about 17:00.
+        """
+        today = italian_date(dt_util.utcnow())
+        bulletins: dict[date, RegionBulletin] = {}
+        in_season = False
+        for day in RiskDay:
+            when = day.date(today)
+            try:
+                bulletin = await self._sources.arpa.get_avalanche_bulletin(when)
+            except ArpaPiemonteNotFoundError:
+                continue
+            except ArpaPiemonteError as err:
+                raise self._failed(err) from err
+            in_season = in_season or day is RiskDay.TODAY
+            if (region := bulletin.of_region(self.region_id)) is not None:
+                bulletins[when] = region
+        self.update_interval = (
+            AVALANCHES_UPDATE_INTERVAL if in_season else AVALANCHES_OFF_SEASON_INTERVAL
+        )
+        return AvalancheDays(self.region_id, bulletins)
+
+
+@dataclass(frozen=True, slots=True)
+class MunicipalityRisks:
+    """The natural risks of a municipality: where from, and their coordinators.
+
+    A risk the municipality does not have has no coordinator: the alerts
+    outside Piedmont, the earthquakes and the avalanches without a position,
+    the avalanches outside the micro-regions, the heat without a city.
+    """
+
+    place: RiskPlace
+    alerts: AlertsCoordinator | None = None
+    earthquakes: EarthquakesCoordinator | None = None
+    heat: HeatCoordinator | None = None
+    avalanches: AvalanchesCoordinator | None = None
+
+    @property
+    def coordinators(self) -> tuple[RisksCoordinator[Any], ...]:
+        """Return the coordinators of the risks the municipality has."""
+        return tuple(
+            coordinator
+            for coordinator in (
+                self.alerts,
+                self.earthquakes,
+                self.heat,
+                self.avalanches,
+            )
+            if coordinator is not None
+        )
+
+    @property
+    def daily(self) -> tuple[RisksCoordinator[Any], ...]:
+        """Return the coordinators of the risks shown by day: not the earthquakes."""
+        return tuple(
+            coordinator
+            for coordinator in (self.alerts, self.heat, self.avalanches)
+            if coordinator is not None
+        )
+
+
+async def async_risk_place(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    sources: ArpaSources,
+    stations: Iterable[StationConfig],
+) -> RiskPlace:
+    """Return where the risks of a municipality are taken from, by its options.
+
+    The position is the mean of its stations, or the home of Home Assistant.
+    The micro-region of the avalanches is that of the position or, when the
+    mean of the stations is in none, that of the first station in one: the
+    mean of a station in the mountains and one in the valley can fall outside
+    them (6 of the 106 municipalities with a station in a micro-region, in the
+    list of 2026-11-17). aioarpapiemonte ships the micro-regions of EAWS:
+    reading them asks no source.
+    """
+    choice = position_choice(entry.options)
+    candidates: list[Position]
+    position: Position | None
+    if choice is PositionChoice.HOME:
+        home = Position(hass.config.latitude, hass.config.longitude)
+        position = home
+        candidates = [home]
+    else:
+        known = [station.position for station in stations if station.position]
+        position = mean_position(known)
+        candidates = [] if position is None else [position, *known]
+    micro_region: str | None = None
+    for candidate in candidates:
+        micro_region = await sources.arpa.get_micro_region(
+            candidate.latitude, candidate.longitude
+        )
+        if micro_region is not None:
+            break
+    city = heat_city(
+        heat_city_choice(entry.options), entry.data[CONF_MUNICIPALITY_CODE], position
+    )
+    return RiskPlace(choice, position, micro_region, city)
+
+
+def municipality_risks(
+    hass: HomeAssistant, entry: ConfigEntry, sources: ArpaSources, place: RiskPlace
+) -> MunicipalityRisks:
+    """Return the coordinators of the risks a municipality has, from its place."""
+    return MunicipalityRisks(
+        place,
+        alerts=(
+            AlertsCoordinator(hass, entry, sources)
+            if has_alerts(entry.data[CONF_MUNICIPALITY_CODE])
+            else None
+        ),
+        earthquakes=(
+            None
+            if place.position is None
+            else EarthquakesCoordinator(
+                hass, entry, sources, place.position, radius_km(entry.options)
+            )
+        ),
+        heat=(
+            None
+            if place.heat_city is None
+            else HeatCoordinator(hass, entry, sources, place.heat_city)
+        ),
+        avalanches=(
+            None
+            if place.micro_region is None
+            else AvalanchesCoordinator(hass, entry, sources, place.micro_region)
+        ),
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class ArpaPiemonteData:
     """What the entry of a municipality keeps while it is loaded."""
 
     stations: Mapping[str, ArpaPiemonteCoordinator]
     """The coordinator of each station, by the ID of its subentry."""
-    risks: MunicipalityRisksCoordinator
-    """The coordinator of the natural risks of the municipality."""
+    risks: MunicipalityRisks
+    """The natural risks of the municipality."""
 
 
 type ArpaPiemonteConfigEntry = ConfigEntry[ArpaPiemonteData]

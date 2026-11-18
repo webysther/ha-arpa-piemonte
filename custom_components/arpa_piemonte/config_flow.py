@@ -4,7 +4,8 @@ An entry is a municipality, and each of its stations is a subentry: the
 integration page groups the stations by municipality. A station is added by
 choosing its municipality, then the station when the municipality has
 several, or from the entry of its municipality. The options of the entry
-choose the warning level of the risks of the municipality.
+choose those of the risks of the municipality: the warning level, the
+position, the radius of the earthquakes and the heat-wave city.
 """
 
 from __future__ import annotations
@@ -31,8 +32,12 @@ from homeassistant.config_entries import (
     OptionsFlow,
     SubentryFlowResult,
 )
+from homeassistant.const import UnitOfLength
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -41,16 +46,28 @@ from homeassistant.helpers.selector import (
 
 from .catalog import Municipality, StationCatalog, StationChoice
 from .const import (
+    CONF_HEAT_CITY,
     CONF_MUNICIPALITY,
     CONF_MUNICIPALITY_CODE,
+    CONF_POSITION,
+    CONF_RADIUS,
     CONF_STATION_CODE,
     CONF_WARNING_LEVEL,
     DOMAIN,
     LOGGER,
     SUBENTRY_STATION,
 )
-from .models import StationConfig, municipality_unique_id
-from .risks import WARNING_LEVELS, warning_level
+from .models import Position, StationConfig, municipality_unique_id
+from .risks import (
+    MAX_RADIUS,
+    WARNING_LEVELS,
+    HeatCityChoice,
+    PositionChoice,
+    heat_city_choice,
+    position_choice,
+    radius_km,
+    warning_level,
+)
 from .sources import ArpaSources, async_get_sources
 
 
@@ -161,6 +178,7 @@ async def async_station_config(
         sensor_letters=choice.sensor_letters,
         thresholds=choice.thresholds,
         website_params=website_params,
+        position=Position(choice.latitude, choice.longitude),
     )
 
 
@@ -239,7 +257,12 @@ def station_schema(stations: Iterable[StationChoice]) -> vol.Schema:
 
 
 def options_schema(options: Mapping[str, Any]) -> vol.Schema:
-    """Return the form of the options of a municipality: the warning level."""
+    """Return the form of the options of a municipality: those of its risks.
+
+    The warning level of the alerts; where the earthquakes, the avalanches
+    and the nearest heat-wave city are taken from; the radius of the
+    earthquakes; and which capital gives the heat waves.
+    """
     return vol.Schema(
         {
             vol.Required(
@@ -250,7 +273,34 @@ def options_schema(options: Mapping[str, Any]) -> vol.Schema:
                     translation_key=CONF_WARNING_LEVEL,
                     mode=SelectSelectorMode.DROPDOWN,
                 )
-            )
+            ),
+            vol.Required(
+                CONF_POSITION, default=str(position_choice(options))
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[str(choice) for choice in PositionChoice],
+                    translation_key=CONF_POSITION,
+                    mode=SelectSelectorMode.LIST,
+                )
+            ),
+            vol.Required(CONF_RADIUS, default=radius_km(options)): NumberSelector(
+                NumberSelectorConfig(
+                    min=1,
+                    max=MAX_RADIUS,
+                    step=1,
+                    unit_of_measurement=UnitOfLength.KILOMETERS,
+                    mode=NumberSelectorMode.BOX,
+                )
+            ),
+            vol.Required(
+                CONF_HEAT_CITY, default=str(heat_city_choice(options))
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[str(choice) for choice in HeatCityChoice],
+                    translation_key=CONF_HEAT_CITY,
+                    mode=SelectSelectorMode.LIST,
+                )
+            ),
         }
     )
 
@@ -290,7 +340,7 @@ class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> ArpaPiemonteOptionsFlow:
-        """Return the options of a municipality: the warning level of its risks."""
+        """Return the options of a municipality: those of its risks."""
         del config_entry
         return ArpaPiemonteOptionsFlow()
 
@@ -433,7 +483,7 @@ class ArpaPiemonteFlowHandler(ConfigFlow, domain=DOMAIN):
 
 
 class ArpaPiemonteOptionsFlow(OptionsFlow):
-    """Choose the warning level of the risks of a municipality.
+    """Choose the options of the risks of a municipality.
 
     The entry reloads with the new options, as when a station changes.
     """
@@ -441,7 +491,7 @@ class ArpaPiemonteOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Choose the level from which the binary sensor of a risk turns on."""
+        """Choose the warning level, the position, the radius and the heat city."""
         if user_input is not None:
             return self.async_create_entry(
                 data={**self.config_entry.options, **user_input}

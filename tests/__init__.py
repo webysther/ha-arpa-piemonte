@@ -8,8 +8,14 @@ from pathlib import Path
 import re
 from typing import Any
 
-from aioarpapiemonte import Param
-from aioarpapiemonte.urls import data_pie_url, municipality_alerts_url, series_url
+from aioarpapiemonte import HeatCity, Param
+from aioarpapiemonte.urls import (
+    data_pie_url,
+    earthquakes_url,
+    heat_forecast_url,
+    municipality_alerts_url,
+    series_url,
+)
 from aiometeo3r import Host
 from aiometeo3r.urls import station_path
 from homeassistant.config_entries import ConfigSubentryData
@@ -47,6 +53,13 @@ The widgets of the municipalities, downloaded on 2026-11-18 at about 06:04 UTC
 and Asti, in two alert zones (``widget_005005.json``). Their bulletin was
 issued on 2026-11-17 at 11:57: its days are 2026-11-17 and 18, all green but
 the avalanches, not evaluated.
+
+The other risks, downloaded on 2026-11-18 too: the earthquakes of the last 30
+days (``sismica_tabella.json``, 28, none within 50 km of Pray: the nearest is
+59.5 km away), the heat-wave bulletins of the 8 capitals (``caldo_<city>.json``,
+the last of the season, of 2026-09-30, all green), and the avalanche
+bulletins of EAWS of 2026-04-18 (``2026-04-18-IT-21.json``), the season being
+over.
 """
 
 NOW = "2026-11-17 02:40:00+00:00"
@@ -108,6 +121,13 @@ RADIATION_URL = series_url(Param.RADIATION, AVIGLIANA_SENSOR)
 WIDGET_URL = municipality_alerts_url(PRAY_MUNICIPALITY)
 WIDGETS = re.compile(r"/rischi_naturali/widget/comuni/\d{6}/index\.json$")
 """The widget of any municipality: each entry asks for its own as it is set up."""
+EARTHQUAKES_URL = earthquakes_url()
+HEAT = re.compile(r"/rischi_naturali/widget/caldo/[a-z]+/index\.json$")
+"""The heat-wave bulletin of any of the 8 capitals."""
+AVALANCHES = re.compile(r"/eaws_bulletins/[0-9-]{10}/[0-9-]{10}-IT-21\.json$")
+"""The avalanche bulletins of Piedmont of any day."""
+AVALANCHE_DAY = "2026-04-18"
+"""The day of the avalanche bulletins of the fixture."""
 
 
 def fixture_text(name: str) -> str:
@@ -192,12 +212,81 @@ def serve_widget(
         aioclient_mock.get(WIDGETS, text=json.dumps(widget), headers=headers)
 
 
+def serve_earthquakes(
+    aioclient_mock: AiohttpClientMocker, earthquakes: list[Any] | HTTPStatus
+) -> None:
+    """Serve the earthquakes of the last 30 days; an error status instead."""
+    if isinstance(earthquakes, HTTPStatus):
+        aioclient_mock.get(EARTHQUAKES_URL, status=earthquakes)
+    else:
+        aioclient_mock.get(EARTHQUAKES_URL, text=json.dumps(earthquakes))
+
+
+def serve_heat(
+    aioclient_mock: AiohttpClientMocker,
+    changes: dict[HeatCity, dict[str, Any] | HTTPStatus] | None = None,
+) -> None:
+    """Serve the heat-wave bulletin of each capital, as changed for some."""
+    for city in HeatCity:
+        changed = (changes or {}).get(city)
+        url = heat_forecast_url(city)
+        if isinstance(changed, HTTPStatus):
+            aioclient_mock.get(url, status=changed)
+        elif changed is not None:
+            aioclient_mock.get(url, text=json.dumps(changed))
+        else:
+            aioclient_mock.get(url, text=fixture_text(f"caldo_{city}.json"))
+
+
+def serve_avalanches(
+    aioclient_mock: AiohttpClientMocker,
+    bulletins: dict[str, dict[str, Any] | HTTPStatus] | None = None,
+) -> None:
+    """Serve the avalanche bulletins of some days, by date; none of the others."""
+    for day, bulletin in (bulletins or {}).items():
+        url = f"https://static.avalanche.report/eaws_bulletins/{day}/{day}-IT-21.json"
+        if isinstance(bulletin, HTTPStatus):
+            aioclient_mock.get(url, status=bulletin)
+        else:
+            aioclient_mock.get(url, text=json.dumps(bulletin))
+    # Out of season, EAWS has no bulletin
+    aioclient_mock.get(AVALANCHES, status=HTTPStatus.NOT_FOUND)
+
+
+def serve_the_risks(
+    aioclient_mock: AiohttpClientMocker,
+    widget: dict[str, Any] | HTTPStatus | None = None,
+    headers: dict[str, str] | None = None,
+    avalanches: dict[str, dict[str, Any] | HTTPStatus] | None = None,
+) -> None:
+    """Serve every source of the risks, as the fixture ``mock_risks`` does.
+
+    The widget of Pray unless another is given, with headers, and the
+    avalanche bulletins of some days: for a test that serves again.
+    """
+    serve_widget(
+        aioclient_mock,
+        fixture_json("widget_096050.json") if widget is None else widget,
+        headers,
+    )
+    serve_earthquakes(aioclient_mock, fixture_json("sismica_tabella.json"))
+    serve_heat(aioclient_mock)
+    serve_avalanches(aioclient_mock, avalanches)
+
+
+def is_a_risk(url: str) -> bool:
+    """Return whether a URL is of the natural risks, not of the stations."""
+    return url == EARTHQUAKES_URL or any(
+        pattern.search(url) for pattern in (WIDGETS, HEAT, AVALANCHES)
+    )
+
+
 def requested(aioclient_mock: AiohttpClientMocker) -> list[str]:
-    """Return the URLs of the stations requested, in order: not the widgets."""
+    """Return the URLs of the stations requested, in order: not the risks."""
     return [
         str(url)
         for _, url, _, _ in aioclient_mock.mock_calls
-        if not WIDGETS.search(str(url))
+        if not is_a_risk(str(url))
     ]
 
 

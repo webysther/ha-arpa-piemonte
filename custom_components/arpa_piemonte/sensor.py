@@ -3,16 +3,22 @@
 Of a station: its readings, the level against its thresholds, and where the
 readings come from. Of the risks: the highest alert, the danger now, the
 operational phase, the level of each risk today and tomorrow, and the
-bulletin.
+bulletin; the earthquakes nearby; the heat waves; the avalanche danger.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import date, datetime
+from typing import Any
 
-from aioarpapiemonte import MunicipalityAlerts, RiskType
+from aioarpapiemonte import (
+    MICRO_REGION_NAMES,
+    HeatForecast,
+    MunicipalityAlerts,
+    RiskType,
+)
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -37,15 +43,21 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .coordinator import (
     ArpaPiemonteConfigEntry,
     ArpaPiemonteCoordinator,
-    MunicipalityRisksCoordinator,
+    RisksCoordinator,
 )
 from .entity import ArpaPiemonteEntity, MunicipalityRisksEntity
 from .models import LevelStatus, Quantity, Source, StationSnapshot, Thresholds
 from .risks import (
     ALERT_LEVELS,
+    AVALANCHE_DANGERS,
+    HEAT_LEVELS,
     PHASES,
     RISK_KEYS,
+    AvalancheDays,
+    NearbyEarthquake,
     RiskDay,
+    danger_state,
+    heat_state,
     highest_alert,
     level_state,
     phase_state,
@@ -202,14 +214,16 @@ STATION_SENSORS: tuple[StationDescription, ...] = (
 
 
 @dataclass(frozen=True, kw_only=True)
-class RiskSensorDescription(SensorEntityDescription):
-    """A sensor of the natural risks of a municipality."""
+class RiskSensorDescription[DataT](SensorEntityDescription):
+    """A sensor of a natural risk of a municipality, from its coordinator."""
 
-    value_fn: Callable[[MunicipalityAlerts, date], str | datetime | None]
-    """Return the value, from the alerts and the date of today in Italy."""
+    value_fn: Callable[[DataT, date], str | int | datetime | None]
+    """Return the value, from the data and the date of today in Italy."""
 
 
-def _risk_level(risk: RiskType, day: RiskDay) -> RiskSensorDescription:
+def _risk_level(
+    risk: RiskType, day: RiskDay
+) -> RiskSensorDescription[MunicipalityAlerts]:
     """Return the sensor of the level of a risk on a day: hydraulic_risk_level_today."""
     return RiskSensorDescription(
         key=f"{RISK_KEYS[risk]}_risk_level_{day}",
@@ -221,7 +235,7 @@ def _risk_level(risk: RiskType, day: RiskDay) -> RiskSensorDescription:
     )
 
 
-RISK_SENSORS: tuple[RiskSensorDescription, ...] = (
+ALERT_SENSORS: tuple[RiskSensorDescription[MunicipalityAlerts], ...] = (
     RiskSensorDescription(
         key="highest_alert",
         device_class=SensorDeviceClass.ENUM,
@@ -260,9 +274,72 @@ RISK_SENSORS: tuple[RiskSensorDescription, ...] = (
         value_fn=lambda alerts, _: alerts.next_update,
     ),
 )
-"""The sensors of the risks: the highest alert of today and tomorrow, the danger
+"""The sensors of the alerts: the highest alert of today and tomorrow, the danger
 now, the operational phase, the level of each risk on each day, then the zone
 and the bulletin as diagnostics."""
+
+EARTHQUAKE_SENSORS: tuple[RiskSensorDescription[tuple[NearbyEarthquake, ...]], ...] = (
+    RiskSensorDescription(
+        key="nearby_earthquakes",
+        value_fn=lambda earthquakes, _: len(earthquakes),
+    ),
+)
+"""The number of earthquakes of the last 30 days within the radius: each is a
+geolocation entity too."""
+
+
+def _heat_wave(day: RiskDay) -> RiskSensorDescription[HeatForecast]:
+    """Return the sensor of the heat of a day: heat_wave_today."""
+    return RiskSensorDescription(
+        key=f"heat_wave_{day}",
+        device_class=SensorDeviceClass.ENUM,
+        options=HEAT_LEVELS,
+        value_fn=lambda forecast, today: heat_state(
+            None if (heat := forecast.on(day.date(today))) is None else heat.level
+        ),
+    )
+
+
+HEAT_SENSORS: tuple[RiskSensorDescription[HeatForecast], ...] = (
+    *(_heat_wave(day) for day in RiskDay),
+    RiskSensorDescription(
+        key="heat_wave_city",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda forecast, _: forecast.city.value.title(),
+    ),
+)
+"""The heat of today and tomorrow in the capital, and the capital as a
+diagnostic."""
+
+
+def _avalanche_danger(day: RiskDay) -> RiskSensorDescription[AvalancheDays]:
+    """Return the sensor of the avalanche danger of a day: avalanche_danger_today."""
+    return RiskSensorDescription(
+        key=f"avalanche_danger_{day}",
+        device_class=SensorDeviceClass.ENUM,
+        options=AVALANCHE_DANGERS,
+        value_fn=lambda days, today: danger_state(days.danger_on(day.date(today))),
+    )
+
+
+AVALANCHE_SENSORS: tuple[RiskSensorDescription[AvalancheDays], ...] = (
+    *(_avalanche_danger(day) for day in RiskDay),
+    RiskSensorDescription(
+        key="avalanche_region",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda days, _: MICRO_REGION_NAMES.get(days.region_id, days.region_id),
+    ),
+)
+"""The avalanche danger of today and tomorrow in the micro-region of the
+position, the highest of the bulletin, and the micro-region as a diagnostic."""
+
+RISK_SENSORS: tuple[RiskSensorDescription[Any], ...] = (
+    *ALERT_SENSORS,
+    *EARTHQUAKE_SENSORS,
+    *HEAT_SENSORS,
+    *AVALANCHE_SENSORS,
+)
+"""Every sensor of the risks of a municipality: those of the risks it has."""
 
 
 async def async_setup_entry(
@@ -277,7 +354,24 @@ async def async_setup_entry(
             _station_sensors(coordinator), config_subentry_id=subentry_id
         )
     risks = entry.runtime_data.risks
-    async_add_entities(RisksSensor(risks, description) for description in RISK_SENSORS)
+    async_add_entities(
+        [
+            *_risk_sensors(risks.alerts, ALERT_SENSORS),
+            *_risk_sensors(risks.earthquakes, EARTHQUAKE_SENSORS),
+            *_risk_sensors(risks.heat, HEAT_SENSORS),
+            *_risk_sensors(risks.avalanches, AVALANCHE_SENSORS),
+        ]
+    )
+
+
+def _risk_sensors[DataT](
+    coordinator: RisksCoordinator[DataT] | None,
+    descriptions: Iterable[RiskSensorDescription[DataT]],
+) -> list[SensorEntity]:
+    """Return the sensors of a risk; none when the municipality does not have it."""
+    if coordinator is None:
+        return []
+    return [RisksSensor(coordinator, description) for description in descriptions]
 
 
 def _station_sensors(coordinator: ArpaPiemonteCoordinator) -> list[SensorEntity]:
@@ -348,21 +442,23 @@ class StationSensor(ArpaPiemonteEntity, SensorEntity):
         return self.entity_description.value_fn(self.coordinator.data)
 
 
-class RisksSensor(MunicipalityRisksEntity, SensorEntity):
-    """A sensor of the natural risks of a municipality."""
+class RisksSensor[DataT](
+    MunicipalityRisksEntity[RisksCoordinator[DataT]], SensorEntity
+):
+    """A sensor of a natural risk of a municipality."""
 
-    entity_description: RiskSensorDescription
+    entity_description: RiskSensorDescription[DataT]
 
     def __init__(
         self,
-        coordinator: MunicipalityRisksCoordinator,
-        description: RiskSensorDescription,
+        coordinator: RisksCoordinator[DataT],
+        description: RiskSensorDescription[DataT],
     ) -> None:
-        """Initialize a sensor of the risks."""
+        """Initialize a sensor of a risk."""
         super().__init__(coordinator, Platform.SENSOR, description.key)
         self.entity_description = description
 
     @property
-    def native_value(self) -> str | datetime | None:
+    def native_value(self) -> str | int | datetime | None:
         """Return the value, today in Italy."""
         return self.entity_description.value_fn(self.coordinator.data, self.today)

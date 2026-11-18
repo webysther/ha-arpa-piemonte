@@ -20,8 +20,9 @@ The readings of the stations of [Arpa Piemonte](https://www.arpa.piemonte.it)
 in Home Assistant: **river levels**, with the alert thresholds of each
 hydrometer, **rain**, temperature, humidity, wind and snow, for any of the 374
 stations of the Piedmont network; and the **natural risks** of their
-municipalities: the alerts of the bulletin today and tomorrow, the danger now
-and the operational phase.
+municipalities: the alerts of the bulletin today and tomorrow, the danger now,
+the operational phase, the earthquakes nearby, the heat waves and the
+avalanche danger.
 
 > Not an official app of Arpa Piemonte, and not endorsed by it. The data is
 > validated automatically only. Do not rely on it for safety: for alerts,
@@ -53,6 +54,10 @@ and the operational phase.
   warning level you choose; the highest alert; the danger now, from the rain
   and the rivers measured; and the operational phase the municipality
   declared.
+- The earthquakes of the last 30 days near the municipality, or near your
+  home, on the map; the heat waves of the capital of its province, or of the
+  nearest one, in summer; and the avalanche danger of its micro-region, from
+  the bulletins of AINEVA, in winter.
 - A [dashboard](#dashboard): a tab per municipality, with its risks at the top
   and a section per station, the level in the colors of the alert maps and a
   gauge with its thresholds; and a [card](#card) of a station, in the card
@@ -65,6 +70,9 @@ and the operational phase.
 - Be warned in the afternoon when the bulletin puts your municipality in an
   orange alert tomorrow, or when the municipality declares an operational
   phase.
+- Be warned of an earthquake within 50 km of home.
+- Close the shutters early on a day of heat discomfort, or check the
+  avalanche danger before going up the valley.
 - Follow the rain of the last 24 hours upstream of a river.
 - Close the shutters when the wind gusts, cover the plants when it freezes.
 
@@ -105,6 +113,12 @@ entry of a municipality reads all its stations again.
 | Option | What it does |
 | --- | --- |
 | Minimum level of warning | The binary sensor of each risk, today and tomorrow, turns on from this level of the bulletin: yellow (the default), orange or red. |
+| Position of the risks | Where the earthquakes, the avalanche danger and the nearest heat-wave city are taken from: the stations of the municipality (the default; their mean position), or the home of Home Assistant. |
+| Radius of the earthquakes | The earthquakes within this distance of the position, in km: 50 by default, as DPC. |
+| Heat-wave city | Arpa issues the heat-wave bulletins for the 8 capitals of province only: the capital of the province of the municipality (the default), or the nearest capital to the position. |
+
+The integration reads the position when the municipality is set up: after
+moving the home of Home Assistant, reload the municipality.
 
 ## Removal
 
@@ -141,6 +155,15 @@ of the last 24 hours; the operational phase changes when the municipality
 declares one. Today and tomorrow are the days in Italy: at midnight, tomorrow
 becomes today, and the new tomorrow is unknown until the next bulletin.
 
+| Risk | Issued | Asked |
+| --- | --- | --- |
+| Alerts, danger now, operational phase (widget of the municipality) | the bulletin once a day, around 13:00; the danger every few hours | every 10 min |
+| Earthquakes (Arpa) | within minutes from magnitude 2.5, after review below | every 10 min |
+| Heat waves (Arpa, 8 capitals) | once a day, from 15 May to about 30 September | every 30 min |
+| Avalanches (AINEVA, EAWS) | the day before, around 17:00, from December to May | every hour; out of season, every 6 hours |
+
+Most answers are a `304 Not Modified`, without a download.
+
 ## Known limitations
 
 - The history of Home Assistant records a reading when it is downloaded,
@@ -171,6 +194,17 @@ becomes today, and the new tomorrow is unknown until the next bulletin.
 - The risks are those the widget gives the municipality, from the alert
   zones it lies in: most are in one, a few in two (Asti, Piem-G and Piem-L).
   The avalanches are not evaluated out of season.
+- The alert bulletin covers Piedmont only: Palestro, a municipality of
+  Lombardy with a station of Arpa Piemonte, has no alerts, only the
+  earthquakes, the heat waves of the nearest capital and the avalanches.
+- The heat waves are known from 15 May to about 30 September, the avalanche
+  danger from December to May: out of season, they are unknown. The avalanche
+  danger exists only where the position is in one of the 14 micro-regions of
+  the bulletins, the mountains: for the stations, that of their mean or else
+  of a station in one.
+- The earthquakes are those of the last 30 days, of magnitude 1.0 or more, in
+  Piedmont and around it; an earthquake below 2.5 appears once a seismologist
+  has reviewed it, an hour or more later.
 
 ## Troubleshooting
 
@@ -182,9 +216,11 @@ becomes today, and the new tomorrow is unknown until the next bulletin.
   goes back to it as soon as it does.
 - **The station cannot be added**: Arpa Piemonte did not answer; try again
   later.
-- **The risks are unavailable**: the widget of the municipality did not
-  answer; the integration asks again every 10 minutes. The device of the risks
-  links to the page of the widget on the Arpa website.
+- **The risks are unavailable**: their source did not answer; the
+  integration asks again at its next update. The device of the risks links to
+  the page of the widget on the Arpa website.
+- **No earthquake, heat wave or avalanche entity**: with the position of the
+  stations, a municipality whose stations were all removed has no position.
 - Otherwise, download the diagnostics (the three dots of the municipality on
   the page of the integration, or the page of the device of the station) and
   open an
@@ -229,11 +265,20 @@ risks**:
 | Hydrogeological, hydraulic, thunderstorm, snow and avalanche risk, today and tomorrow (safety) | on from the minimum level of warning |
 | Alert zone (diagnostic) | the zone of the bulletin: `Piem-B` |
 | Alert bulletin, next alert bulletin (diagnostic) | when it was issued, when the next one is due |
+| Earthquakes nearby | how many within the radius, in the last 30 days |
+| Earthquake M 1.9 (geolocation), one for each | its distance, in km; its magnitude, time, depth and seismic district as attributes |
+| Heat wave today, tomorrow | no discomfort, discomfort level 1, 2 or 3 (green to red) |
+| Heat-wave city (diagnostic) | the capital whose bulletin it is: `Biella` |
+| Avalanche danger today, tomorrow | no snow, 1 low, 2 moderate, 3 considerable, 4 high, 5 very high: the highest of the bulletin |
+| Avalanche micro-region (diagnostic) | the micro-region of the position: `Valle Stura` |
 
 Their entity IDs: `sensor.arpa_piemonte_pray_highest_alert`,
 `sensor.arpa_piemonte_pray_hydraulic_risk_level_tomorrow`,
-`binary_sensor.arpa_piemonte_pray_hydraulic_risk_tomorrow`. A risk of a day
-the bulletin does not cover yet is unknown: tomorrow, in the morning.
+`binary_sensor.arpa_piemonte_pray_hydraulic_risk_tomorrow`,
+`geo_location.arpa_piemonte_pray_earthquake_261117064149`. A risk of a day
+the bulletin does not cover yet is unknown: tomorrow, in the morning. The
+earthquakes, the heat waves and the avalanches exist only where the
+municipality has them: a position, a capital, a micro-region.
 
 The state of a chart is the time of its newest reading. The charts carry no
 words, only units and values: the dashed lines of the level are the
@@ -290,6 +335,28 @@ automation:
           message: "{{ trigger.to_state.name }}"
 ```
 
+Be warned of an earthquake within the radius, as it appears:
+
+```yaml
+automation:
+  - alias: "Earthquake near Pray"
+    triggers:
+      - trigger: geo_location
+        source: arpa_piemonte
+        zone: zone.home
+        event: enter
+    actions:
+      - action: notify.notify
+        data:
+          message: >-
+            {{ trigger.to_state.name }},
+            {{ trigger.to_state.state }} km away
+```
+
+The trigger fires for an earthquake inside the zone, whose radius is 100 m
+unless you change it: give it the radius you want, or trigger on
+`sensor.arpa_piemonte_pray_nearby_earthquakes` going up instead.
+
 Be warned when the river rises fast:
 
 ```yaml
@@ -310,10 +377,12 @@ automation:
 The integration comes with a dashboard made of the cards of Home Assistant,
 with the names of the entities in the language of each user. It has a tab for
 each municipality, whose first section is its **natural risks**: the alert
-zone and the time of the bulletin, the highest alert and the danger now in the
-colors of the alert maps, the operational phase in the colors of the widget of
-Arpa, and the level of each risk today and tomorrow. Tomorrow appears with the
-bulletin of the day.
+zone, the time of the bulletin, the heat-wave city and the micro-region; the
+highest alert and the danger now in the colors of the alert maps, the
+operational phase in the colors of the widget of Arpa; the level of each risk,
+the heat and the avalanche danger, today and tomorrow, each while its bulletin
+covers the day; and the earthquakes nearby, on a map marked with their
+magnitude.
 
 Then a section for each station, the hydrometers first:
 
@@ -407,6 +476,11 @@ license ([legal notes](https://www.arpa.piemonte.it/note-legali)): "Fonte: Arpa
 Piemonte - www.arpa.piemonte.it". Every entity carries this attribution, and
 each device links to the page of its station, or for the natural risks, to the
 page of the widget of the municipality, where Arpa shows them.
+
+The avalanche bulletins are those of AINEVA for Piedmont, as the European
+Avalanche Warning Services (EAWS) publish them, "Fonte: AINEVA Piemonte -
+bollettini.aineva.it", which their entities carry; their micro-regions are
+those of EAWS (CC0). Not affiliated with AINEVA or EAWS.
 
 The integration reads Meteo 3R with
 [aiometeo3r](https://github.com/webysther/aio-meteo3r) and the official

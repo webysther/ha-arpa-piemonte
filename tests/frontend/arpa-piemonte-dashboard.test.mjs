@@ -4,10 +4,12 @@ import { describe, it } from "node:test";
 
 import {
   ALERT_COLORS,
+  AVALANCHE_COLORS,
   LEVEL_STATUS_COLORS,
   PHASE_COLORS,
   colorByState,
   dashboardSuggestion,
+  earthquakeCards,
   entityName,
   findRisks,
   findStations,
@@ -73,6 +75,13 @@ const risksOfPray = (hass = homeAssistant()) => risksSection(hass, risksIn(hass,
 
 /** Return the entity ID of an entity of the risks of Pray. */
 const prayRisk = (key, domain = "sensor") => riskEntityId("pray_risks", domain, key);
+
+/** Return the section of the risks of Vinadio of a Home Assistant: in a micro-region. */
+const risksOfVinadio = (hass = homeAssistant()) =>
+  risksSection(hass, risksIn(hass, "vinadio_risks"));
+
+/** Return the entity ID of an entity of the risks of Vinadio. */
+const vinadioRisk = (key, domain = "sensor") => riskEntityId("vinadio_risks", domain, key);
 
 describe("dashboard", () => {
   it("has a tab per municipality, sorted by name, from the entries of the integration", async () => {
@@ -295,7 +304,7 @@ describe("risks", () => {
     );
   });
 
-  it("head with the alert zone and the time of the bulletin", () => {
+  it("head with the alert zone, the time of the bulletin and the heat-wave city", () => {
     const [heading] = risksOfPray().cards;
 
     assert.deepEqual(heading, {
@@ -305,7 +314,17 @@ describe("risks", () => {
       badges: [
         { type: "entity", entity: prayRisk("alert_zone") },
         { type: "entity", entity: prayRisk("alert_bulletin") },
+        { type: "entity", entity: prayRisk("heat_wave_city") },
       ],
+    });
+  });
+
+  it("head with the micro-region of the avalanches, in a micro-region", () => {
+    const [heading] = risksOfVinadio().cards;
+
+    assert.deepEqual(heading.badges.at(-1), {
+      type: "entity",
+      entity: vinadioRisk("avalanche_region"),
     });
   });
 
@@ -371,13 +390,16 @@ describe("risks", () => {
     assert.deepEqual(tomorrow.visibility, [
       {
         condition: "or",
-        conditions: ["hydrogeological", "hydraulic", "thunderstorm", "snow", "avalanche"].map(
-          (risk) => ({
-            condition: "state",
-            entity: prayRisk(`${risk}_risk_level_tomorrow`),
-            state_not: ["unknown"],
-          }),
-        ),
+        conditions: [
+          ...["hydrogeological", "hydraulic", "thunderstorm", "snow", "avalanche"].map(
+            (risk) => `${risk}_risk_level_tomorrow`,
+          ),
+          "heat_wave_tomorrow",
+        ].map((key) => ({
+          condition: "state",
+          entity: prayRisk(key),
+          state_not: ["unknown"],
+        })),
       },
     ]);
     assert.deepEqual(uncolored.visibility, [
@@ -402,7 +424,7 @@ describe("risks", () => {
     const hass = homeAssistant();
     hass.entities = Object.fromEntries(
       Object.entries(hass.entities).filter(
-        ([id]) => !/_risk_level_tomorrow$|highest_alert$|alert_zone$/.test(id),
+        ([id]) => !/_tomorrow$|highest_alert$|alert_zone$|heat_wave_city$/.test(id),
       ),
     );
 
@@ -415,6 +437,105 @@ describe("risks", () => {
     assert.equal(
       section.cards.some((card) => card.heading === "Tomorrow"),
       false,
+    );
+  });
+});
+
+describe("other risks", () => {
+  it("show the heat wave and the avalanche danger of each day, after the bulletin", () => {
+    const section = risksOfVinadio();
+    const today = section.cards.filter(
+      (card) => card.entity?.endsWith("_today") && card.visibility[0].state === "green",
+    );
+    const heat = cardsFor(section, vinadioRisk("heat_wave_today"));
+    const avalanches = cardsFor(section, vinadioRisk("avalanche_danger_today"));
+
+    assert.deepEqual(
+      today.map((card) => card.name),
+      ["Hydrogeological", "Hydraulic", "Thunderstorms", "Snow", "Avalanches", "Heat wave"],
+    );
+    assert.deepEqual(
+      heat.map((card) => card.color),
+      [...Object.values(ALERT_COLORS), undefined],
+    );
+    assert.deepEqual(
+      avalanches.map((card) => [card.name, card.color, card.visibility[0].state]),
+      [
+        ["Avalanche danger", "#90c985", "low"],
+        ["Avalanche danger", "#f8f865", "moderate"],
+        ["Avalanche danger", "#f0bf01", "considerable"],
+        ["Avalanche danger", "#fd6767", "high"],
+        ["Avalanche danger", "#8b0000", "very_high"],
+        ["Avalanche danger", undefined, undefined],
+      ],
+    );
+    // No snow, without color; hidden while the bulletin does not cover the day
+    assert.deepEqual(avalanches.at(-1).visibility[0].state_not, [
+      ...Object.keys(AVALANCHE_COLORS),
+      "unknown",
+    ]);
+  });
+
+  it("show the earthquakes nearby, and a map of them marked with their magnitude", () => {
+    const [count, map] = earthquakeCards(
+      homeAssistant(),
+      risksIn(homeAssistant(), "vinadio_risks"),
+    );
+
+    assert.deepEqual(count.entity, vinadioRisk("nearby_earthquakes"));
+    assert.deepEqual(count.grid_options, { columns: 12 });
+    assert.deepEqual(map, {
+      type: "map",
+      entities: ["261110081514", "261117064149"].map((event) => ({
+        entity: riskEntityId("vinadio_risks", "geo_location", `earthquake_${event}`),
+        label_mode: "attribute",
+        attribute: "magnitude",
+      })),
+      default_zoom: 8,
+      grid_options: { columns: 12 },
+    });
+    assert.equal(risksOfVinadio().cards.at(-1).type, "map");
+  });
+
+  it("have no map without earthquakes nearby", () => {
+    const cards = earthquakeCards(homeAssistant(), risksIn(homeAssistant(), "pray_risks"));
+
+    assert.deepEqual(
+      cards.map((card) => card.entity),
+      [prayRisk("nearby_earthquakes")],
+    );
+  });
+
+  it("speak the language of the user", () => {
+    const section = risksOfVinadio(homeAssistant({ language: "pt-BR" }));
+
+    assert.equal(cardsFor(section, vinadioRisk("heat_wave_today"))[0].name, "Onda de calor");
+    assert.equal(
+      cardsFor(section, vinadioRisk("avalanche_danger_today"))[0].name,
+      "Perigo de avalanches",
+    );
+  });
+
+  it("leave out a municipality the alert bulletin does not cover", () => {
+    const hass = homeAssistant();
+    hass.entities = Object.fromEntries(
+      Object.entries(hass.entities).filter(
+        ([id, entry]) => entry.device_id !== "pray_risks" || /heat_wave|earthquake/.test(id),
+      ),
+    );
+
+    const section = risksOfPray(hass);
+
+    assert.deepEqual(
+      section.cards.map((card) => card.heading ?? card.entity),
+      [
+        "Natural risks",
+        "Today",
+        ...Array(5).fill(prayRisk("heat_wave_today")),
+        "Tomorrow",
+        ...Array(5).fill(prayRisk("heat_wave_tomorrow")),
+        prayRisk("nearby_earthquakes"),
+      ],
     );
   });
 });

@@ -77,12 +77,18 @@
         "step": {
             "init": {
                 "title": "Riscos naturais de {municipality}",
-                "description": "O sensor binário de cada risco de {municipality}, hoje e amanhã, liga a partir deste nível de alerta.",
+                "description": "As opções dos riscos naturais de {municipality}.",
                 "data": {
-                    "warning_level": "Nível mínimo de alerta"
+                    "warning_level": "Nível mínimo de alerta",
+                    "position": "Posição dos riscos",
+                    "radius": "Raio dos terremotos",
+                    "heat_city": "Cidade das ondas de calor"
                 },
                 "data_description": {
-                    "warning_level": "Amarelo por padrão, o primeiro nível de alerta."
+                    "warning_level": "O sensor binário de cada risco, hoje e amanhã, liga a partir deste nível: amarelo por padrão, o primeiro nível de alerta.",
+                    "position": "Os terremotos, o perigo de avalanches e a cidade das ondas de calor mais próxima desta posição: as estações do município, ou a casa do Home Assistant.",
+                    "radius": "Os terremotos dos últimos 30 dias até esta distância da posição, em km (padrão 50).",
+                    "heat_city": "A Arpa emite boletins de ondas de calor só para as 8 capitais de província, de 15 de maio a cerca de 30 de setembro."
                 }
             }
         }
@@ -93,6 +99,18 @@
                 "yellow": "Alerta amarelo",
                 "orange": "Alerta laranja",
                 "red": "Alerta vermelho"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "As estações do município",
+                "home": "A casa do Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "A capital da província",
+                "nearest": "A capital mais próxima"
             }
         }
     },
@@ -135,6 +153,31 @@
             },
             "avalanche_risk_tomorrow": {
                 "name": "Risco de avalanches amanhã"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "Terremoto M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "Magnitude"
+                    },
+                    "magnitude_type": {
+                        "name": "Tipo de magnitude"
+                    },
+                    "time": {
+                        "name": "Hora"
+                    },
+                    "depth": {
+                        "name": "Profundidade"
+                    },
+                    "district": {
+                        "name": "Distrito sísmico"
+                    },
+                    "reviewed": {
+                        "name": "Revisado"
+                    }
+                }
             }
         },
         "image": {
@@ -369,6 +412,55 @@
             },
             "next_alert_bulletin": {
                 "name": "Próximo boletim de alerta"
+            },
+            "nearby_earthquakes": {
+                "name": "Terremotos próximos"
+            },
+            "heat_wave_today": {
+                "name": "Onda de calor hoje",
+                "state": {
+                    "green": "Sem desconforto",
+                    "yellow": "Desconforto nível 1",
+                    "orange": "Desconforto nível 2",
+                    "red": "Desconforto nível 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "Onda de calor amanhã",
+                "state": {
+                    "green": "Sem desconforto",
+                    "yellow": "Desconforto nível 1",
+                    "orange": "Desconforto nível 2",
+                    "red": "Desconforto nível 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "Cidade das ondas de calor"
+            },
+            "avalanche_danger_today": {
+                "name": "Perigo de avalanches hoje",
+                "state": {
+                    "no_snow": "Sem neve",
+                    "low": "1 – Baixo",
+                    "moderate": "2 – Moderado",
+                    "considerable": "3 – Considerável",
+                    "high": "4 – Alto",
+                    "very_high": "5 – Muito alto"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "Perigo de avalanches amanhã",
+                "state": {
+                    "no_snow": "Sem neve",
+                    "low": "1 – Baixo",
+                    "moderate": "2 – Moderado",
+                    "considerable": "3 – Considerável",
+                    "high": "4 – Alto",
+                    "very_high": "5 – Muito alto"
+                }
+            },
+            "avalanche_region": {
+                "name": "Microrregião de avalanches"
             }
         }
     },

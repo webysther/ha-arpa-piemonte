@@ -10,9 +10,18 @@ import pytest
 
 from custom_components.arpa_piemonte.binary_sensor import FLOOD_RISK, RISKS
 from custom_components.arpa_piemonte.entity import RISKS_DEVICE
+from custom_components.arpa_piemonte.geo_location import EARTHQUAKE
 from custom_components.arpa_piemonte.image import CHARTS
 from custom_components.arpa_piemonte.models import LevelStatus, Quantity, Source
-from custom_components.arpa_piemonte.risks import ALERT_LEVELS, PHASES, WARNING_LEVELS
+from custom_components.arpa_piemonte.risks import (
+    ALERT_LEVELS,
+    AVALANCHE_DANGERS,
+    HEAT_LEVELS,
+    PHASES,
+    WARNING_LEVELS,
+    HeatCityChoice,
+    PositionChoice,
+)
 from custom_components.arpa_piemonte.sensor import (
     MEASUREMENTS,
     RISK_SENSORS,
@@ -67,10 +76,17 @@ def test_every_entity_has_a_name_and_an_icon() -> None:
         == set(ICONS["entity"])
         == {
             "binary_sensor",
+            "geo_location",
             "image",
             "sensor",
         }
     )
+    assert (
+        set(STRINGS["entity"]["geo_location"])
+        == {EARTHQUAKE}
+        == set(ICONS["entity"]["geo_location"])
+    )
+    assert "{magnitude}" in STRINGS["entity"]["geo_location"][EARTHQUAKE]["name"]
     assert set(sensors) == set(KEYS) == set(icons)
     assert (
         set(STRINGS["entity"]["binary_sensor"])
@@ -105,5 +121,11 @@ def test_every_state_of_the_risks_has_a_text_and_an_icon() -> None:
     for key in ("highest_alert", "current_danger"):
         assert icons[key]["state"].keys() == set(ALERT_LEVELS)
     assert icons["operational_phase"]["state"].keys() == set(PHASES)
-    assert list(STRINGS["selector"]["warning_level"]["options"]) == WARNING_LEVELS
+    for day in ("today", "tomorrow"):
+        assert list(sensors[f"heat_wave_{day}"]["state"]) == HEAT_LEVELS
+        assert list(sensors[f"avalanche_danger_{day}"]["state"]) == AVALANCHE_DANGERS
+    selectors = STRINGS["selector"]
+    assert list(selectors["warning_level"]["options"]) == WARNING_LEVELS
+    assert list(selectors["position"]["options"]) == list(PositionChoice)
+    assert list(selectors["heat_city"]["options"]) == list(HeatCityChoice)
     assert "{municipality}" in STRINGS["device"][RISKS_DEVICE]["name"]

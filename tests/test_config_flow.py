@@ -18,14 +18,18 @@ from aioarpapiemonte.parsers import parse_pie_anag
 from aiometeo3r import Meteo3rClient, Meteo3rConnectionError, Station
 from aiometeo3r.parsers import parse_registry
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
+from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.arpa_piemonte.const import (
+    CONF_HEAT_CITY,
     CONF_MUNICIPALITY,
     CONF_MUNICIPALITY_CODE,
+    CONF_POSITION,
+    CONF_RADIUS,
     CONF_SENSOR_ID,
     CONF_SENSOR_LETTERS,
     CONF_STATION_CODE,
@@ -61,6 +65,13 @@ PRAY_ON_THE_WEBSITE = Sensor(
     altitude=409.0,
     params=frozenset({Param.LEVEL, Param.RAIN_10_MIN, Param.TEMPERATURE}),
 )
+PRAY_ADDED: dict[str, Any] = {
+    **PRAY_DATA,
+    CONF_LATITUDE: 45.67389,
+    CONF_LONGITUDE: 8.22167,
+}
+"""The data of the subentry of Pray Sessera when added: with its position, as
+the list of Meteo 3R gives it."""
 DOWN = Meteo3rConnectionError("down")
 ARPA_DOWN = ArpaPiemonteConnectionError("down")
 
@@ -162,7 +173,7 @@ async def test_add_a_municipality_with_one_station(
     assert subentry.subentry_type == SUBENTRY_STATION
     assert subentry.title == "Sessera"
     assert subentry.unique_id == UNIQUE_ID
-    assert dict(subentry.data) == PRAY_DATA
+    assert dict(subentry.data) == PRAY_ADDED
     clients.get_realtime_data.assert_not_called()
 
 
@@ -211,7 +222,12 @@ async def test_station_list_of_the_api_realtime(
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Pray"
     (subentry,) = result["result"].subentries.values()
-    assert dict(subentry.data) == PRAY_DATA
+    # Where the api_realtime puts the station, with one digit less
+    assert dict(subentry.data) == {
+        **PRAY_ADDED,
+        CONF_LATITUDE: 45.6739,
+        CONF_LONGITUDE: 8.22167,
+    }
     clients.get_realtime_data.assert_awaited_once_with(PRAY)
 
 
@@ -362,7 +378,7 @@ async def test_read_a_municipality_again(hass: HomeAssistant, clients: Clients) 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
     (subentry,) = entry.subentries.values()
-    assert dict(subentry.data) == {**PRAY_DATA, CONF_STATION_NAME: "My river"}
+    assert dict(subentry.data) == {**PRAY_ADDED, CONF_STATION_NAME: "My river"}
 
 
 @pytest.mark.parametrize("failure", ["no_list", "no_station", "not_listed"])
@@ -502,7 +518,7 @@ async def test_read_a_station_again(hass: HomeAssistant, clients: Clients) -> No
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
-    assert dict(entry.subentries[subentry_id].data) == PRAY_DATA
+    assert dict(entry.subentries[subentry_id].data) == PRAY_ADDED
 
 
 async def test_read_a_station_again_without_answer(
@@ -524,13 +540,44 @@ async def test_read_a_station_again_without_answer(
     assert result["errors"] == {"base": "cannot_connect"}
 
 
+OPTIONS: dict[str, Any] = {
+    CONF_WARNING_LEVEL: "orange",
+    CONF_POSITION: "home",
+    CONF_RADIUS: 120.0,
+    CONF_HEAT_CITY: "nearest",
+}
+"""Options of a municipality, none the default."""
+
+
 @pytest.mark.parametrize(
-    ("options", "shown"), [({}, "yellow"), ({CONF_WARNING_LEVEL: "red"}, "red")]
+    ("options", "shown"),
+    [
+        (
+            {},
+            {
+                CONF_WARNING_LEVEL: "yellow",
+                CONF_POSITION: "stations",
+                CONF_RADIUS: 50.0,
+                CONF_HEAT_CITY: "province",
+            },
+        ),
+        (OPTIONS, OPTIONS),
+        # Values no longer offered start from the defaults
+        (
+            {CONF_WARNING_LEVEL: "green", CONF_POSITION: "moon", CONF_HEAT_CITY: "x"},
+            {
+                CONF_WARNING_LEVEL: "yellow",
+                CONF_POSITION: "stations",
+                CONF_RADIUS: 50.0,
+                CONF_HEAT_CITY: "province",
+            },
+        ),
+    ],
 )
-async def test_warning_level(
-    hass: HomeAssistant, options: dict[str, Any], shown: str
+async def test_options(
+    hass: HomeAssistant, options: dict[str, Any], shown: dict[str, Any]
 ) -> None:
-    """Test the options of a municipality: the warning level of its risks."""
+    """Test the options of the risks of a municipality."""
     entry = municipality_entry(
         PRAY_MUNICIPALITY, "Pray", station_subentry(PRAY_DATA), options=options
     )
@@ -542,12 +589,14 @@ async def test_warning_level(
     assert result["step_id"] == "init"
     assert result["description_placeholders"] == {"municipality": "Pray"}
     assert options_of(result, CONF_WARNING_LEVEL) == ["yellow", "orange", "red"]
-    # The level shown when the form opens: yellow without one
-    assert result["data_schema"]({}) == {CONF_WARNING_LEVEL: shown}
+    assert options_of(result, CONF_POSITION) == ["stations", "home"]
+    assert options_of(result, CONF_HEAT_CITY) == ["province", "nearest"]
+    # What the form shows when it opens
+    assert result["data_schema"]({}) == shown
 
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_WARNING_LEVEL: "orange"}
+        result["flow_id"], OPTIONS
     )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert entry.options == {CONF_WARNING_LEVEL: "orange"}
+    assert entry.options == OPTIONS

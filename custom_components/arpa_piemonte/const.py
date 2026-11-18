@@ -16,7 +16,12 @@ VERSION: Final = __version__
 
 DOMAIN: Final = "arpa_piemonte"
 LOGGER = logging.getLogger(__package__)
-PLATFORMS: Final = [Platform.BINARY_SENSOR, Platform.IMAGE, Platform.SENSOR]
+PLATFORMS: Final = [
+    Platform.BINARY_SENSOR,
+    Platform.GEO_LOCATION,
+    Platform.IMAGE,
+    Platform.SENSOR,
+]
 
 ATTRIBUTION: Final = "Fonte: Arpa Piemonte - www.arpa.piemonte.it"
 """Credit the data needs (CC BY 4.0, https://www.arpa.piemonte.it/note-legali)."""
@@ -52,6 +57,22 @@ CONF_WARNING_LEVEL: Final = "warning_level"
 DEFAULT_WARNING_LEVEL: Final = "yellow"
 """A risk is on from the yellow alert, the first alert of the bulletin, as in
 DPC."""
+CONF_POSITION: Final = "position"
+"""Where the earthquakes, the avalanches and the nearest heat-wave city are
+taken from: "stations", the mean position of the stations of the
+municipality, or "home", the home of Home Assistant."""
+DEFAULT_POSITION: Final = "stations"
+"""The stations: they are in the municipality, wherever Home Assistant is."""
+CONF_RADIUS: Final = "radius"
+"""Distance from the position of the earthquakes shown, in km."""
+DEFAULT_RADIUS: Final = 50.0
+"""The earthquakes within 50 km, as the phenomena of DPC."""
+CONF_HEAT_CITY: Final = "heat_city"
+"""Which of the 8 capitals of province, the cities of the heat-wave bulletins,
+gives the heat of the municipality: "province", the capital of its province,
+or "nearest", the nearest to the position."""
+DEFAULT_HEAT_CITY: Final = "province"
+"""The capital of the province of the municipality."""
 
 # Config subentry data: a station of the municipality
 SUBENTRY_STATION: Final = "station"
@@ -136,6 +157,30 @@ danger now every few hours (assessed at 06:50 and at 09:51 on 2026-11-18); the
 operational phase when the municipality declares one.
 """
 
+EARTHQUAKES_UPDATE_INTERVAL: Final = timedelta(minutes=10)
+"""How often the list of the earthquakes of the last 30 days is asked.
+
+Arpa lists an earthquake of magnitude 2.5 or more within minutes, and the
+others once a seismologist reviewed them: the earthquake of 06:42 UTC on
+2026-11-17 was reviewed at 07:21 and listed at 08:22. The list answers 304
+while it does not change (measured on 2026-11-18).
+"""
+
+HEAT_UPDATE_INTERVAL: Final = timedelta(minutes=30)
+"""How often the heat-wave bulletin of the city is asked: Arpa issues it once
+a day, from 15 May to about 30 September, for 3 days, and keeps the last one
+out of season (the bulletins of the 8 cities were those of 2026-09-30 on
+2026-11-18). A new bulletin is shown at most 30 minutes late."""
+
+AVALANCHES_UPDATE_INTERVAL: Final = timedelta(hours=1)
+"""How often the avalanche bulletins of today and tomorrow are asked, in
+season: AINEVA publishes the bulletin of a day at about 17:00 in Italy the day
+before (at 15:00 UTC on 2026-04-17 for 2026-04-18), from December to May."""
+
+AVALANCHES_OFF_SEASON_INTERVAL: Final = timedelta(hours=6)
+"""How often they are asked while there is no bulletin for today: out of
+season, from June to November, EAWS answers 404 (measured on 2026-11-18)."""
+
 ROME_TZ: Final = ZoneInfo("Europe/Rome")
-"""The time zone of the days of the alert bulletin: today and tomorrow are
-those of Italy, whatever the time zone of Home Assistant."""
+"""The time zone of the days of the bulletins: today and tomorrow are those of
+Italy, whatever the time zone of Home Assistant."""

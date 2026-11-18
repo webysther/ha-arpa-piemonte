@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
+from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 import pytest
 
-from custom_components.arpa_piemonte.const import MAX_CLOCK_SKEW, UNAVAILABLE_AFTER
+from custom_components.arpa_piemonte.const import (
+    CONF_STATION_CODE,
+    CONF_STATION_NAME,
+    MAX_CLOCK_SKEW,
+    UNAVAILABLE_AFTER,
+)
 from custom_components.arpa_piemonte.models import (
     LevelStatus,
     Measurement,
+    Position,
     Quantity,
     Source,
     StationConfig,
@@ -19,6 +27,8 @@ from custom_components.arpa_piemonte.models import (
 from custom_components.arpa_piemonte.selection import is_current, newest, select
 
 NOW = datetime(2026, 11, 17, 2, 40, tzinfo=UTC)
+PRAY_POSITION = Position(45.67389, 8.22167)
+"""Where Pray Sessera is, as the list of 2026-11-17 gives it."""
 TWO = datetime(2026, 11, 17, 2, tzinfo=UTC)
 ONE = datetime(2026, 11, 17, 1, tzinfo=UTC)
 
@@ -189,7 +199,9 @@ def test_quantities_of_the_sensors(
     letters: str, quantities: tuple[Quantity, ...]
 ) -> None:
     """Test the quantities of a station, from the letters of its sensors."""
-    station = StationConfig("188", "Pray Sessera", None, letters, Thresholds())
+    station = StationConfig(
+        "188", "Pray Sessera", None, letters, Thresholds(), position=PRAY_POSITION
+    )
 
     assert station.quantities == quantities
     assert station.has_level is (Quantity.LEVEL in quantities)
@@ -228,11 +240,38 @@ def test_quantities_only_the_website_gives(
 ) -> None:
     """Test the pressure and the radiation, by the files of the website."""
     station = StationConfig(
-        "142", "Avigliana", sensor_id, "BRT", Thresholds(), website_params
+        "142",
+        "Avigliana",
+        sensor_id,
+        "BRT",
+        Thresholds(),
+        website_params,
+        Position(45.09389, 7.39472),
     )
 
     assert station.quantities == quantities
     assert StationConfig.from_data(station.as_data()) == station
+
+
+@pytest.mark.parametrize(
+    ("data", "position"),
+    [
+        # Stored when the station was added
+        ({CONF_LATITUDE: 45.7, CONF_LONGITUDE: 8.2}, Position(45.7, 8.2)),
+        # Added before the position was stored: the list of 2026-11-17
+        ({}, PRAY_POSITION),
+        ({CONF_LATITUDE: None, CONF_LONGITUDE: None}, PRAY_POSITION),
+        # A station the list did not have
+        ({CONF_STATION_CODE: "999"}, None),
+    ],
+)
+def test_position_of_a_station(data: dict[str, Any], position: Position | None) -> None:
+    """Test the position of a station: stored, or else of the list of 2026-11-17."""
+    station = StationConfig.from_data(
+        {CONF_STATION_CODE: "188", CONF_STATION_NAME: "Pray Sessera", **data}
+    )
+
+    assert station.position == position
 
 
 def test_source_leaves_out_what_only_the_website_gives() -> None:

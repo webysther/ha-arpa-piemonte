@@ -8,6 +8,8 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any, Final
 
+from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
+
 from .const import (
     CONF_SENSOR_ID,
     CONF_SENSOR_LETTERS,
@@ -18,6 +20,7 @@ from .const import (
     MUNICIPALITY_ID_PREFIX,
     STATION_ID_PREFIX,
 )
+from .station_places import STATION_PLACES
 
 
 class Quantity(StrEnum):
@@ -230,6 +233,14 @@ def station_unique_id(station_code: str) -> str:
 
 
 @dataclass(frozen=True, slots=True)
+class Position:
+    """A position, WGS84."""
+
+    latitude: float
+    longitude: float
+
+
+@dataclass(frozen=True, slots=True)
 class StationConfig:
     """A station, as its config subentry stores it."""
 
@@ -240,22 +251,33 @@ class StationConfig:
     thresholds: Thresholds
     website_params: tuple[str, ...] | None = None
     """The files of the station on the Arpa website, sorted; None when unknown."""
+    position: Position | None = None
+    """Where the station is, as the list of the stations gives it; None when
+    unknown."""
 
     @classmethod
     def from_data(cls, data: Mapping[str, Any]) -> StationConfig:
         """Return the station of the data of its config subentry.
 
         A station added before its files on the website were stored has none:
-        its letters stand in for them.
+        its letters stand in for them. One added before its position was
+        stored has the position of the list of 2026-11-17 (``STATION_PLACES``).
         """
+        code = data[CONF_STATION_CODE]
         params = data.get(CONF_WEBSITE_PARAMS)
+        position: Position | None = None
+        if data.get(CONF_LATITUDE) is not None and data.get(CONF_LONGITUDE) is not None:
+            position = Position(data[CONF_LATITUDE], data[CONF_LONGITUDE])
+        elif (place := STATION_PLACES.get(code)) is not None:
+            position = Position(place.latitude, place.longitude)
         return cls(
-            station_code=data[CONF_STATION_CODE],
+            station_code=code,
             name=data[CONF_STATION_NAME],
             sensor_id=data.get(CONF_SENSOR_ID),
             sensor_letters=data.get(CONF_SENSOR_LETTERS, ""),
             thresholds=Thresholds.from_dict(data.get(CONF_THRESHOLDS)),
             website_params=None if params is None else tuple(sorted(params)),
+            position=position,
         )
 
     def as_data(self) -> dict[str, Any]:
@@ -269,6 +291,8 @@ class StationConfig:
             CONF_WEBSITE_PARAMS: (
                 None if self.website_params is None else list(self.website_params)
             ),
+            CONF_LATITUDE: None if self.position is None else self.position.latitude,
+            CONF_LONGITUDE: None if self.position is None else self.position.longitude,
         }
 
     @property

@@ -45,6 +45,17 @@ All notable changes to ARPA Piemonte are documented here. The format follows
   risks: yellow (the default), orange or red.
 - The dashboard shows the natural risks of each municipality at the top of its
   tab, in the colors of the alert maps.
+- **Earthquakes** of the last 30 days near the municipality, as geolocation
+  entities on the map, with their magnitude, and **Earthquakes nearby**, how
+  many: within 50 km by default.
+- **Heat wave** today and tomorrow, from the bulletin of the capital of the
+  province, or of the nearest capital, in summer.
+- **Avalanche danger** today and tomorrow, from the bulletins of AINEVA for
+  the micro-region of the municipality, in winter.
+- **Configure** on a municipality chooses where these are taken from, the
+  stations of the municipality or the home, the radius of the earthquakes and
+  the heat-wave city. The stations keep their position: those added before
+  find it in the list of 2026-11-17.
 
 ### Changed
 
@@ -59,6 +70,8 @@ All notable changes to ARPA Piemonte are documented here. The format follows
 
 - When the list of Meteo 3R did not answer, a station without a river was
   listed and titled "-" instead of by its name (aioarpapiemonte 0.1.1).
+- Palestro, in Lombardy, has no alerts of Arpa Piemonte: its natural risks no
+  longer ask for a widget it does not have.
 
 ## [2026.11.0] - 2026-11-17
 

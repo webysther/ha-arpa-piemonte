@@ -1,29 +1,39 @@
 """Diagnostics of a municipality, of its stations and of its natural risks.
 
-What each source answered for a station, and what it shows; what the widget
-of the municipality gave. Nothing here locates the user: a station and a
-municipality are public places, and the integration stores no other position.
+What each source answered for a station, and what it shows; what each source
+of the risks gave. Nothing here locates the user: a station and a municipality
+are public places. When the risks are taken from the home, what would tell
+where it is, its micro-region and its heat-wave city, is redacted, and the
+distances of the earthquakes are never given, as three of them would locate
+it.
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict
-from datetime import datetime
-from typing import Any
+from datetime import date, datetime
+from typing import Any, Final
 
 from aioarpapiemonte import MunicipalityAlerts
+from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntry
 
-from .const import DOMAIN
+from .const import CONF_MUNICIPALITY_CODE, DOMAIN
 from .coordinator import (
     ArpaPiemonteConfigEntry,
     ArpaPiemonteCoordinator,
-    MunicipalityRisksCoordinator,
+    MunicipalityRisks,
+    RisksCoordinator,
     SourceTracker,
 )
 from .models import Measurement, Quantity, municipality_unique_id
+from .risks import AvalancheDays, NearbyEarthquake, PositionChoice
 from .sources import async_get_sources
+
+HOME_PLACES: Final = frozenset({"micro_region", "heat_city", "region", "city"})
+"""What tells where the home is, when the risks are taken from it."""
 
 
 def _readings(measurements: dict[Quantity, Measurement]) -> dict[str, Any]:
@@ -96,16 +106,78 @@ def _alerts(alerts: MunicipalityAlerts) -> dict[str, Any]:
     }
 
 
-def _risks(coordinator: MunicipalityRisksCoordinator) -> dict[str, Any]:
-    """Return the diagnostics of the natural risks of a municipality."""
+def _date(value: date) -> str:
+    return value.isoformat()
+
+
+def _earthquakes(earthquakes: tuple[NearbyEarthquake, ...]) -> list[dict[str, Any]]:
+    """Return the earthquakes within the radius, without their distances."""
+    return [
+        {
+            "id": item.earthquake.id,
+            "time": item.earthquake.time.isoformat(),
+            "magnitude": item.earthquake.magnitude,
+            "district": item.earthquake.district,
+            "reviewed": item.earthquake.reviewed,
+        }
+        for item in earthquakes
+    ]
+
+
+def _avalanches(days: AvalancheDays) -> dict[str, Any]:
+    """Return the avalanche danger of each day with a bulletin."""
     return {
-        "municipality_code": coordinator.municipality_code,
+        "region": days.region_id,
+        "bulletins": {
+            _date(day): {
+                "danger": str(bulletin.danger),
+                "published": _time(bulletin.published),
+            }
+            for day, bulletin in days.bulletins.items()
+        },
+    }
+
+
+def _risk[DataT](
+    coordinator: RisksCoordinator[DataT] | None, describe: Callable[[DataT], Any]
+) -> dict[str, Any] | None:
+    """Return what a source of a risk gave; None when the municipality lacks it."""
+    if coordinator is None:
+        return None
+    return {
         "last_update_success": coordinator.last_update_success,
         "error": None
         if coordinator.last_update_success
         else str(coordinator.last_exception),
-        "alerts": None if coordinator.data is None else _alerts(coordinator.data),
+        "data": None if coordinator.data is None else describe(coordinator.data),
     }
+
+
+def _risks(risks: MunicipalityRisks) -> dict[str, Any]:
+    """Return the diagnostics of the natural risks of a municipality."""
+    place = risks.place
+    diagnostics = {
+        "place": {
+            "position": str(place.choice),
+            "located": place.position is not None,
+            "micro_region": place.micro_region,
+            "heat_city": None if place.heat_city is None else str(place.heat_city),
+        },
+        "alerts": _risk(risks.alerts, _alerts),
+        "earthquakes": _risk(risks.earthquakes, _earthquakes),
+        "heat": _risk(
+            risks.heat,
+            lambda forecast: {
+                "city": str(forecast.city),
+                "issued": _time(forecast.issued),
+                "days": {_date(day.day): str(day.level) for day in forecast.days},
+            },
+        ),
+        "avalanches": _risk(risks.avalanches, _avalanches),
+    }
+    if place.choice is PositionChoice.HOME:
+        return async_redact_data(diagnostics, HOME_PLACES)
+    return diagnostics
 
 
 def _meteo3r_host(hass: HomeAssistant) -> str | None:
@@ -133,9 +205,9 @@ async def async_get_device_diagnostics(
     hass: HomeAssistant, entry: ArpaPiemonteConfigEntry, device: DeviceEntry
 ) -> dict[str, Any]:
     """Return the diagnostics of the station of a device, or of the risks."""
-    risks = entry.runtime_data.risks
-    if (DOMAIN, municipality_unique_id(risks.municipality_code)) in device.identifiers:
-        return {"risks": _risks(risks)}
+    risks = municipality_unique_id(entry.data[CONF_MUNICIPALITY_CODE])
+    if (DOMAIN, risks) in device.identifiers:
+        return {"risks": _risks(entry.runtime_data.risks)}
     coordinator = next(
         coordinator
         for coordinator in entry.runtime_data.stations.values()

@@ -8,8 +8,10 @@ rules:
     comment: >-
       Every 10 minutes, with conditional requests: Meteo 3R writes its files every
       30 minutes, and most answers are a 304. The official sources are asked only
-      when Meteo 3R fails, at most every 20 or 30 minutes. The widget of the risks
-      of a municipality, every 10 minutes, as Arpa rebuilds it.
+      when Meteo 3R fails, at most every 20 or 30 minutes. The risks of a
+      municipality at the pace of their sources: the widget and the earthquakes
+      every 10 minutes, the heat waves every 30, the avalanches every hour, or
+      every 6 out of season.
   brands:
     status: done
     comment: >-
@@ -47,7 +49,9 @@ rules:
   config-entry-unloading: done
   docs-configuration-parameters:
     status: done
-    comment: The minimum level of warning of the risks, in the Options of the README.
+    comment: >-
+      The options of the risks, in the Options of the README: the warning level,
+      the position, the radius of the earthquakes and the heat-wave city.
   docs-installation-parameters: done
   entity-unavailable: done
   integration-owner: done
@@ -81,7 +85,8 @@ rules:
     comment: >-
       Each device is a station the user adds, as a subentry of its municipality,
       or the risks of the municipality, with its entry; the entry reloads with a
-      station.
+      station. The earthquakes come and go as entities of the device of the
+      risks.
   entity-category: done
   entity-device-class: done
   entity-disabled-by-default:

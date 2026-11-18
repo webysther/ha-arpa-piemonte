@@ -44,25 +44,30 @@ custom_components/arpa_piemonte/
                    and one of its risks
   config_flow.py   a municipality (searched), then its station; the subentry
                    flow adds another; reconfigure reads the stations again; the
-                   options choose the warning level of the risks
+                   options of the risks: warning level, position, radius of the
+                   earthquakes, heat-wave city
   catalog.py       the stations of the list by municipality, rivers first (pure)
   migration.py     version 1 (an entry per station) merged by municipality, in
-                   async_setup; station_places.py is its table
+                   async_setup; station_places.py is its table, which gives the
+                   position of the stations added before it was stored too
   sources.py       the clients of the sources, shared by every station
   coordinator.py   ArpaPiemonteCoordinator, one per station: Meteo 3R at every
                    update, the official sources as a fallback (SourceTracker);
-                   MunicipalityRisksCoordinator, the widget of the municipality,
-                   and the change of day at midnight in Italy
-  risks.py         the days of the risks in Italy, their keys, states and
-                   warning level (pure)
+                   RisksCoordinator, a coordinator per risk of a municipality
+                   (alerts, earthquakes, heat, avalanches) and the change of
+                   day at midnight in Italy; where the risks are taken from
+                   (async_risk_place)
+  risks.py         the days of the risks in Italy, their keys, states, options,
+                   position, heat-wave city and nearby earthquakes (pure)
   selection.py     which reading of the sources a station shows (pure)
   adapters.py      the readings of each source as readings of the integration,
                    and which source gives which quantity (pure)
   models.py        Quantity, Source, Thresholds, Measurement, StationSnapshot,
-                   StationConfig (pure)
+                   StationConfig, Position (pure)
   entity.py        the device of the station, and of the risks; sensor.py,
                    binary_sensor.py (the flood risk, from the level status, and
-                   each risk on each day), diagnostics.py
+                   each risk on each day), geo_location.py (the earthquakes),
+                   diagnostics.py
   charts.py        the charts of the Meteo 3R series, drawn as SVG (pure);
                    image.py serves them, one image entity per chart
   dashboard.py     serves frontend/ and has the frontend load its modules
@@ -160,6 +165,19 @@ measured on 2026-11-17 and 18:
   from the rain and the river levels of the last 24 hours.
 - The risks do not stop the stations: without the widget at setup, their
   entities are unavailable until it answers.
+- The widget covers the municipalities of Piedmont only (`PIEDMONT_PROVINCES`):
+  Palestro, in the province of Pavia, has a station but no widget (404).
+- Each risk has its coordinator, created only when the municipality has it:
+  the earthquakes (every 10 minutes, the list of 30 days of Arpa, within the
+  radius of the position), the heat waves (every 30 minutes, the bulletin of
+  one of the 8 capitals, 15 May to about 30 September), the avalanches (every
+  hour, every 6 out of season, the bulletins of EAWS of today and tomorrow for
+  the micro-region of the position, December to May).
+- The position is the mean of the stations, or the home (`CONF_POSITION`).
+  The micro-region is that of the position or, when the mean of the stations
+  is in none, of the first station in one (6 of 106 municipalities). The
+  diagnostics redact what locates the home, and never give the distances of
+  the earthquakes.
 
 ## Compatibility
 
@@ -171,11 +189,13 @@ Users' automations and dashboards depend on what the integration exposes.
   `Quantity`, of `STATION_SENSORS`, of `CHARTS` and `flood_risk`. The device
   of the risks of a municipality is `ISTAT_<municipality code>`, in its entry
   without subentry, and its entities `ISTAT_<municipality code>-<key>`, with
-  the keys of `RISK_SENSORS` and of `RISKS` (binary_sensor.py). Version 1 had
-  an entry `PIE_<station code>` per station: `migration.py` moves them.
+  the keys of `RISK_SENSORS` and of `RISKS` (binary_sensor.py), and
+  `earthquake_<ID of Arpa>` for the earthquakes. Version 1 had an entry
+  `PIE_<station code>` per station: `migration.py` moves them.
 - Never rename the states of the enum sensors (`LevelStatus`, `Source`, and of
-  the risks: `ALERT_LEVELS`, `PHASES`), nor the values of the options
-  (`warning_level`: yellow, orange, red).
+  the risks: `ALERT_LEVELS`, `PHASES`, `HEAT_LEVELS`, `AVALANCHE_DANGERS`), nor
+  the values of the options (`warning_level`: yellow, orange, red; `position`:
+  stations, home; `heat_city`: province, nearest).
 - Changing the shape of entry or subentry data needs a migration and a new
   `MINOR_VERSION` (or `VERSION` when older releases cannot load it). Merging
   or splitting entries happens in `async_setup`, before they load, as
@@ -238,10 +258,11 @@ Users' automations and dashboards depend on what the integration exposes.
 - Never depend on the clock: the time is frozen at `NOW` (`tests/__init__.py`),
   40 minutes after the newest reading of the fixtures. The tests of the risks
   move it to the morning or the afternoon of the bulletin of the widgets.
-- Every entry asks for the widget of its municipality as it is set up: the
-  fixture `mock_widget` serves the widget of Pray for every municipality
-  (parametrize `widget` to change it, or with an error status), and
-  `requested()` leaves the widgets out.
+- Every entry asks for its risks as it is set up: the fixture `mock_risks`
+  serves the widget of Pray for every municipality (parametrize `widget`), the
+  earthquakes (parametrize `earthquakes`), the heat waves of the 8 capitals and
+  no avalanche bulletin, as in November; `serve_the_risks()` serves them again
+  after `clear_requests()`, and `requested()` leaves the risks out.
 - Home Assistant updates the `last_reported` of the state it has when it is
   written again: keep the value before, and move the clock, to check that
   nothing was written.

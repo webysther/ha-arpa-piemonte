@@ -9,6 +9,7 @@ from aiometeo3r import Host
 from aiometeo3r.parsers import parse_registry
 from aiometeo3r.urls import station_path
 from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState
+from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.setup import async_setup_component
@@ -141,6 +142,8 @@ def test_station_places_are_the_list_of_meteo3r() -> None:
         station.code: StationPlace(
             station.municipality_code,
             station.municipality,
+            station.latitude,
+            station.longitude,
             station.river.title() if station.river else None,
         )
         for station in stations
@@ -174,7 +177,13 @@ async def test_migrate_a_station(
     assert subentry.title == "Sessera"
     assert subentry.unique_id == UNIQUE_ID
     # Its files on the website are unknown until it is read again
-    assert dict(subentry.data) == {**PRAY_DATA, CONF_WEBSITE_PARAMS: None}
+    # The position of the station comes from the list of 2026-11-17
+    assert dict(subentry.data) == {
+        **PRAY_DATA,
+        CONF_WEBSITE_PARAMS: None,
+        CONF_LATITUDE: 45.67389,
+        CONF_LONGITUDE: 8.22167,
+    }
     moved = entity_registry.async_get("sensor.sessera_at_pray")
     assert moved is not None
     assert moved.unique_id == f"{UNIQUE_ID}-temperature"

@@ -21,6 +21,9 @@ from . import (
     PRAY_MUNICIPALITY,
     fixture_json,
     municipality_entry,
+    serve_avalanches,
+    serve_earthquakes,
+    serve_heat,
     serve_meteo3r,
     serve_realtime,
     serve_website,
@@ -48,12 +51,27 @@ def widget() -> dict[str, Any] | HTTPStatus:
     return fixture_json("widget_096050.json")
 
 
+@pytest.fixture
+def earthquakes() -> list[Any] | HTTPStatus:
+    """Return the earthquakes of the last 30 days; parametrize it to change it."""
+    return fixture_json("sismica_tabella.json")
+
+
 @pytest.fixture(autouse=True)
-def mock_widget(
-    aioclient_mock: AiohttpClientMocker, widget: dict[str, Any] | HTTPStatus
+def mock_risks(
+    aioclient_mock: AiohttpClientMocker,
+    widget: dict[str, Any] | HTTPStatus,
+    earthquakes: list[Any] | HTTPStatus,
 ) -> None:
-    """Serve the widget for every municipality: each entry asks for its own."""
+    """Serve the natural risks, as each entry asks for them when it is set up.
+
+    The widget of Pray for every municipality, the earthquakes, the heat
+    waves of the 8 capitals, and no avalanche bulletin, as out of season.
+    """
     serve_widget(aioclient_mock, widget)
+    serve_earthquakes(aioclient_mock, earthquakes)
+    serve_heat(aioclient_mock)
+    serve_avalanches(aioclient_mock)
 
 
 @pytest.fixture

@@ -69,6 +69,11 @@
                 }
             }
         },
+        "geo_location": {
+            "earthquake": {
+                "default": "mdi:waveform"
+            }
+        },
         "image": {
             "level_chart": {
                 "default": "mdi:chart-line"
@@ -231,6 +236,27 @@
             },
             "next_alert_bulletin": {
                 "default": "mdi:calendar-clock"
+            },
+            "nearby_earthquakes": {
+                "default": "mdi:waveform"
+            },
+            "heat_wave_today": {
+                "default": "mdi:sun-thermometer"
+            },
+            "heat_wave_tomorrow": {
+                "default": "mdi:sun-thermometer"
+            },
+            "heat_wave_city": {
+                "default": "mdi:city-variant-outline"
+            },
+            "avalanche_danger_today": {
+                "default": "mdi:landslide"
+            },
+            "avalanche_danger_tomorrow": {
+                "default": "mdi:landslide"
+            },
+            "avalanche_region": {
+                "default": "mdi:map-outline"
             }
         }
     }

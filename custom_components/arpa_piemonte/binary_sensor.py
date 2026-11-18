@@ -24,9 +24,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import (
+    AlertsCoordinator,
     ArpaPiemonteConfigEntry,
     ArpaPiemonteCoordinator,
-    MunicipalityRisksCoordinator,
 )
 from .entity import ArpaPiemonteEntity, MunicipalityRisksEntity
 from .models import FLOOD_RISK_STATUSES
@@ -69,7 +69,8 @@ async def async_setup_entry(
     """Set up the flood risk of the hydrometers, and the risks of the municipality.
 
     The flood risk of a hydrometer with a threshold is in its subentry; the
-    risks of the municipality, in its entry.
+    risks of the municipality, in its entry, when the alert bulletin covers
+    it.
     """
     del hass
     for subentry_id, coordinator in entry.runtime_data.stations.items():
@@ -78,8 +79,10 @@ async def async_setup_entry(
             async_add_entities(
                 [FloodRiskSensor(coordinator)], config_subentry_id=subentry_id
             )
-    risks = entry.runtime_data.risks
-    async_add_entities(RiskBinarySensor(risks, description) for description in RISKS)
+    if (alerts := entry.runtime_data.risks.alerts) is not None:
+        async_add_entities(
+            RiskBinarySensor(alerts, description) for description in RISKS
+        )
 
 
 class FloodRiskSensor(ArpaPiemonteEntity, BinarySensorEntity):
@@ -105,7 +108,7 @@ class FloodRiskSensor(ArpaPiemonteEntity, BinarySensorEntity):
         return self.coordinator.data.level_status in FLOOD_RISK_STATUSES
 
 
-class RiskBinarySensor(MunicipalityRisksEntity, BinarySensorEntity):
+class RiskBinarySensor(MunicipalityRisksEntity[AlertsCoordinator], BinarySensorEntity):
     """On (unsafe) while a risk is at the warning level or above on its day.
 
     Unknown while the bulletin does not cover the day: tomorrow, until the
@@ -115,7 +118,7 @@ class RiskBinarySensor(MunicipalityRisksEntity, BinarySensorEntity):
     entity_description: RiskDescription
 
     def __init__(
-        self, coordinator: MunicipalityRisksCoordinator, description: RiskDescription
+        self, coordinator: AlertsCoordinator, description: RiskDescription
     ) -> None:
         """Initialize the binary sensor of a risk on a day."""
         super().__init__(coordinator, Platform.BINARY_SENSOR, description.key)

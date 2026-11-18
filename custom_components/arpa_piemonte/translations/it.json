@@ -77,12 +77,18 @@
         "step": {
             "init": {
                 "title": "Rischi naturali di {municipality}",
-                "description": "Il sensore binario di ogni rischio di {municipality}, oggi e domani, si accende da questo livello di allerta in su.",
+                "description": "Le opzioni dei rischi naturali di {municipality}.",
                 "data": {
-                    "warning_level": "Livello minimo di allerta"
+                    "warning_level": "Livello minimo di allerta",
+                    "position": "Posizione dei rischi",
+                    "radius": "Raggio dei terremoti",
+                    "heat_city": "Città delle ondate di calore"
                 },
                 "data_description": {
-                    "warning_level": "Gialla per impostazione predefinita, il primo livello di allerta."
+                    "warning_level": "Il sensore binario di ogni rischio, oggi e domani, si accende da questo livello in su: gialla per impostazione predefinita, il primo livello di allerta.",
+                    "position": "I terremoti, il pericolo valanghe e la città delle ondate di calore più vicina a questa posizione: le stazioni del comune, o la casa di Home Assistant.",
+                    "radius": "I terremoti degli ultimi 30 giorni entro questa distanza dalla posizione, in km (predefinito 50).",
+                    "heat_city": "Arpa emette i bollettini delle ondate di calore solo per gli 8 capoluoghi di provincia, dal 15 maggio a circa il 30 settembre."
                 }
             }
         }
@@ -93,6 +99,18 @@
                 "yellow": "Allerta gialla",
                 "orange": "Allerta arancione",
                 "red": "Allerta rossa"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "Le stazioni del comune",
+                "home": "La casa di Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "Il capoluogo della provincia",
+                "nearest": "Il capoluogo più vicino"
             }
         }
     },
@@ -135,6 +153,31 @@
             },
             "avalanche_risk_tomorrow": {
                 "name": "Rischio valanghe domani"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "Terremoto M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "Magnitudo"
+                    },
+                    "magnitude_type": {
+                        "name": "Tipo di magnitudo"
+                    },
+                    "time": {
+                        "name": "Ora"
+                    },
+                    "depth": {
+                        "name": "Profondità"
+                    },
+                    "district": {
+                        "name": "Distretto sismico"
+                    },
+                    "reviewed": {
+                        "name": "Rivisto"
+                    }
+                }
             }
         },
         "image": {
@@ -369,6 +412,55 @@
             },
             "next_alert_bulletin": {
                 "name": "Prossimo bollettino di allerta"
+            },
+            "nearby_earthquakes": {
+                "name": "Terremoti vicini"
+            },
+            "heat_wave_today": {
+                "name": "Ondata di calore oggi",
+                "state": {
+                    "green": "Nessun disagio",
+                    "yellow": "Disagio di livello 1",
+                    "orange": "Disagio di livello 2",
+                    "red": "Disagio di livello 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "Ondata di calore domani",
+                "state": {
+                    "green": "Nessun disagio",
+                    "yellow": "Disagio di livello 1",
+                    "orange": "Disagio di livello 2",
+                    "red": "Disagio di livello 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "Città delle ondate di calore"
+            },
+            "avalanche_danger_today": {
+                "name": "Pericolo valanghe oggi",
+                "state": {
+                    "no_snow": "Senza neve",
+                    "low": "1 – Debole",
+                    "moderate": "2 – Moderato",
+                    "considerable": "3 – Marcato",
+                    "high": "4 – Forte",
+                    "very_high": "5 – Molto forte"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "Pericolo valanghe domani",
+                "state": {
+                    "no_snow": "Senza neve",
+                    "low": "1 – Debole",
+                    "moderate": "2 – Moderato",
+                    "considerable": "3 – Marcato",
+                    "high": "4 – Forte",
+                    "very_high": "5 – Molto forte"
+                }
+            },
+            "avalanche_region": {
+                "name": "Microregione valanghe"
             }
         }
     },
