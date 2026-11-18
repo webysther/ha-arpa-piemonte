@@ -1,4 +1,4 @@
-# Contributing to ARPA Piemonte
+# Contributing to Arpa Piemonte
 
 Thank you for helping! Problems and ideas go in the
 [issues](https://github.com/webysther/ha-arpa-piemonte/issues): for a problem,

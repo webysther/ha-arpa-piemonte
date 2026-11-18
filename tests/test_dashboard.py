@@ -1,4 +1,4 @@
-"""Tests of the ARPA Piemonte dashboard and card, served to the frontend."""
+"""Tests of the Arpa Piemonte dashboard and card, served to the frontend."""
 
 from __future__ import annotations
 

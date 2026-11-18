@@ -1,6 +1,6 @@
 {
 	"domain": "arpa_piemonte",
-	"name": "ARPA Piemonte",
+	"name": "Arpa Piemonte",
 	"after_dependencies": ["frontend", "http"],
 	"categories": ["weather_alerts"],
 	"codeowners": ["@webysther"],

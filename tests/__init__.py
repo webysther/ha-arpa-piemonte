@@ -1,4 +1,4 @@
-"""Tests of the ARPA Piemonte integration."""
+"""Tests of the Arpa Piemonte integration."""
 
 from __future__ import annotations
 

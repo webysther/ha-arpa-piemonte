@@ -1,4 +1,4 @@
-"""Config flow of ARPA Piemonte: a municipality of Piedmont and its stations.
+"""Config flow of Arpa Piemonte: a municipality of Piedmont and its stations.
 
 An entry is a municipality, and each of its stations is a subentry: the
 integration page groups the stations by municipality. A station is added by

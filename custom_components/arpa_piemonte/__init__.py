@@ -1,4 +1,4 @@
-"""ARPA Piemonte: the readings of the stations of Arpa Piemonte, and the risks.
+"""Arpa Piemonte: the readings of the stations of Arpa Piemonte, and the risks.
 
 River levels, rain, temperature, humidity, wind and snow, from the Meteo 3R
 app of Arpa Piemonte and, when it fails, from the official sources of Arpa

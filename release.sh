@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Release ARPA Piemonte: a GitHub release whose notes come from CHANGELOG.md.
+# Release Arpa Piemonte: a GitHub release whose notes come from CHANGELOG.md.
 # Publishing it runs .github/workflows/release.yml, which writes the version in
 # the integration and attaches arpa_piemonte.zip, the file the Marketplace
 # installs.
@@ -13,7 +13,7 @@
 #
 # A beta (bN) is published as a pre-release with the notes of "## [Unreleased]":
 # the Marketplace offers it only to those who turn on the Pre-release switch of
-# ARPA Piemonte. A release turns "## [Unreleased]" into "## [VERSION] - <today>",
+# Arpa Piemonte. A release turns "## [Unreleased]" into "## [VERSION] - <today>",
 # updates the links at the end of the changelog, commits it to main and pushes
 # it.
 #
@@ -145,7 +145,7 @@ changelog_file=$CHANGELOG
 if $beta; then
   {
     echo "Beta of ${version%%b*}, for testing. To install it, turn on the"
-    echo "**Pre-release** switch of ARPA Piemonte in **Settings → Devices &"
+    echo "**Pre-release** switch of Arpa Piemonte in **Settings → Devices &"
     echo "services → Marketplace** (the switch is disabled by default: enable it"
     echo "first)."
     echo
@@ -250,7 +250,7 @@ gh release view "$tag" --repo "$REPO" --json assets --jq '.assets[].name' | grep
 echo
 echo "Published: $(gh release view "$tag" --repo "$REPO" --json url --jq .url)"
 if $beta; then
-  echo "The Marketplace offers it to those who turn on the Pre-release switch of ARPA Piemonte."
+  echo "The Marketplace offers it to those who turn on the Pre-release switch of Arpa Piemonte."
 else
   echo "The Marketplace offers it as an update at its next check, within 48 hours."
 fi

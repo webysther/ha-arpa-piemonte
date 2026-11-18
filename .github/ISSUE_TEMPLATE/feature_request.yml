@@ -1,5 +1,5 @@
 name: Suggest an improvement
-description: Something ARPA Piemonte could do, or do better.
+description: Something Arpa Piemonte could do, or do better.
 labels: ["enhancement"]
 body:
   - type: textarea

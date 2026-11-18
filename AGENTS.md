@@ -1,9 +1,9 @@
-# AGENTS.md: ARPA Piemonte
+# AGENTS.md: Arpa Piemonte
 
 Guidance for AI coding agents and contributors working on this repository.
 `CLAUDE.md` imports this file.
 
-ARPA Piemonte is a Home Assistant custom integration (domain `arpa_piemonte`),
+Arpa Piemonte is a Home Assistant custom integration (domain `arpa_piemonte`),
 installed from the Marketplace of Home Assistant. It turns a station of the
 Piedmont network of Arpa Piemonte into a device with the sensors the station
 has: water level, its status against the thresholds and its flood risk, rain,

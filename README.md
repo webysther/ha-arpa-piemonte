@@ -5,7 +5,7 @@
   </picture>
 </p>
 
-<h1 align="center">ARPA Piemonte</h1>
+<h1 align="center">Arpa Piemonte</h1>
 
 <p align="center">River levels, rain, temperature, wind and snow of the stations of Arpa Piemonte, and the natural risks of their municipalities, in Home Assistant</p>
 
@@ -85,17 +85,17 @@ avalanche danger.
 From the [Marketplace](https://www.home-assistant.io/integrations/marketplace/)
 of Home Assistant:
 
-[![Open your Home Assistant instance and open ARPA Piemonte in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=webysther&repository=ha-arpa-piemonte&category=integration)
+[![Open your Home Assistant instance and open Arpa Piemonte in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=webysther&repository=ha-arpa-piemonte&category=integration)
 
 1. Open the link above, or **Settings → Marketplace → Add from link**, and
    add `https://github.com/webysther/ha-arpa-piemonte`.
-2. Open **ARPA Piemonte** and install it.
+2. Open **Arpa Piemonte** and install it.
 
 Home Assistant 2025.4 or newer.
 
 ## Configuration
 
-**Settings → Devices & services → Add integration → ARPA Piemonte**, then
+**Settings → Devices & services → Add integration → Arpa Piemonte**, then
 type the municipality of the station: the list has the 278 municipalities of
 Piedmont with a station, and finds "Mondovì" as Arpa Piemonte writes it,
 "Mondovi'". When the municipality has several stations, choose one: the
@@ -136,7 +136,7 @@ moving the home of Home Assistant, reload the municipality.
 
 ## Removal
 
-**Settings → Devices & services → ARPA Piemonte**: **Delete** in the three
+**Settings → Devices & services → Arpa Piemonte**: **Delete** in the three
 dots of a station removes it; in those of a municipality, it removes the
 municipality with its stations and its risks. To remove the integration,
 delete every municipality, then uninstall it from the Marketplace.
@@ -433,7 +433,7 @@ Then a section for each station, the hydrometers first:
 To add it, from Home Assistant 2026.5:
 
 1. Go to **Settings → Dashboards → Add dashboard**.
-2. Choose **ARPA Piemonte**. If it is not listed, reload the page.
+2. Choose **Arpa Piemonte**. If it is not listed, reload the page.
 
 Before Home Assistant 2026.5:
 
@@ -464,7 +464,7 @@ views:
 ## Card
 
 The card of a station, in the card picker as soon as the integration is
-installed: search for **ARPA Piemonte** (`custom:arpa-piemonte-card`). It is
+installed: search for **Arpa Piemonte** (`custom:arpa-piemonte-card`). It is
 the section of the station in the dashboard, as a single card made of the
 cards of Home Assistant: it finds the entities of the station even after you
 rename them, colors the level status and the flood risk as the level is, and
@@ -528,7 +528,7 @@ See [CONTRIBUTING.md](https://github.com/webysther/ha-arpa-piemonte/blob/main/CO
 
 ## License
 
-The code of ARPA Piemonte is under the
+The code of Arpa Piemonte is under the
 [MIT License](https://github.com/webysther/ha-arpa-piemonte/blob/main/LICENSE.md).
 The readings are data of Arpa Piemonte, under the
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license: every entity

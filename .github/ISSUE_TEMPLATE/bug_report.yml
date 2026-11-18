@@ -1,5 +1,5 @@
 name: Report a problem
-description: Something in ARPA Piemonte does not work as expected.
+description: Something in Arpa Piemonte does not work as expected.
 labels: ["bug"]
 body:
   - type: markdown
@@ -27,7 +27,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Version of ARPA Piemonte
+      label: Version of Arpa Piemonte
       description: On the integration page, or in the Marketplace.
     validations:
       required: true

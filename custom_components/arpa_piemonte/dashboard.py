@@ -1,4 +1,4 @@
-"""The ARPA Piemonte dashboard and card, offered by the frontend of Home Assistant.
+"""The Arpa Piemonte dashboard and card, offered by the frontend of Home Assistant.
 
 The dashboard is a strategy (frontend/arpa-piemonte-dashboard.js): a script
 the frontend runs to build the dashboard from the entities of the stations

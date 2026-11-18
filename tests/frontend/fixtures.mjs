@@ -1,4 +1,4 @@
-// Fixtures of the tests of the frontend: stations of ARPA Piemonte as Home Assistant has them.
+// Fixtures of the tests of the frontend: stations of Arpa Piemonte as Home Assistant has them.
 
 /**
  * The stations, as the Meteo 3R list of 2026-11-17 describes them: their

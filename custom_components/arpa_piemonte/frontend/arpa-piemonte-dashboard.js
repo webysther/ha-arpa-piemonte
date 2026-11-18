@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * The ARPA Piemonte dashboard: the readings of every station of the ARPA
+ * The Arpa Piemonte dashboard: the readings of every station of the Arpa
  * Piemonte integration, built from the native cards of Home Assistant.
  *
  * It is a dashboard strategy: Home Assistant runs it when the dashboard opens
@@ -190,10 +190,10 @@ const ENTITY_NAME_VERSION = [2025, 11];
 /** The texts of the dashboard and of the editor of the card, in the languages of the integration. */
 const TEXTS = {
   en: {
-    integration_name: "ARPA Piemonte",
+    integration_name: "Arpa Piemonte",
     description:
       "River levels, rain, temperature, wind and snow of your stations of Arpa Piemonte, and the natural risks of their municipalities.",
-    no_stations: "Add a station of the ARPA Piemonte integration to see its readings here.",
+    no_stations: "Add a station of the Arpa Piemonte integration to see its readings here.",
     station: "Station",
     heading: "Heading",
     title: "Title",
@@ -213,10 +213,10 @@ const TEXTS = {
     avalanche: "Avalanches",
   },
   it: {
-    integration_name: "ARPA Piemonte",
+    integration_name: "Arpa Piemonte",
     description:
       "Livelli dei fiumi, pioggia, temperatura, vento e neve delle tue stazioni di Arpa Piemonte, e i rischi naturali dei loro comuni.",
-    no_stations: "Aggiungi una stazione dell'integrazione ARPA Piemonte per vederne qui le misure.",
+    no_stations: "Aggiungi una stazione dell'integrazione Arpa Piemonte per vederne qui le misure.",
     station: "Stazione",
     heading: "Intestazione",
     title: "Titolo",
@@ -236,10 +236,10 @@ const TEXTS = {
     avalanche: "Valanghe",
   },
   "pt-BR": {
-    integration_name: "ARPA Piemonte",
+    integration_name: "Arpa Piemonte",
     description:
       "Nível dos rios, chuva, temperatura, vento e neve das suas estações da Arpa Piemonte, e os riscos naturais dos municípios delas.",
-    no_stations: "Adicione uma estação da integração ARPA Piemonte para ver as medições dela aqui.",
+    no_stations: "Adicione uma estação da integração Arpa Piemonte para ver as medições dela aqui.",
     station: "Estação",
     heading: "Cabeçalho",
     title: "Título",
@@ -1032,7 +1032,7 @@ if (globalThis.customElements && globalThis.HTMLElement) {
     strategies.push({
       type: STRATEGY,
       strategyType: "dashboard",
-      name: "ARPA Piemonte",
+      name: "Arpa Piemonte",
       description: textsIn(document.documentElement.lang || navigator.language).description,
       documentationURL: "https://github.com/webysther/ha-arpa-piemonte#dashboard",
     });

@@ -1,4 +1,4 @@
-// Tests of the ARPA Piemonte card: node --test tests/frontend
+// Tests of the Arpa Piemonte card: node --test tests/frontend
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 

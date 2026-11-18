@@ -1,4 +1,4 @@
-// Tests of the ARPA Piemonte dashboard strategy: node --test tests/frontend
+// Tests of the Arpa Piemonte dashboard strategy: node --test tests/frontend
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -179,7 +179,7 @@ describe("dashboard", () => {
 
   it("is suggested with its name and icon", () => {
     assert.deepEqual(dashboardSuggestion("pt-BR"), {
-      title: "ARPA Piemonte",
+      title: "Arpa Piemonte",
       icon: "mdi:waves-arrow-up",
     });
   });

@@ -1,6 +1,6 @@
 # Research notes and roadmap
 
-What was studied, decided and planned for ARPA Piemonte on 2026-11-17, so that
+What was studied, decided and planned for Arpa Piemonte on 2026-11-17, so that
 the next person, or the next AI session, starts from here instead of
 researching the sources again.
 

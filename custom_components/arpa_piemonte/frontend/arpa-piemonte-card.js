@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * The ARPA Piemonte card, `custom:arpa-piemonte-card`, for the dashboards of
+ * The Arpa Piemonte card, `custom:arpa-piemonte-card`, for the dashboards of
  * the users, listed in the card picker as soon as the integration is
  * installed: a station, with its flood risk, the status and the gauge of its
  * level, its readings and its charts. Its visual editor chooses the station,
@@ -271,7 +271,7 @@ export function cardLayout(hass, stations, config) {
  */
 export function checkConfig(config) {
   if (config.device_id !== undefined && typeof config.device_id !== "string") {
-    throw new Error("device_id must be the ID of the device of a station of ARPA Piemonte");
+    throw new Error("device_id must be the ID of the device of a station of Arpa Piemonte");
   }
   for (const option of [...Object.values(HEADING_OPTIONS), ...Object.values(CONTENT_OPTIONS)]) {
     const value = config[/** @type {keyof CardConfig} */ (option)];
@@ -696,7 +696,7 @@ if (globalThis.customElements && globalThis.HTMLElement) {
   if (!pickable.some((/** @type {{ type: string }} */ item) => item.type === CARD)) {
     pickable.push({
       type: CARD,
-      name: "ARPA Piemonte",
+      name: "Arpa Piemonte",
       description: texts.description,
       preview: true,
       documentationURL: "https://github.com/webysther/ha-arpa-piemonte#card",

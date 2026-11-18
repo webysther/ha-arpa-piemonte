@@ -1,4 +1,4 @@
-"""Constants of the ARPA Piemonte integration."""
+"""Constants of the Arpa Piemonte integration."""
 
 from __future__ import annotations
 
