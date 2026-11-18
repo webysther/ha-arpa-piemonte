@@ -6,6 +6,8 @@ All notable changes to Arpa Piemonte are documented here. The format follows
 
 ## [Unreleased]
 
+## [2026.11.2] - 2026-11-18
+
 ### Changed
 
 - The integration, its dashboard and its card are named Arpa Piemonte, as the
@@ -98,6 +100,7 @@ First release.
 - The icon of Arpa Piemonte, shown from Home Assistant 2026.3.
 - Texts in English, Italian and Brazilian Portuguese.
 
-[Unreleased]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.1...HEAD
+[Unreleased]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.2...HEAD
+[2026.11.2]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.1...v2026.11.2
 [2026.11.1]: https://github.com/webysther/ha-arpa-piemonte/compare/v2026.11.0...v2026.11.1
 [2026.11.0]: https://github.com/webysther/ha-arpa-piemonte/releases/tag/v2026.11.0
