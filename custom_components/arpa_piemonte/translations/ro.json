@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Adaugă o stație",
+                "description": "Măsurătorile stațiilor Arpa Piemonte: nivelul râurilor, ploaie, temperatură, umiditate, vânt și zăpadă, după senzorii fiecărei stații, și riscurile naturale ale comunei lor. Nu este o aplicație oficială Arpa Piemonte.",
+                "data": {
+                    "municipality": "Comună"
+                },
+                "data_description": {
+                    "municipality": "Tastează pentru a căuta printre comunele din Piemont care au o stație. Stațiile ei sunt grupate sub ea."
+                }
+            },
+            "station": {
+                "title": "Stațiile din {municipality}",
+                "description": "Mai întâi râurile, apoi stațiile meteo.",
+                "data": {
+                    "station_code": "Stație"
+                },
+                "data_description": {
+                    "station_code": "Punctul de pe râu care te interesează, nu neapărat cel mai apropiat."
+                }
+            },
+            "reconfigure": {
+                "title": "Recitește {municipality}",
+                "description": "Recitește de la Arpa Piemonte senzorii, pragurile și identificatorii fiecărei stații din {municipality}."
+            }
+        },
+        "error": {
+            "cannot_connect": "Arpa Piemonte nu răspunde. Încearcă din nou mai târziu.",
+            "municipality_not_listed": "Nicio stație Arpa Piemonte în această comună. Alege o comună din listă."
+        },
+        "abort": {
+            "already_configured": "Toate stațiile acestei comune sunt deja adăugate.",
+            "already_in_progress": "O stație a acestei comune este deja în curs de adăugare.",
+            "cannot_connect": "Arpa Piemonte nu răspunde. Încearcă din nou mai târziu.",
+            "reconfigure_successful": "Stațiile au fost recitite.",
+            "station_added": "{station} a fost adăugată la {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Stație",
+            "initiate_flow": {
+                "user": "Adaugă stație",
+                "reconfigure": "Recitește stația"
+            },
+            "step": {
+                "user": {
+                    "title": "Adaugă o stație din {municipality}",
+                    "description": "Stațiile din {municipality} încă neadăugate: mai întâi râurile.",
+                    "data": {
+                        "station_code": "Stație"
+                    },
+                    "data_description": {
+                        "station_code": "Punctul de pe râu care te interesează, nu neapărat cel mai apropiat."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Recitește {station}",
+                    "description": "Recitește de la Arpa Piemonte senzorii, pragurile și identificatorii stației {station}."
+                }
+            },
+            "error": {
+                "cannot_connect": "Arpa Piemonte nu răspunde. Încearcă din nou mai târziu."
+            },
+            "abort": {
+                "already_configured": "Această stație este deja adăugată.",
+                "cannot_connect": "Arpa Piemonte nu răspunde. Încearcă din nou mai târziu.",
+                "no_other_station": "Toate stațiile din {municipality} sunt deja adăugate.",
+                "reconfigure_successful": "Stația a fost recitită."
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Riscurile naturale din {municipality}",
+                "description": "Opțiunile riscurilor naturale din {municipality}.",
+                "data": {
+                    "warning_level": "Nivel minim de alertă",
+                    "position": "Poziția riscurilor",
+                    "radius": "Raza cutremurelor",
+                    "heat_city": "Oraș pentru valul de căldură"
+                },
+                "data_description": {
+                    "warning_level": "Senzorul binar al fiecărui risc, astăzi și mâine, se activează de la acest nivel în sus: implicit alerta galbenă, primul nivel de alertă.",
+                    "position": "Cutremurele, pericolul de avalanșă și cel mai apropiat oraș pentru valul de căldură se raportează la această poziție: stațiile comunei sau zona Acasă din Home Assistant.",
+                    "radius": "Cutremurele din ultimele 30 de zile aflate la cel mult această distanță de poziție, în km (implicit 50).",
+                    "heat_city": "Arpa emite buletine pentru valurile de căldură doar pentru cele 8 capitale de provincie, de la 15 mai până la aproximativ 30 septembrie."
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "Alertă galbenă",
+                "orange": "Alertă portocalie",
+                "red": "Alertă roșie"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "Stațiile comunei",
+                "home": "Zona Acasă din Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "Capitala provinciei",
+                "nearest": "Cea mai apropiată capitală"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · Riscuri naturale"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "Risc de viitură"
+            },
+            "hydrogeological_risk_today": {
+                "name": "Risc hidrogeologic astăzi"
+            },
+            "hydraulic_risk_today": {
+                "name": "Risc hidraulic astăzi"
+            },
+            "thunderstorm_risk_today": {
+                "name": "Risc de oraje astăzi"
+            },
+            "snow_risk_today": {
+                "name": "Risc de ninsori astăzi"
+            },
+            "avalanche_risk_today": {
+                "name": "Risc de avalanșe astăzi"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "Risc hidrogeologic mâine"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "Risc hidraulic mâine"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "Risc de oraje mâine"
+            },
+            "snow_risk_tomorrow": {
+                "name": "Risc de ninsori mâine"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "Risc de avalanșe mâine"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "Cutremur M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "Magnitudine"
+                    },
+                    "magnitude_type": {
+                        "name": "Tip de magnitudine"
+                    },
+                    "time": {
+                        "name": "Ora"
+                    },
+                    "depth": {
+                        "name": "Adâncime"
+                    },
+                    "district": {
+                        "name": "District seismic"
+                    },
+                    "reviewed": {
+                        "name": "Revizuit"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "Graficul nivelului"
+            },
+            "rain_chart": {
+                "name": "Graficul ploii"
+            },
+            "temperature_chart": {
+                "name": "Graficul temperaturii"
+            },
+            "humidity_chart": {
+                "name": "Graficul umidității"
+            },
+            "snow_chart": {
+                "name": "Graficul zăpezii"
+            },
+            "wind_chart": {
+                "name": "Graficul vântului"
+            },
+            "pressure_chart": {
+                "name": "Graficul presiunii"
+            },
+            "radiation_chart": {
+                "name": "Graficul radiației solare"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "Nivelul apei"
+            },
+            "temperature": {
+                "name": "Temperatură"
+            },
+            "humidity": {
+                "name": "Umiditate"
+            },
+            "rain_1h": {
+                "name": "Ploaie 1 oră"
+            },
+            "rain_3h": {
+                "name": "Ploaie 3 ore"
+            },
+            "rain_24h": {
+                "name": "Ploaie 24 de ore"
+            },
+            "wind_speed": {
+                "name": "Viteza vântului"
+            },
+            "wind_direction": {
+                "name": "Direcția vântului"
+            },
+            "gust_speed": {
+                "name": "Viteza rafalelor"
+            },
+            "gust_direction": {
+                "name": "Direcția rafalelor"
+            },
+            "snow_depth": {
+                "name": "Grosimea stratului de zăpadă"
+            },
+            "pressure": {
+                "name": "Presiune atmosferică"
+            },
+            "solar_radiation": {
+                "name": "Radiație solară"
+            },
+            "level_status": {
+                "name": "Starea nivelului",
+                "state": {
+                    "normal": "Normal",
+                    "pre_alarm": "Prealarmă",
+                    "guard": "Veghe",
+                    "danger": "Pericol"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "Prag de prealarmă"
+            },
+            "guard_threshold": {
+                "name": "Prag de veghe"
+            },
+            "danger_threshold": {
+                "name": "Prag de pericol"
+            },
+            "data_source": {
+                "name": "Sursa datelor",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Site-ul Arpa",
+                    "arpa_realtime": "api_realtime Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "Ultima măsurătoare"
+            },
+            "highest_alert": {
+                "name": "Alerta maximă",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "current_danger": {
+                "name": "Pericol actual",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Verde",
+                    "yellow": "Galben",
+                    "orange": "Portocaliu",
+                    "red": "Roșu"
+                }
+            },
+            "operational_phase": {
+                "name": "Faza operativă a comunei",
+                "state": {
+                    "none": "Nicio fază operativă",
+                    "attention": "Atenție",
+                    "pre_alarm": "Prealarmă",
+                    "alarm": "Alarmă"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "Nivel de risc hidrogeologic astăzi",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "Nivel de risc hidraulic astăzi",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "Nivel de risc de oraje astăzi",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "Nivel de risc de ninsori astăzi",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "Nivel de risc de avalanșe astăzi",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "Nivel de risc hidrogeologic mâine",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "Nivel de risc hidraulic mâine",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "Nivel de risc de oraje mâine",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "Nivel de risc de ninsori mâine",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "Nivel de risc de avalanșe mâine",
+                "state": {
+                    "not_evaluated": "Fără evaluare",
+                    "green": "Nicio alertă",
+                    "yellow": "Alertă galbenă",
+                    "orange": "Alertă portocalie",
+                    "red": "Alertă roșie"
+                }
+            },
+            "alert_zone": {
+                "name": "Zonă de alertă"
+            },
+            "alert_bulletin": {
+                "name": "Buletin de alertă"
+            },
+            "next_alert_bulletin": {
+                "name": "Următorul buletin de alertă"
+            },
+            "nearby_earthquakes": {
+                "name": "Cutremure în apropiere"
+            },
+            "heat_wave_today": {
+                "name": "Val de căldură astăzi",
+                "state": {
+                    "green": "Niciun disconfort",
+                    "yellow": "Disconfort de nivel 1",
+                    "orange": "Disconfort de nivel 2",
+                    "red": "Disconfort de nivel 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "Val de căldură mâine",
+                "state": {
+                    "green": "Niciun disconfort",
+                    "yellow": "Disconfort de nivel 1",
+                    "orange": "Disconfort de nivel 2",
+                    "red": "Disconfort de nivel 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "Oraș pentru valul de căldură"
+            },
+            "avalanche_danger_today": {
+                "name": "Pericol de avalanșă astăzi",
+                "state": {
+                    "no_snow": "Fără zăpadă",
+                    "low": "1 – Redus",
+                    "moderate": "2 – Moderat",
+                    "considerable": "3 – Însemnat",
+                    "high": "4 – Mare",
+                    "very_high": "5 – Foarte mare"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "Pericol de avalanșă mâine",
+                "state": {
+                    "no_snow": "Fără zăpadă",
+                    "low": "1 – Redus",
+                    "moderate": "2 – Moderat",
+                    "considerable": "3 – Însemnat",
+                    "high": "4 – Mare",
+                    "very_high": "5 – Foarte mare"
+                }
+            },
+            "avalanche_region": {
+                "name": "Microregiune de avalanșe"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Nicio sursă Arpa Piemonte nu a răspuns: {error}"
+        },
+        "risks_update_failed": {
+            "message": "Riscurile naturale din {municipality} nu sunt disponibile: {error}"
+        }
+    }
+}

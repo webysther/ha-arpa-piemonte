@@ -71,6 +71,10 @@ canicules et le danger d'avalanche.
   risques en haut et une section par station, le niveau aux couleurs des
   cartes d'alerte et une jauge avec ses seuils ; et une [carte](#carte) d'une
   station, dans le sélecteur de cartes.
+- Treize langues : anglais, italien, français, allemand, espagnol et portugais
+  du Brésil, ainsi que celles de quelques-unes des plus grandes communautés
+  étrangères d'Italie : roumain, albanais, arabe, chinois simplifié,
+  ukrainien, bengali et hindi.
 
 ## Cas d'utilisation
 

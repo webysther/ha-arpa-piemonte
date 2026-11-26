@@ -71,6 +71,10 @@ Lawinengefahr.
   oben und einem Abschnitt pro Station, der Pegelstand in den Farben der
   Warnkarten und eine Analoganzeige mit seinen Schwellen; und eine
   [Karte](#karte) einer Station, in der Kartenauswahl.
+- Dreizehn Sprachen: Englisch, Italienisch, Französisch, Deutsch, Spanisch und
+  brasilianisches Portugiesisch sowie die Sprachen einiger der größten
+  ausländischen Gemeinschaften in Italien: Rumänisch, Albanisch, Arabisch,
+  vereinfachtes Chinesisch, Ukrainisch, Bengalisch und Hindi.
 
 ## Anwendungsfälle
 

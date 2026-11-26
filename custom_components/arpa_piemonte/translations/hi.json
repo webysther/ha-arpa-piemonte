@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "एक स्टेशन जोड़ें",
+                "description": "Arpa Piemonte के स्टेशनों के माप: नदी का जल स्तर, बारिश, तापमान, आर्द्रता, हवा और बर्फ़, हर स्टेशन के सेंसरों के अनुसार, और उनकी नगरपालिका के प्राकृतिक जोखिम। यह Arpa Piemonte का आधिकारिक ऐप नहीं है।",
+                "data": {
+                    "municipality": "नगरपालिका"
+                },
+                "data_description": {
+                    "municipality": "पीडमोंट की उन नगरपालिकाओं में खोजने के लिए टाइप करें जिनमें कोई स्टेशन है। उसके स्टेशन उसी के अंतर्गत समूहित होते हैं।"
+                }
+            },
+            "station": {
+                "title": "{municipality} के स्टेशन",
+                "description": "पहले नदियाँ, फिर मौसम स्टेशन।",
+                "data": {
+                    "station_code": "स्टेशन"
+                },
+                "data_description": {
+                    "station_code": "नदी का वह बिंदु जो आपके लिए मायने रखता है, ज़रूरी नहीं कि सबसे नज़दीकी।"
+                }
+            },
+            "reconfigure": {
+                "title": "{municipality} को फिर से पढ़ें",
+                "description": "{municipality} के हर स्टेशन के सेंसर, सीमाएँ और पहचानकर्ता Arpa Piemonte से फिर से पढ़ें।"
+            }
+        },
+        "error": {
+            "cannot_connect": "Arpa Piemonte से संपर्क नहीं हो सका। बाद में फिर से प्रयास करें।",
+            "municipality_not_listed": "इस नगरपालिका में Arpa Piemonte का कोई स्टेशन नहीं है। सूची से एक चुनें।"
+        },
+        "abort": {
+            "already_configured": "इस नगरपालिका के सभी स्टेशन पहले से जोड़े जा चुके हैं।",
+            "already_in_progress": "इस नगरपालिका का एक स्टेशन पहले से जोड़ा जा रहा है।",
+            "cannot_connect": "Arpa Piemonte से संपर्क नहीं हो सका। बाद में फिर से प्रयास करें।",
+            "reconfigure_successful": "स्टेशन फिर से पढ़े गए।",
+            "station_added": "{station} को {municipality} में जोड़ा गया।"
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "स्टेशन",
+            "initiate_flow": {
+                "user": "स्टेशन जोड़ें",
+                "reconfigure": "स्टेशन फिर से पढ़ें"
+            },
+            "step": {
+                "user": {
+                    "title": "{municipality} का एक स्टेशन जोड़ें",
+                    "description": "{municipality} के वे स्टेशन जो अभी तक नहीं जोड़े गए: पहले नदियाँ।",
+                    "data": {
+                        "station_code": "स्टेशन"
+                    },
+                    "data_description": {
+                        "station_code": "नदी का वह बिंदु जो आपके लिए मायने रखता है, ज़रूरी नहीं कि सबसे नज़दीकी।"
+                    }
+                },
+                "reconfigure": {
+                    "title": "{station} को फिर से पढ़ें",
+                    "description": "{station} के सेंसर, सीमाएँ और पहचानकर्ता Arpa Piemonte से फिर से पढ़ें।"
+                }
+            },
+            "error": {
+                "cannot_connect": "Arpa Piemonte से संपर्क नहीं हो सका। बाद में फिर से प्रयास करें।"
+            },
+            "abort": {
+                "already_configured": "यह स्टेशन पहले से जोड़ा जा चुका है।",
+                "cannot_connect": "Arpa Piemonte से संपर्क नहीं हो सका। बाद में फिर से प्रयास करें।",
+                "no_other_station": "{municipality} के सभी स्टेशन पहले से जोड़े जा चुके हैं।",
+                "reconfigure_successful": "स्टेशन फिर से पढ़ा गया।"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "{municipality} के प्राकृतिक जोखिम",
+                "description": "{municipality} के प्राकृतिक जोखिमों के विकल्प।",
+                "data": {
+                    "warning_level": "चेतावनी का न्यूनतम स्तर",
+                    "position": "जोखिमों का स्थान",
+                    "radius": "भूकंपों की त्रिज्या",
+                    "heat_city": "लू बुलेटिन का शहर"
+                },
+                "data_description": {
+                    "warning_level": "हर जोखिम का बाइनरी सेंसर, आज और कल, इस स्तर और उससे ऊपर चालू होता है: डिफ़ॉल्ट रूप से पीला, चेतावनी का पहला स्तर।",
+                    "position": "इस स्थान के भूकंप, हिमस्खलन ख़तरा और लू बुलेटिन का सबसे नज़दीकी शहर: नगरपालिका के स्टेशन, या Home Assistant का होम।",
+                    "radius": "स्थान से इस दूरी के भीतर पिछले 30 दिनों के भूकंप, किमी में (डिफ़ॉल्ट 50)।",
+                    "heat_city": "Arpa लू बुलेटिन केवल 8 प्रांतीय राजधानियों के लिए जारी करता है, 15 मई से लगभग 30 सितंबर तक।"
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "पीली चेतावनी",
+                "orange": "नारंगी चेतावनी",
+                "red": "लाल चेतावनी"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "नगरपालिका के स्टेशन",
+                "home": "Home Assistant का होम"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "प्रांत की राजधानी",
+                "nearest": "सबसे नज़दीकी राजधानी"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · प्राकृतिक जोखिम"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "बाढ़ जोखिम"
+            },
+            "hydrogeological_risk_today": {
+                "name": "जल-भूवैज्ञानिक जोखिम आज"
+            },
+            "hydraulic_risk_today": {
+                "name": "हाइड्रोलिक जोखिम आज"
+            },
+            "thunderstorm_risk_today": {
+                "name": "आंधी-तूफ़ान जोखिम आज"
+            },
+            "snow_risk_today": {
+                "name": "हिमपात जोखिम आज"
+            },
+            "avalanche_risk_today": {
+                "name": "हिमस्खलन जोखिम आज"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "जल-भूवैज्ञानिक जोखिम कल"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "हाइड्रोलिक जोखिम कल"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "आंधी-तूफ़ान जोखिम कल"
+            },
+            "snow_risk_tomorrow": {
+                "name": "हिमपात जोखिम कल"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "हिमस्खलन जोखिम कल"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "भूकंप M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "तीव्रता"
+                    },
+                    "magnitude_type": {
+                        "name": "तीव्रता का प्रकार"
+                    },
+                    "time": {
+                        "name": "समय"
+                    },
+                    "depth": {
+                        "name": "गहराई"
+                    },
+                    "district": {
+                        "name": "भूकंपीय ज़िला"
+                    },
+                    "reviewed": {
+                        "name": "समीक्षित"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "स्तर का चार्ट"
+            },
+            "rain_chart": {
+                "name": "बारिश का चार्ट"
+            },
+            "temperature_chart": {
+                "name": "तापमान का चार्ट"
+            },
+            "humidity_chart": {
+                "name": "आर्द्रता का चार्ट"
+            },
+            "snow_chart": {
+                "name": "बर्फ़ का चार्ट"
+            },
+            "wind_chart": {
+                "name": "हवा का चार्ट"
+            },
+            "pressure_chart": {
+                "name": "दाब का चार्ट"
+            },
+            "radiation_chart": {
+                "name": "सौर विकिरण का चार्ट"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "जल स्तर"
+            },
+            "temperature": {
+                "name": "तापमान"
+            },
+            "humidity": {
+                "name": "आर्द्रता"
+            },
+            "rain_1h": {
+                "name": "बारिश 1 घंटा"
+            },
+            "rain_3h": {
+                "name": "बारिश 3 घंटे"
+            },
+            "rain_24h": {
+                "name": "बारिश 24 घंटे"
+            },
+            "wind_speed": {
+                "name": "हवा की गति"
+            },
+            "wind_direction": {
+                "name": "हवा की दिशा"
+            },
+            "gust_speed": {
+                "name": "झोंके की गति"
+            },
+            "gust_direction": {
+                "name": "झोंके की दिशा"
+            },
+            "snow_depth": {
+                "name": "बर्फ़ की गहराई"
+            },
+            "pressure": {
+                "name": "वायुमंडलीय दाब"
+            },
+            "solar_radiation": {
+                "name": "सौर विकिरण"
+            },
+            "level_status": {
+                "name": "स्तर की स्थिति",
+                "state": {
+                    "normal": "सामान्य",
+                    "pre_alarm": "पूर्व-अलार्म",
+                    "guard": "निगरानी",
+                    "danger": "ख़तरा"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "पूर्व-अलार्म सीमा"
+            },
+            "guard_threshold": {
+                "name": "निगरानी सीमा"
+            },
+            "danger_threshold": {
+                "name": "ख़तरे की सीमा"
+            },
+            "data_source": {
+                "name": "डेटा स्रोत",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Arpa वेबसाइट",
+                    "arpa_realtime": "Arpa api_realtime"
+                }
+            },
+            "last_measurement": {
+                "name": "अंतिम माप"
+            },
+            "highest_alert": {
+                "name": "सबसे ऊँची चेतावनी",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "current_danger": {
+                "name": "वर्तमान ख़तरा",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "हरा",
+                    "yellow": "पीला",
+                    "orange": "नारंगी",
+                    "red": "लाल"
+                }
+            },
+            "operational_phase": {
+                "name": "नगरपालिका का परिचालन चरण",
+                "state": {
+                    "none": "कोई परिचालन चरण नहीं",
+                    "attention": "सावधानी",
+                    "pre_alarm": "पूर्व-अलार्म",
+                    "alarm": "अलार्म"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "जल-भूवैज्ञानिक जोखिम का स्तर आज",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "हाइड्रोलिक जोखिम का स्तर आज",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "आंधी-तूफ़ान जोखिम का स्तर आज",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "हिमपात जोखिम का स्तर आज",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "हिमस्खलन जोखिम का स्तर आज",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "जल-भूवैज्ञानिक जोखिम का स्तर कल",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "हाइड्रोलिक जोखिम का स्तर कल",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "आंधी-तूफ़ान जोखिम का स्तर कल",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "हिमपात जोखिम का स्तर कल",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "हिमस्खलन जोखिम का स्तर कल",
+                "state": {
+                    "not_evaluated": "मूल्यांकन नहीं हुआ",
+                    "green": "कोई चेतावनी नहीं",
+                    "yellow": "पीली चेतावनी",
+                    "orange": "नारंगी चेतावनी",
+                    "red": "लाल चेतावनी"
+                }
+            },
+            "alert_zone": {
+                "name": "चेतावनी क्षेत्र"
+            },
+            "alert_bulletin": {
+                "name": "चेतावनी बुलेटिन"
+            },
+            "next_alert_bulletin": {
+                "name": "अगला चेतावनी बुलेटिन"
+            },
+            "nearby_earthquakes": {
+                "name": "आस-पास के भूकंप"
+            },
+            "heat_wave_today": {
+                "name": "लू आज",
+                "state": {
+                    "green": "कोई असुविधा नहीं",
+                    "yellow": "असुविधा स्तर 1",
+                    "orange": "असुविधा स्तर 2",
+                    "red": "असुविधा स्तर 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "लू कल",
+                "state": {
+                    "green": "कोई असुविधा नहीं",
+                    "yellow": "असुविधा स्तर 1",
+                    "orange": "असुविधा स्तर 2",
+                    "red": "असुविधा स्तर 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "लू बुलेटिन का शहर"
+            },
+            "avalanche_danger_today": {
+                "name": "हिमस्खलन ख़तरा आज",
+                "state": {
+                    "no_snow": "बर्फ़ नहीं",
+                    "low": "1 – कम",
+                    "moderate": "2 – मध्यम",
+                    "considerable": "3 – उल्लेखनीय",
+                    "high": "4 – उच्च",
+                    "very_high": "5 – बहुत उच्च"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "हिमस्खलन ख़तरा कल",
+                "state": {
+                    "no_snow": "बर्फ़ नहीं",
+                    "low": "1 – कम",
+                    "moderate": "2 – मध्यम",
+                    "considerable": "3 – उल्लेखनीय",
+                    "high": "4 – उच्च",
+                    "very_high": "5 – बहुत उच्च"
+                }
+            },
+            "avalanche_region": {
+                "name": "हिमस्खलन सूक्ष्म-क्षेत्र"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Arpa Piemonte के किसी भी स्रोत ने जवाब नहीं दिया: {error}"
+        },
+        "risks_update_failed": {
+            "message": "{municipality} के प्राकृतिक जोखिम उपलब्ध नहीं हैं: {error}"
+        }
+    }
+}

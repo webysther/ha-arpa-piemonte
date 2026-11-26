@@ -8,7 +8,10 @@ All notable changes to Arpa Piemonte are documented here. The format follows
 
 ### Added
 
-- Texts in French, Spanish and German: the setup, the options, the entities,
+- Thirteen languages: French, German and Spanish, and those of some of the
+  largest foreign communities in Italy: Romanian, Albanian, Arabic,
+  Simplified Chinese, Ukrainian, Bengali and Hindi, besides English, Italian
+  and Brazilian Portuguese. They cover the setup, the options, the entities,
   the dashboard and the card.
 - The README in Italian, French, Spanish and German (`README.it.md`,
   `README.fr.md`, `README.es.md`, `README.de.md`), linked at the top of each.

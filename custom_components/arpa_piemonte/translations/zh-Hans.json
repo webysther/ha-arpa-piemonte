@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "添加站点",
+                "description": "Arpa Piemonte 各站点的测量数据：河流水位、降雨、温度、湿度、风和积雪（以各站点的传感器为准），以及站点所在市镇的自然风险。本集成并非 Arpa Piemonte 的官方应用。",
+                "data": {
+                    "municipality": "市镇"
+                },
+                "data_description": {
+                    "municipality": "输入名称，在皮埃蒙特设有站点的市镇中搜索。该市镇的站点将归入其下。"
+                }
+            },
+            "station": {
+                "title": "{municipality} 的站点",
+                "description": "先列出河流，再列出气象站。",
+                "data": {
+                    "station_code": "站点"
+                },
+                "data_description": {
+                    "station_code": "河流上您关心的位置，不一定是离您最近的。"
+                }
+            },
+            "reconfigure": {
+                "title": "重新读取 {municipality}",
+                "description": "从 Arpa Piemonte 重新读取 {municipality} 每个站点的传感器、阈值和标识符。"
+            }
+        },
+        "error": {
+            "cannot_connect": "无法连接到 Arpa Piemonte。请稍后重试。",
+            "municipality_not_listed": "该市镇没有 Arpa Piemonte 的站点。请从列表中选择一个市镇。"
+        },
+        "abort": {
+            "already_configured": "该市镇的所有站点均已添加。",
+            "already_in_progress": "该市镇的一个站点正在添加中。",
+            "cannot_connect": "无法连接到 Arpa Piemonte。请稍后重试。",
+            "reconfigure_successful": "已重新读取站点。",
+            "station_added": "已将 {station} 添加到 {municipality}。"
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "站点",
+            "initiate_flow": {
+                "user": "添加站点",
+                "reconfigure": "重新读取站点"
+            },
+            "step": {
+                "user": {
+                    "title": "添加 {municipality} 的站点",
+                    "description": "{municipality} 尚未添加的站点：河流排在前面。",
+                    "data": {
+                        "station_code": "站点"
+                    },
+                    "data_description": {
+                        "station_code": "河流上您关心的位置，不一定是离您最近的。"
+                    }
+                },
+                "reconfigure": {
+                    "title": "重新读取 {station}",
+                    "description": "从 Arpa Piemonte 重新读取 {station} 的传感器、阈值和标识符。"
+                }
+            },
+            "error": {
+                "cannot_connect": "无法连接到 Arpa Piemonte。请稍后重试。"
+            },
+            "abort": {
+                "already_configured": "该站点已添加。",
+                "cannot_connect": "无法连接到 Arpa Piemonte。请稍后重试。",
+                "no_other_station": "{municipality} 的所有站点均已添加。",
+                "reconfigure_successful": "已重新读取该站点。"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "{municipality} 的自然风险",
+                "description": "{municipality} 自然风险的选项。",
+                "data": {
+                    "warning_level": "最低预警级别",
+                    "position": "风险位置",
+                    "radius": "地震半径",
+                    "heat_city": "热浪公报城市"
+                },
+                "data_description": {
+                    "warning_level": "每种风险今天和明天的二元传感器从此级别起开启：默认为黄色，即第一级预警。",
+                    "position": "地震、雪崩危险和最近的热浪公报城市均以此位置为准：市镇的站点，或 Home Assistant 的“家”。",
+                    "radius": "距该位置此距离内最近 30 天的地震，单位为公里（默认 50）。",
+                    "heat_city": "Arpa 仅为 8 个省会发布热浪公报，时间为 5 月 15 日至 9 月 30 日前后。"
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "黄色预警",
+                "orange": "橙色预警",
+                "red": "红色预警"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "市镇的站点",
+                "home": "Home Assistant 的“家”"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "所在省的省会",
+                "nearest": "最近的省会"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · 自然风险"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "洪水风险"
+            },
+            "hydrogeological_risk_today": {
+                "name": "今天水文地质风险"
+            },
+            "hydraulic_risk_today": {
+                "name": "今天水力风险"
+            },
+            "thunderstorm_risk_today": {
+                "name": "今天雷暴风险"
+            },
+            "snow_risk_today": {
+                "name": "今天降雪风险"
+            },
+            "avalanche_risk_today": {
+                "name": "今天雪崩风险"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "明天水文地质风险"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "明天水力风险"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "明天雷暴风险"
+            },
+            "snow_risk_tomorrow": {
+                "name": "明天降雪风险"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "明天雪崩风险"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "M {magnitude} 地震",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "震级"
+                    },
+                    "magnitude_type": {
+                        "name": "震级类型"
+                    },
+                    "time": {
+                        "name": "时间"
+                    },
+                    "depth": {
+                        "name": "震源深度"
+                    },
+                    "district": {
+                        "name": "地震分区"
+                    },
+                    "reviewed": {
+                        "name": "已复核"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "水位图表"
+            },
+            "rain_chart": {
+                "name": "降雨图表"
+            },
+            "temperature_chart": {
+                "name": "温度图表"
+            },
+            "humidity_chart": {
+                "name": "湿度图表"
+            },
+            "snow_chart": {
+                "name": "积雪图表"
+            },
+            "wind_chart": {
+                "name": "风况图表"
+            },
+            "pressure_chart": {
+                "name": "气压图表"
+            },
+            "radiation_chart": {
+                "name": "太阳辐射图表"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "水位"
+            },
+            "temperature": {
+                "name": "温度"
+            },
+            "humidity": {
+                "name": "湿度"
+            },
+            "rain_1h": {
+                "name": "1 小时降雨"
+            },
+            "rain_3h": {
+                "name": "3 小时降雨"
+            },
+            "rain_24h": {
+                "name": "24 小时降雨"
+            },
+            "wind_speed": {
+                "name": "风速"
+            },
+            "wind_direction": {
+                "name": "风向"
+            },
+            "gust_speed": {
+                "name": "阵风风速"
+            },
+            "gust_direction": {
+                "name": "阵风风向"
+            },
+            "snow_depth": {
+                "name": "积雪深度"
+            },
+            "pressure": {
+                "name": "大气压"
+            },
+            "solar_radiation": {
+                "name": "太阳辐射"
+            },
+            "level_status": {
+                "name": "水位状态",
+                "state": {
+                    "normal": "正常",
+                    "pre_alarm": "预报警",
+                    "guard": "警戒",
+                    "danger": "危险"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "预报警水位"
+            },
+            "guard_threshold": {
+                "name": "警戒水位"
+            },
+            "danger_threshold": {
+                "name": "危险水位"
+            },
+            "data_source": {
+                "name": "数据来源",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Arpa 网站",
+                    "arpa_realtime": "Arpa api_realtime"
+                }
+            },
+            "last_measurement": {
+                "name": "最近测量"
+            },
+            "highest_alert": {
+                "name": "最高预警",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "current_danger": {
+                "name": "当前危险",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "绿色",
+                    "yellow": "黄色",
+                    "orange": "橙色",
+                    "red": "红色"
+                }
+            },
+            "operational_phase": {
+                "name": "市镇应急阶段",
+                "state": {
+                    "none": "无应急阶段",
+                    "attention": "注意",
+                    "pre_alarm": "预报警",
+                    "alarm": "警报"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "今天水文地质风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "今天水力风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "今天雷暴风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "今天降雪风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "今天雪崩风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "明天水文地质风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "明天水力风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "明天雷暴风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "明天降雪风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "明天雪崩风险级别",
+                "state": {
+                    "not_evaluated": "未评估",
+                    "green": "无预警",
+                    "yellow": "黄色预警",
+                    "orange": "橙色预警",
+                    "red": "红色预警"
+                }
+            },
+            "alert_zone": {
+                "name": "预警区"
+            },
+            "alert_bulletin": {
+                "name": "预警公报"
+            },
+            "next_alert_bulletin": {
+                "name": "下一期预警公报"
+            },
+            "nearby_earthquakes": {
+                "name": "附近地震"
+            },
+            "heat_wave_today": {
+                "name": "今天热浪",
+                "state": {
+                    "green": "无不适",
+                    "yellow": "1 级不适",
+                    "orange": "2 级不适",
+                    "red": "3 级不适"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "明天热浪",
+                "state": {
+                    "green": "无不适",
+                    "yellow": "1 级不适",
+                    "orange": "2 级不适",
+                    "red": "3 级不适"
+                }
+            },
+            "heat_wave_city": {
+                "name": "热浪公报城市"
+            },
+            "avalanche_danger_today": {
+                "name": "今天雪崩危险",
+                "state": {
+                    "no_snow": "无积雪",
+                    "low": "1 – 低",
+                    "moderate": "2 – 中等",
+                    "considerable": "3 – 显著",
+                    "high": "4 – 高",
+                    "very_high": "5 – 极高"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "明天雪崩危险",
+                "state": {
+                    "no_snow": "无积雪",
+                    "low": "1 – 低",
+                    "moderate": "2 – 中等",
+                    "considerable": "3 – 显著",
+                    "high": "4 – 高",
+                    "very_high": "5 – 极高"
+                }
+            },
+            "avalanche_region": {
+                "name": "雪崩微区域"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Arpa Piemonte 的数据来源均无响应：{error}"
+        },
+        "risks_update_failed": {
+            "message": "{municipality} 的自然风险不可用：{error}"
+        }
+    }
+}

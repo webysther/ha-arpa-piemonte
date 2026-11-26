@@ -68,6 +68,9 @@ calore e il pericolo valanghe.
   una sezione per stazione, il livello nei colori delle mappe di allerta e un
   indicatore con le sue soglie; e una [scheda](#scheda) di una stazione, nel
   selettore delle schede.
+- Tredici lingue: inglese, italiano, francese, tedesco, spagnolo e portoghese
+  brasiliano, e quelle di alcune delle maggiori comunità straniere in Italia:
+  rumeno, albanese, arabo, cinese semplificato, ucraino, bengalese e hindi.
 
 ## Casi d'uso
 

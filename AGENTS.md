@@ -75,7 +75,8 @@ custom_components/arpa_piemonte/
                    card (arpa-piemonte-card.js): plain JavaScript, no build,
                    native cards only
   const.py         constants, each with the measurement behind it
-  strings.json, translations/ (en, it, fr, es, de, pt-BR), icons.json,
+  strings.json, translations/ (the 13 languages of DPC Alert: en, it, fr,
+  de, es, pt-BR, ro, sq, ar, zh-Hans, uk, bn, hi), icons.json,
   quality_scale.yaml, manifest.json, version.py
 tests/             pytest-homeassistant-custom-component; the sources served by
                    aioclient_mock with unmodified files in tests/fixtures

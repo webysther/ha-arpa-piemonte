@@ -68,6 +68,10 @@ avalanche danger.
   and a section per station, the level in the colors of the alert maps and a
   gauge with its thresholds; and a [card](#card) of a station, in the card
   picker.
+- Thirteen languages: English, Italian, French, German, Spanish and Brazilian
+  Portuguese, and those of some of the largest foreign communities in Italy:
+  Romanian, Albanian, Arabic, Simplified Chinese, Ukrainian, Bengali and
+  Hindi.
 
 ## Use cases
 

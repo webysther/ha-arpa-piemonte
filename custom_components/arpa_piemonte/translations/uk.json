@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Додати станцію",
+                "description": "Вимірювання станцій Arpa Piemonte: рівень річок, опади, температура, вологість, вітер і сніг — залежно від сенсорів кожної станції, а також природні ризики їхнього муніципалітету. Це не офіційний застосунок Arpa Piemonte.",
+                "data": {
+                    "municipality": "Муніципалітет"
+                },
+                "data_description": {
+                    "municipality": "Почніть вводити назву, щоб знайти муніципалітет П'ємонту зі станцією. Його станції згруповано під ним."
+                }
+            },
+            "station": {
+                "title": "Станції муніципалітету {municipality}",
+                "description": "Спочатку річки, потім метеостанції.",
+                "data": {
+                    "station_code": "Станція"
+                },
+                "data_description": {
+                    "station_code": "Місце на річці, яке вас цікавить, не обов'язково найближче."
+                }
+            },
+            "reconfigure": {
+                "title": "Повторно зчитати {municipality}",
+                "description": "Повторно зчитати з Arpa Piemonte сенсори, пороги та ідентифікатори кожної станції муніципалітету {municipality}."
+            }
+        },
+        "error": {
+            "cannot_connect": "Не вдалося з'єднатися з Arpa Piemonte. Спробуйте пізніше.",
+            "municipality_not_listed": "У цьому муніципалітеті немає станцій Arpa Piemonte. Виберіть муніципалітет зі списку."
+        },
+        "abort": {
+            "already_configured": "Усі станції цього муніципалітету вже додано.",
+            "already_in_progress": "Станція цього муніципалітету вже додається.",
+            "cannot_connect": "Не вдалося з'єднатися з Arpa Piemonte. Спробуйте пізніше.",
+            "reconfigure_successful": "Станції зчитано повторно.",
+            "station_added": "Станцію {station} додано до муніципалітету {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Станція",
+            "initiate_flow": {
+                "user": "Додати станцію",
+                "reconfigure": "Повторно зчитати станцію"
+            },
+            "step": {
+                "user": {
+                    "title": "Додати станцію муніципалітету {municipality}",
+                    "description": "Ще не додані станції муніципалітету {municipality}: спочатку річки.",
+                    "data": {
+                        "station_code": "Станція"
+                    },
+                    "data_description": {
+                        "station_code": "Місце на річці, яке вас цікавить, не обов'язково найближче."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Повторно зчитати {station}",
+                    "description": "Повторно зчитати з Arpa Piemonte сенсори, пороги та ідентифікатори станції {station}."
+                }
+            },
+            "error": {
+                "cannot_connect": "Не вдалося з'єднатися з Arpa Piemonte. Спробуйте пізніше."
+            },
+            "abort": {
+                "already_configured": "Цю станцію вже додано.",
+                "cannot_connect": "Не вдалося з'єднатися з Arpa Piemonte. Спробуйте пізніше.",
+                "no_other_station": "Усі станції муніципалітету {municipality} вже додано.",
+                "reconfigure_successful": "Станцію зчитано повторно."
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Природні ризики муніципалітету {municipality}",
+                "description": "Параметри природних ризиків муніципалітету {municipality}.",
+                "data": {
+                    "warning_level": "Мінімальний рівень попередження",
+                    "position": "Розташування для ризиків",
+                    "radius": "Радіус землетрусів",
+                    "heat_city": "Місто бюлетеня хвиль спеки"
+                },
+                "data_description": {
+                    "warning_level": "Бінарний сенсор кожного ризику, сьогодні й завтра, вмикається з цього рівня і вище: типово жовтий, перший рівень попередження.",
+                    "position": "Землетруси, лавинна небезпека та найближче місто бюлетеня хвиль спеки визначаються за цим розташуванням: станції муніципалітету або дім у Home Assistant.",
+                    "radius": "Землетруси за останні 30 днів у межах цієї відстані від розташування, у км (типово 50).",
+                    "heat_city": "Arpa випускає бюлетені хвиль спеки лише для 8 центрів провінцій, з 15 травня приблизно до 30 вересня."
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "Жовте попередження",
+                "orange": "Помаранчеве попередження",
+                "red": "Червоне попередження"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "Станції муніципалітету",
+                "home": "Дім у Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "Центр провінції",
+                "nearest": "Найближчий центр провінції"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · Природні ризики"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "Ризик повені"
+            },
+            "hydrogeological_risk_today": {
+                "name": "Гідрогеологічний ризик сьогодні"
+            },
+            "hydraulic_risk_today": {
+                "name": "Гідравлічний ризик сьогодні"
+            },
+            "thunderstorm_risk_today": {
+                "name": "Ризик гроз сьогодні"
+            },
+            "snow_risk_today": {
+                "name": "Ризик снігопадів сьогодні"
+            },
+            "avalanche_risk_today": {
+                "name": "Ризик лавин сьогодні"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "Гідрогеологічний ризик завтра"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "Гідравлічний ризик завтра"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "Ризик гроз завтра"
+            },
+            "snow_risk_tomorrow": {
+                "name": "Ризик снігопадів завтра"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "Ризик лавин завтра"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "Землетрус M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "Магнітуда"
+                    },
+                    "magnitude_type": {
+                        "name": "Тип магнітуди"
+                    },
+                    "time": {
+                        "name": "Час"
+                    },
+                    "depth": {
+                        "name": "Глибина"
+                    },
+                    "district": {
+                        "name": "Сейсмічний район"
+                    },
+                    "reviewed": {
+                        "name": "Перевірено"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "Графік рівня"
+            },
+            "rain_chart": {
+                "name": "Графік опадів"
+            },
+            "temperature_chart": {
+                "name": "Графік температури"
+            },
+            "humidity_chart": {
+                "name": "Графік вологості"
+            },
+            "snow_chart": {
+                "name": "Графік снігу"
+            },
+            "wind_chart": {
+                "name": "Графік вітру"
+            },
+            "pressure_chart": {
+                "name": "Графік тиску"
+            },
+            "radiation_chart": {
+                "name": "Графік сонячної радіації"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "Рівень води"
+            },
+            "temperature": {
+                "name": "Температура"
+            },
+            "humidity": {
+                "name": "Вологість"
+            },
+            "rain_1h": {
+                "name": "Опади за 1 годину"
+            },
+            "rain_3h": {
+                "name": "Опади за 3 години"
+            },
+            "rain_24h": {
+                "name": "Опади за 24 години"
+            },
+            "wind_speed": {
+                "name": "Швидкість вітру"
+            },
+            "wind_direction": {
+                "name": "Напрямок вітру"
+            },
+            "gust_speed": {
+                "name": "Швидкість поривів"
+            },
+            "gust_direction": {
+                "name": "Напрямок поривів"
+            },
+            "snow_depth": {
+                "name": "Висота снігу"
+            },
+            "pressure": {
+                "name": "Атмосферний тиск"
+            },
+            "solar_radiation": {
+                "name": "Сонячна радіація"
+            },
+            "level_status": {
+                "name": "Стан рівня",
+                "state": {
+                    "normal": "Норма",
+                    "pre_alarm": "Попередня тривога",
+                    "guard": "Чергування",
+                    "danger": "Небезпека"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "Поріг попередньої тривоги"
+            },
+            "guard_threshold": {
+                "name": "Поріг чергування"
+            },
+            "danger_threshold": {
+                "name": "Поріг небезпеки"
+            },
+            "data_source": {
+                "name": "Джерело даних",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Вебсайт Arpa",
+                    "arpa_realtime": "api_realtime Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "Останнє вимірювання"
+            },
+            "highest_alert": {
+                "name": "Найвище попередження",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "current_danger": {
+                "name": "Поточна небезпека",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Зелений",
+                    "yellow": "Жовтий",
+                    "orange": "Помаранчевий",
+                    "red": "Червоний"
+                }
+            },
+            "operational_phase": {
+                "name": "Оперативна фаза муніципалітету",
+                "state": {
+                    "none": "Без оперативної фази",
+                    "attention": "Увага",
+                    "pre_alarm": "Попередня тривога",
+                    "alarm": "Тривога"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "Рівень гідрогеологічного ризику сьогодні",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "Рівень гідравлічного ризику сьогодні",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "Рівень ризику гроз сьогодні",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "Рівень ризику снігопадів сьогодні",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "Рівень ризику лавин сьогодні",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "Рівень гідрогеологічного ризику завтра",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "Рівень гідравлічного ризику завтра",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "Рівень ризику гроз завтра",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "Рівень ризику снігопадів завтра",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "Рівень ризику лавин завтра",
+                "state": {
+                    "not_evaluated": "Не оцінено",
+                    "green": "Без попередження",
+                    "yellow": "Жовте попередження",
+                    "orange": "Помаранчеве попередження",
+                    "red": "Червоне попередження"
+                }
+            },
+            "alert_zone": {
+                "name": "Зона попередження"
+            },
+            "alert_bulletin": {
+                "name": "Бюлетень попереджень"
+            },
+            "next_alert_bulletin": {
+                "name": "Наступний бюлетень попереджень"
+            },
+            "nearby_earthquakes": {
+                "name": "Землетруси поблизу"
+            },
+            "heat_wave_today": {
+                "name": "Хвиля спеки сьогодні",
+                "state": {
+                    "green": "Без дискомфорту",
+                    "yellow": "Дискомфорт рівня 1",
+                    "orange": "Дискомфорт рівня 2",
+                    "red": "Дискомфорт рівня 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "Хвиля спеки завтра",
+                "state": {
+                    "green": "Без дискомфорту",
+                    "yellow": "Дискомфорт рівня 1",
+                    "orange": "Дискомфорт рівня 2",
+                    "red": "Дискомфорт рівня 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "Місто бюлетеня хвиль спеки"
+            },
+            "avalanche_danger_today": {
+                "name": "Лавинна небезпека сьогодні",
+                "state": {
+                    "no_snow": "Без снігу",
+                    "low": "1 – Низька",
+                    "moderate": "2 – Помірна",
+                    "considerable": "3 – Значна",
+                    "high": "4 – Висока",
+                    "very_high": "5 – Дуже висока"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "Лавинна небезпека завтра",
+                "state": {
+                    "no_snow": "Без снігу",
+                    "low": "1 – Низька",
+                    "moderate": "2 – Помірна",
+                    "considerable": "3 – Значна",
+                    "high": "4 – Висока",
+                    "very_high": "5 – Дуже висока"
+                }
+            },
+            "avalanche_region": {
+                "name": "Лавинний мікрорегіон"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Жодне джерело Arpa Piemonte не відповіло: {error}"
+        },
+        "risks_update_failed": {
+            "message": "Природні ризики муніципалітету {municipality} недоступні: {error}"
+        }
+    }
+}

@@ -53,7 +53,21 @@ def test_english_is_the_strings() -> None:
     english = json.loads((INTEGRATION / "translations" / "en.json").read_text("utf-8"))
 
     assert english == STRINGS
-    assert LANGUAGES == ["de", "en", "es", "fr", "it", "pt-BR"]
+    assert LANGUAGES == [
+        "ar",
+        "bn",
+        "de",
+        "en",
+        "es",
+        "fr",
+        "hi",
+        "it",
+        "pt-BR",
+        "ro",
+        "sq",
+        "uk",
+        "zh-Hans",
+    ]
 
 
 @pytest.mark.parametrize("language", LANGUAGES)

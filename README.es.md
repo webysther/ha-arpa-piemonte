@@ -70,6 +70,9 @@ aludes.
   riesgos arriba y una sección por estación, el nivel en los colores de los
   mapas de alerta y un indicador con sus umbrales; y una [tarjeta](#tarjeta)
   de una estación, en el selector de tarjetas.
+- Trece idiomas: inglés, italiano, francés, alemán, español y portugués de
+  Brasil, y los de algunas de las mayores comunidades extranjeras de Italia:
+  rumano, albanés, árabe, chino simplificado, ucraniano, bengalí e hindi.
 
 ## Casos de uso
 

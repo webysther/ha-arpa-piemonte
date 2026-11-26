@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "إضافة محطة",
+                "description": "قياسات محطات Arpa Piemonte: منسوب الأنهار والأمطار ودرجة الحرارة والرطوبة والرياح والثلوج، بحسب مستشعرات كل محطة، والمخاطر الطبيعية في بلديتها. ليس تطبيقاً رسمياً من Arpa Piemonte.",
+                "data": {
+                    "municipality": "البلدية"
+                },
+                "data_description": {
+                    "municipality": "اكتب للبحث بين بلديات بيدمونت التي فيها محطة. تُجمَع محطاتها تحتها."
+                }
+            },
+            "station": {
+                "title": "محطات {municipality}",
+                "description": "الأنهار أولاً، ثم محطات الطقس.",
+                "data": {
+                    "station_code": "المحطة"
+                },
+                "data_description": {
+                    "station_code": "نقطة النهر التي تهمّك، وليست بالضرورة الأقرب."
+                }
+            },
+            "reconfigure": {
+                "title": "إعادة قراءة {municipality}",
+                "description": "أعِد قراءة مستشعرات كل محطة في {municipality} وعتباتها ومعرّفاتها من Arpa Piemonte."
+            }
+        },
+        "error": {
+            "cannot_connect": "تعذّر الوصول إلى Arpa Piemonte. أعِد المحاولة لاحقاً.",
+            "municipality_not_listed": "لا توجد محطة لـ Arpa Piemonte في هذه البلدية. اختر بلدية من القائمة."
+        },
+        "abort": {
+            "already_configured": "كل محطات هذه البلدية مُضافة مسبقاً.",
+            "already_in_progress": "تجري إضافة محطة من هذه البلدية بالفعل.",
+            "cannot_connect": "تعذّر الوصول إلى Arpa Piemonte. أعِد المحاولة لاحقاً.",
+            "reconfigure_successful": "أُعيدت قراءة المحطات.",
+            "station_added": "أُضيفت {station} إلى {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "المحطة",
+            "initiate_flow": {
+                "user": "إضافة محطة",
+                "reconfigure": "إعادة قراءة المحطة"
+            },
+            "step": {
+                "user": {
+                    "title": "إضافة محطة في {municipality}",
+                    "description": "محطات {municipality} التي لم تُضَف بعد: الأنهار أولاً.",
+                    "data": {
+                        "station_code": "المحطة"
+                    },
+                    "data_description": {
+                        "station_code": "نقطة النهر التي تهمّك، وليست بالضرورة الأقرب."
+                    }
+                },
+                "reconfigure": {
+                    "title": "إعادة قراءة {station}",
+                    "description": "أعِد قراءة مستشعرات {station} وعتباتها ومعرّفاتها من Arpa Piemonte."
+                }
+            },
+            "error": {
+                "cannot_connect": "تعذّر الوصول إلى Arpa Piemonte. أعِد المحاولة لاحقاً."
+            },
+            "abort": {
+                "already_configured": "هذه المحطة مُضافة مسبقاً.",
+                "cannot_connect": "تعذّر الوصول إلى Arpa Piemonte. أعِد المحاولة لاحقاً.",
+                "no_other_station": "كل محطات {municipality} مُضافة مسبقاً.",
+                "reconfigure_successful": "أُعيدت قراءة المحطة."
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "المخاطر الطبيعية في {municipality}",
+                "description": "خيارات المخاطر الطبيعية في {municipality}.",
+                "data": {
+                    "warning_level": "الحد الأدنى لمستوى الإنذار",
+                    "position": "موقع المخاطر",
+                    "radius": "نطاق الزلازل",
+                    "heat_city": "مدينة موجات الحر"
+                },
+                "data_description": {
+                    "warning_level": "يعمل المستشعر الثنائي لكل خطر، اليوم وغداً، ابتداءً من هذا المستوى فما فوق: الأصفر افتراضياً، وهو أول مستوى للإنذار.",
+                    "position": "الزلازل وخطورة الانهيارات الثلجية وأقرب مدينة لموجات الحر من هذا الموقع: محطات البلدية، أو منزل Home Assistant.",
+                    "radius": "زلازل آخر 30 يوماً ضمن هذه المسافة من الموقع، بالكيلومتر (الافتراضي 50).",
+                    "heat_city": "تُصدر Arpa نشرات موجات الحر لعواصم المقاطعات الـ 8 فقط، من 15 مايو حتى نحو 30 سبتمبر."
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "إنذار أصفر",
+                "orange": "إنذار برتقالي",
+                "red": "إنذار أحمر"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "محطات البلدية",
+                "home": "منزل Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "عاصمة المقاطعة",
+                "nearest": "أقرب عاصمة مقاطعة"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · المخاطر الطبيعية"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "خطر الفيضان"
+            },
+            "hydrogeological_risk_today": {
+                "name": "الخطر الهيدروجيولوجي اليوم"
+            },
+            "hydraulic_risk_today": {
+                "name": "الخطر الهيدروليكي اليوم"
+            },
+            "thunderstorm_risk_today": {
+                "name": "خطر العواصف الرعدية اليوم"
+            },
+            "snow_risk_today": {
+                "name": "خطر الثلوج اليوم"
+            },
+            "avalanche_risk_today": {
+                "name": "خطر الانهيارات الثلجية اليوم"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "الخطر الهيدروجيولوجي غداً"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "الخطر الهيدروليكي غداً"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "خطر العواصف الرعدية غداً"
+            },
+            "snow_risk_tomorrow": {
+                "name": "خطر الثلوج غداً"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "خطر الانهيارات الثلجية غداً"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "زلزال بقوة {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "القوة"
+                    },
+                    "magnitude_type": {
+                        "name": "مقياس القوة"
+                    },
+                    "time": {
+                        "name": "الوقت"
+                    },
+                    "depth": {
+                        "name": "العمق"
+                    },
+                    "district": {
+                        "name": "المنطقة الزلزالية"
+                    },
+                    "reviewed": {
+                        "name": "تمت المراجعة"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "مخطط المنسوب"
+            },
+            "rain_chart": {
+                "name": "مخطط الأمطار"
+            },
+            "temperature_chart": {
+                "name": "مخطط درجة الحرارة"
+            },
+            "humidity_chart": {
+                "name": "مخطط الرطوبة"
+            },
+            "snow_chart": {
+                "name": "مخطط الثلوج"
+            },
+            "wind_chart": {
+                "name": "مخطط الرياح"
+            },
+            "pressure_chart": {
+                "name": "مخطط الضغط الجوي"
+            },
+            "radiation_chart": {
+                "name": "مخطط الإشعاع الشمسي"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "منسوب المياه"
+            },
+            "temperature": {
+                "name": "درجة الحرارة"
+            },
+            "humidity": {
+                "name": "الرطوبة"
+            },
+            "rain_1h": {
+                "name": "أمطار ساعة واحدة"
+            },
+            "rain_3h": {
+                "name": "أمطار 3 ساعات"
+            },
+            "rain_24h": {
+                "name": "أمطار 24 ساعة"
+            },
+            "wind_speed": {
+                "name": "سرعة الرياح"
+            },
+            "wind_direction": {
+                "name": "اتجاه الرياح"
+            },
+            "gust_speed": {
+                "name": "سرعة الهبّات"
+            },
+            "gust_direction": {
+                "name": "اتجاه الهبّات"
+            },
+            "snow_depth": {
+                "name": "سماكة الثلوج"
+            },
+            "pressure": {
+                "name": "الضغط الجوي"
+            },
+            "solar_radiation": {
+                "name": "الإشعاع الشمسي"
+            },
+            "level_status": {
+                "name": "حالة المنسوب",
+                "state": {
+                    "normal": "عادي",
+                    "pre_alarm": "تأهّب",
+                    "guard": "مراقبة الفيضان",
+                    "danger": "خطر"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "عتبة التأهّب"
+            },
+            "guard_threshold": {
+                "name": "عتبة مراقبة الفيضان"
+            },
+            "danger_threshold": {
+                "name": "عتبة الخطر"
+            },
+            "data_source": {
+                "name": "مصدر البيانات",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "موقع Arpa الإلكتروني",
+                    "arpa_realtime": "api_realtime من Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "آخر قياس"
+            },
+            "highest_alert": {
+                "name": "أعلى إنذار",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "current_danger": {
+                "name": "الخطورة الحالية",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "أخضر",
+                    "yellow": "أصفر",
+                    "orange": "برتقالي",
+                    "red": "أحمر"
+                }
+            },
+            "operational_phase": {
+                "name": "المرحلة العملياتية",
+                "state": {
+                    "none": "لا توجد مرحلة عملياتية",
+                    "attention": "انتباه",
+                    "pre_alarm": "تأهّب",
+                    "alarm": "استنفار"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "مستوى الخطر الهيدروجيولوجي اليوم",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "مستوى الخطر الهيدروليكي اليوم",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "مستوى خطر العواصف الرعدية اليوم",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "مستوى خطر الثلوج اليوم",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "مستوى خطر الانهيارات الثلجية اليوم",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "مستوى الخطر الهيدروجيولوجي غداً",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "مستوى الخطر الهيدروليكي غداً",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "مستوى خطر العواصف الرعدية غداً",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "مستوى خطر الثلوج غداً",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "مستوى خطر الانهيارات الثلجية غداً",
+                "state": {
+                    "not_evaluated": "غير مُقيَّم",
+                    "green": "لا يوجد إنذار",
+                    "yellow": "إنذار أصفر",
+                    "orange": "إنذار برتقالي",
+                    "red": "إنذار أحمر"
+                }
+            },
+            "alert_zone": {
+                "name": "منطقة الإنذار"
+            },
+            "alert_bulletin": {
+                "name": "نشرة الإنذار"
+            },
+            "next_alert_bulletin": {
+                "name": "نشرة الإنذار التالية"
+            },
+            "nearby_earthquakes": {
+                "name": "الزلازل القريبة"
+            },
+            "heat_wave_today": {
+                "name": "موجة الحر اليوم",
+                "state": {
+                    "green": "لا يوجد انزعاج",
+                    "yellow": "انزعاج من المستوى 1",
+                    "orange": "انزعاج من المستوى 2",
+                    "red": "انزعاج من المستوى 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "موجة الحر غداً",
+                "state": {
+                    "green": "لا يوجد انزعاج",
+                    "yellow": "انزعاج من المستوى 1",
+                    "orange": "انزعاج من المستوى 2",
+                    "red": "انزعاج من المستوى 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "مدينة موجات الحر"
+            },
+            "avalanche_danger_today": {
+                "name": "خطورة الانهيارات الثلجية اليوم",
+                "state": {
+                    "no_snow": "بلا ثلوج",
+                    "low": "1 – منخفض",
+                    "moderate": "2 – معتدل",
+                    "considerable": "3 – ملحوظ",
+                    "high": "4 – مرتفع",
+                    "very_high": "5 – مرتفع جداً"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "خطورة الانهيارات الثلجية غداً",
+                "state": {
+                    "no_snow": "بلا ثلوج",
+                    "low": "1 – منخفض",
+                    "moderate": "2 – معتدل",
+                    "considerable": "3 – ملحوظ",
+                    "high": "4 – مرتفع",
+                    "very_high": "5 – مرتفع جداً"
+                }
+            },
+            "avalanche_region": {
+                "name": "المنطقة الصغرى للانهيارات الثلجية"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "لم يستجب أي مصدر من مصادر Arpa Piemonte: {error}"
+        },
+        "risks_update_failed": {
+            "message": "المخاطر الطبيعية في {municipality} غير متاحة: {error}"
+        }
+    }
+}

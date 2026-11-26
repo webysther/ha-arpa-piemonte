@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Shto një stacion",
+                "description": "Matjet e stacioneve të Arpa Piemonte: niveli i lumenjve, shiu, temperatura, lagështia, era dhe bora, sipas sensorëve të çdo stacioni, dhe rreziqet natyrore të komunës së tyre. Nuk është aplikacion zyrtar i Arpa Piemonte.",
+                "data": {
+                    "municipality": "Komuna"
+                },
+                "data_description": {
+                    "municipality": "Shkruaj për të kërkuar ndër komunat në Piemonte që kanë një stacion. Stacionet e saj grupohen nën të."
+                }
+            },
+            "station": {
+                "title": "Stacionet në {municipality}",
+                "description": "Së pari lumenjtë, pastaj stacionet meteorologjike.",
+                "data": {
+                    "station_code": "Stacioni"
+                },
+                "data_description": {
+                    "station_code": "Pika e lumit që të intereson, jo domosdoshmërisht më e afërta."
+                }
+            },
+            "reconfigure": {
+                "title": "Lexo sërish {municipality}",
+                "description": "Lexo sërish nga Arpa Piemonte sensorët, pragjet dhe identifikuesit e çdo stacioni në {municipality}."
+            }
+        },
+        "error": {
+            "cannot_connect": "Arpa Piemonte nuk është e arritshme. Provo sërish më vonë.",
+            "municipality_not_listed": "Asnjë stacion i Arpa Piemonte në këtë komunë. Zgjidh një nga lista."
+        },
+        "abort": {
+            "already_configured": "Të gjitha stacionet e kësaj komune janë shtuar tashmë.",
+            "already_in_progress": "Një stacion i kësaj komune po shtohet tashmë.",
+            "cannot_connect": "Arpa Piemonte nuk është e arritshme. Provo sërish më vonë.",
+            "reconfigure_successful": "Stacionet u lexuan sërish.",
+            "station_added": "{station} u shtua në {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Stacioni",
+            "initiate_flow": {
+                "user": "Shto stacion",
+                "reconfigure": "Lexo sërish stacionin"
+            },
+            "step": {
+                "user": {
+                    "title": "Shto një stacion në {municipality}",
+                    "description": "Stacionet në {municipality} që nuk janë shtuar ende: së pari lumenjtë.",
+                    "data": {
+                        "station_code": "Stacioni"
+                    },
+                    "data_description": {
+                        "station_code": "Pika e lumit që të intereson, jo domosdoshmërisht më e afërta."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Lexo sërish {station}",
+                    "description": "Lexo sërish nga Arpa Piemonte sensorët, pragjet dhe identifikuesit e {station}."
+                }
+            },
+            "error": {
+                "cannot_connect": "Arpa Piemonte nuk është e arritshme. Provo sërish më vonë."
+            },
+            "abort": {
+                "already_configured": "Ky stacion është shtuar tashmë.",
+                "cannot_connect": "Arpa Piemonte nuk është e arritshme. Provo sërish më vonë.",
+                "no_other_station": "Të gjitha stacionet në {municipality} janë shtuar tashmë.",
+                "reconfigure_successful": "Stacioni u lexua sërish."
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Rreziqet natyrore në {municipality}",
+                "description": "Opsionet e rreziqeve natyrore në {municipality}.",
+                "data": {
+                    "warning_level": "Niveli minimal i paralajmërimit",
+                    "position": "Pozicioni i rreziqeve",
+                    "radius": "Rrezja e tërmeteve",
+                    "heat_city": "Qyteti i valës së nxehtë"
+                },
+                "data_description": {
+                    "warning_level": "Sensori binar i çdo rreziku, sot dhe nesër, ndizet nga ky nivel e lart: parazgjedhja është paralajmërimi i verdhë, niveli i parë i paralajmërimit.",
+                    "position": "Tërmetet, rrezikshmëria nga ortekët dhe qyteti më i afërt i valës së nxehtë për këtë pozicion: stacionet e komunës ose shtëpia në Home Assistant.",
+                    "radius": "Tërmetet e 30 ditëve të fundit brenda kësaj largësie nga pozicioni, në km (parazgjedhja 50).",
+                    "heat_city": "Arpa i nxjerr buletinet e valës së nxehtë vetëm për 8 kryeqendrat e provincave, nga 15 maji deri afërsisht më 30 shtator."
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "Paralajmërim i verdhë",
+                "orange": "Paralajmërim portokalli",
+                "red": "Paralajmërim i kuq"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "Stacionet e komunës",
+                "home": "Shtëpia në Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "Kryeqendra e provincës",
+                "nearest": "Kryeqendra më e afërt"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · Rreziqet natyrore"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "Rrezik përmbytjeje"
+            },
+            "hydrogeological_risk_today": {
+                "name": "Rrezik hidrogjeologjik sot"
+            },
+            "hydraulic_risk_today": {
+                "name": "Rrezik hidraulik sot"
+            },
+            "thunderstorm_risk_today": {
+                "name": "Rrezik shtrëngatash sot"
+            },
+            "snow_risk_today": {
+                "name": "Rrezik bore sot"
+            },
+            "avalanche_risk_today": {
+                "name": "Rrezik ortekësh sot"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "Rrezik hidrogjeologjik nesër"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "Rrezik hidraulik nesër"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "Rrezik shtrëngatash nesër"
+            },
+            "snow_risk_tomorrow": {
+                "name": "Rrezik bore nesër"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "Rrezik ortekësh nesër"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "Tërmet M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "Magnituda"
+                    },
+                    "magnitude_type": {
+                        "name": "Lloji i magnitudës"
+                    },
+                    "time": {
+                        "name": "Ora"
+                    },
+                    "depth": {
+                        "name": "Thellësia"
+                    },
+                    "district": {
+                        "name": "Distrikti sizmik"
+                    },
+                    "reviewed": {
+                        "name": "I rishikuar"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "Grafiku i nivelit"
+            },
+            "rain_chart": {
+                "name": "Grafiku i shiut"
+            },
+            "temperature_chart": {
+                "name": "Grafiku i temperaturës"
+            },
+            "humidity_chart": {
+                "name": "Grafiku i lagështisë"
+            },
+            "snow_chart": {
+                "name": "Grafiku i borës"
+            },
+            "wind_chart": {
+                "name": "Grafiku i erës"
+            },
+            "pressure_chart": {
+                "name": "Grafiku i presionit"
+            },
+            "radiation_chart": {
+                "name": "Grafiku i rrezatimit diellor"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "Niveli i ujit"
+            },
+            "temperature": {
+                "name": "Temperatura"
+            },
+            "humidity": {
+                "name": "Lagështia"
+            },
+            "rain_1h": {
+                "name": "Shi 1 orë"
+            },
+            "rain_3h": {
+                "name": "Shi 3 orë"
+            },
+            "rain_24h": {
+                "name": "Shi 24 orë"
+            },
+            "wind_speed": {
+                "name": "Shpejtësia e erës"
+            },
+            "wind_direction": {
+                "name": "Drejtimi i erës"
+            },
+            "gust_speed": {
+                "name": "Shpejtësia e shpërthimeve të erës"
+            },
+            "gust_direction": {
+                "name": "Drejtimi i shpërthimeve të erës"
+            },
+            "snow_depth": {
+                "name": "Lartësia e borës"
+            },
+            "pressure": {
+                "name": "Presioni atmosferik"
+            },
+            "solar_radiation": {
+                "name": "Rrezatimi diellor"
+            },
+            "level_status": {
+                "name": "Gjendja e nivelit",
+                "state": {
+                    "normal": "Normal",
+                    "pre_alarm": "Paraalarm",
+                    "guard": "Roje",
+                    "danger": "Rrezik"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "Pragu i paraalarmit"
+            },
+            "guard_threshold": {
+                "name": "Pragu i rojes"
+            },
+            "danger_threshold": {
+                "name": "Pragu i rrezikut"
+            },
+            "data_source": {
+                "name": "Burimi i të dhënave",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Uebfaqja e Arpa",
+                    "arpa_realtime": "api_realtime e Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "Matja e fundit"
+            },
+            "highest_alert": {
+                "name": "Paralajmërimi më i lartë",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "current_danger": {
+                "name": "Rrezikshmëria aktuale",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "E gjelbër",
+                    "yellow": "E verdhë",
+                    "orange": "Portokalli",
+                    "red": "E kuqe"
+                }
+            },
+            "operational_phase": {
+                "name": "Faza operative e komunës",
+                "state": {
+                    "none": "Asnjë fazë operative",
+                    "attention": "Vëmendje",
+                    "pre_alarm": "Paraalarm",
+                    "alarm": "Alarm"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "Rrezik hidrogjeologjik: niveli sot",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "Rrezik hidraulik: niveli sot",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "Rrezik shtrëngatash: niveli sot",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "Rrezik bore: niveli sot",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "Rrezik ortekësh: niveli sot",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "Rrezik hidrogjeologjik: niveli nesër",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "Rrezik hidraulik: niveli nesër",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "Rrezik shtrëngatash: niveli nesër",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "Rrezik bore: niveli nesër",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "Rrezik ortekësh: niveli nesër",
+                "state": {
+                    "not_evaluated": "Pa vlerësim",
+                    "green": "Asnjë paralajmërim",
+                    "yellow": "Paralajmërim i verdhë",
+                    "orange": "Paralajmërim portokalli",
+                    "red": "Paralajmërim i kuq"
+                }
+            },
+            "alert_zone": {
+                "name": "Zona e paralajmërimit"
+            },
+            "alert_bulletin": {
+                "name": "Buletini i paralajmërimit"
+            },
+            "next_alert_bulletin": {
+                "name": "Buletini i ardhshëm i paralajmërimit"
+            },
+            "nearby_earthquakes": {
+                "name": "Tërmete afër"
+            },
+            "heat_wave_today": {
+                "name": "Vala e nxehtë sot",
+                "state": {
+                    "green": "Pa parehati",
+                    "yellow": "Parehati e nivelit 1",
+                    "orange": "Parehati e nivelit 2",
+                    "red": "Parehati e nivelit 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "Vala e nxehtë nesër",
+                "state": {
+                    "green": "Pa parehati",
+                    "yellow": "Parehati e nivelit 1",
+                    "orange": "Parehati e nivelit 2",
+                    "red": "Parehati e nivelit 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "Qyteti i valës së nxehtë"
+            },
+            "avalanche_danger_today": {
+                "name": "Rrezikshmëria nga ortekët sot",
+                "state": {
+                    "no_snow": "Pa borë",
+                    "low": "1 – E ulët",
+                    "moderate": "2 – E moderuar",
+                    "considerable": "3 – E konsiderueshme",
+                    "high": "4 – E lartë",
+                    "very_high": "5 – Shumë e lartë"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "Rrezikshmëria nga ortekët nesër",
+                "state": {
+                    "no_snow": "Pa borë",
+                    "low": "1 – E ulët",
+                    "moderate": "2 – E moderuar",
+                    "considerable": "3 – E konsiderueshme",
+                    "high": "4 – E lartë",
+                    "very_high": "5 – Shumë e lartë"
+                }
+            },
+            "avalanche_region": {
+                "name": "Mikrorajoni i ortekëve"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Asnjë burim i Arpa Piemonte nuk u përgjigj: {error}"
+        },
+        "risks_update_failed": {
+            "message": "Rreziqet natyrore në {municipality} nuk janë të disponueshme: {error}"
+        }
+    }
+}

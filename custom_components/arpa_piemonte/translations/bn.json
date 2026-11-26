@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "একটি স্টেশন যোগ করুন",
+                "description": "Arpa Piemonte-এর স্টেশনগুলোর পরিমাপ: নদীর পানির স্তর, বৃষ্টি, তাপমাত্রা, আর্দ্রতা, বাতাস ও তুষার, প্রতিটি স্টেশন যা যা পরিমাপ করে, এবং তাদের পৌরসভার প্রাকৃতিক ঝুঁকি। এটি Arpa Piemonte-এর অফিসিয়াল অ্যাপ নয়।",
+                "data": {
+                    "municipality": "পৌরসভা"
+                },
+                "data_description": {
+                    "municipality": "স্টেশন আছে এমন পিয়েমোন্তের পৌরসভাগুলোর মধ্যে খুঁজতে লিখুন। পৌরসভার স্টেশনগুলো এর অধীনে একসাথে রাখা হয়।"
+                }
+            },
+            "station": {
+                "title": "{municipality}-এর স্টেশন",
+                "description": "প্রথমে নদী, তারপর আবহাওয়া স্টেশন।",
+                "data": {
+                    "station_code": "স্টেশন"
+                },
+                "data_description": {
+                    "station_code": "নদীর যে জায়গাটি আপনার কাছে গুরুত্বপূর্ণ, সবচেয়ে কাছেরটিই হতে হবে এমন নয়।"
+                }
+            },
+            "reconfigure": {
+                "title": "{municipality} আবার পড়ুন",
+                "description": "Arpa Piemonte থেকে {municipality}-এর প্রতিটি স্টেশনের সেন্সর, সীমা ও আইডি আবার পড়ুন।"
+            }
+        },
+        "error": {
+            "cannot_connect": "Arpa Piemonte-এর সাথে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।",
+            "municipality_not_listed": "এই পৌরসভায় Arpa Piemonte-এর কোনো স্টেশন নেই। তালিকা থেকে একটি বেছে নিন।"
+        },
+        "abort": {
+            "already_configured": "এই পৌরসভার সব স্টেশন ইতিমধ্যে যোগ করা হয়েছে।",
+            "already_in_progress": "এই পৌরসভার একটি স্টেশন ইতিমধ্যে যোগ করা হচ্ছে।",
+            "cannot_connect": "Arpa Piemonte-এর সাথে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।",
+            "reconfigure_successful": "স্টেশনগুলো আবার পড়া হয়েছে।",
+            "station_added": "{station} {municipality}-এ যোগ করা হয়েছে।"
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "স্টেশন",
+            "initiate_flow": {
+                "user": "স্টেশন যোগ করুন",
+                "reconfigure": "স্টেশনটি আবার পড়ুন"
+            },
+            "step": {
+                "user": {
+                    "title": "{municipality}-এর একটি স্টেশন যোগ করুন",
+                    "description": "{municipality}-এর যে স্টেশনগুলো এখনো যোগ করা হয়নি: প্রথমে নদী।",
+                    "data": {
+                        "station_code": "স্টেশন"
+                    },
+                    "data_description": {
+                        "station_code": "নদীর যে জায়গাটি আপনার কাছে গুরুত্বপূর্ণ, সবচেয়ে কাছেরটিই হতে হবে এমন নয়।"
+                    }
+                },
+                "reconfigure": {
+                    "title": "{station} আবার পড়ুন",
+                    "description": "Arpa Piemonte থেকে {station}-এর সেন্সর, সীমা ও আইডি আবার পড়ুন।"
+                }
+            },
+            "error": {
+                "cannot_connect": "Arpa Piemonte-এর সাথে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।"
+            },
+            "abort": {
+                "already_configured": "এই স্টেশনটি ইতিমধ্যে যোগ করা হয়েছে।",
+                "cannot_connect": "Arpa Piemonte-এর সাথে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।",
+                "no_other_station": "{municipality}-এর সব স্টেশন ইতিমধ্যে যোগ করা হয়েছে।",
+                "reconfigure_successful": "স্টেশনটি আবার পড়া হয়েছে।"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "{municipality}-এর প্রাকৃতিক ঝুঁকি",
+                "description": "{municipality}-এর প্রাকৃতিক ঝুঁকির বিকল্প।",
+                "data": {
+                    "warning_level": "সতর্কতার সর্বনিম্ন মাত্রা",
+                    "position": "ঝুঁকির অবস্থান",
+                    "radius": "ভূমিকম্পের ব্যাসার্ধ",
+                    "heat_city": "তাপপ্রবাহের শহর"
+                },
+                "data_description": {
+                    "warning_level": "আজ ও আগামীকালের প্রতিটি ঝুঁকির বাইনারি সেন্সর এই মাত্রা থেকে চালু হয়: ডিফল্ট হলুদ, সতর্কতার প্রথম মাত্রা।",
+                    "position": "এই অবস্থান অনুযায়ী ভূমিকম্প, তুষারধসের বিপদ ও নিকটতম তাপপ্রবাহের শহর: পৌরসভার স্টেশনগুলো, অথবা Home Assistant-এর হোম।",
+                    "radius": "অবস্থান থেকে এই দূরত্বের মধ্যে গত 30 দিনের ভূমিকম্প, কিমিতে (ডিফল্ট 50)।",
+                    "heat_city": "Arpa শুধু 8টি প্রদেশের রাজধানীর জন্য তাপপ্রবাহ বুলেটিন প্রকাশ করে, 15 মে থেকে প্রায় 30 সেপ্টেম্বর পর্যন্ত।"
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "হলুদ সতর্কতা",
+                "orange": "কমলা সতর্কতা",
+                "red": "লাল সতর্কতা"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "পৌরসভার স্টেশনগুলো",
+                "home": "Home Assistant-এর হোম"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "প্রদেশের রাজধানী",
+                "nearest": "নিকটতম রাজধানী"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · প্রাকৃতিক ঝুঁকি"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "বন্যার ঝুঁকি"
+            },
+            "hydrogeological_risk_today": {
+                "name": "আজকের জলভূতাত্ত্বিক ঝুঁকি"
+            },
+            "hydraulic_risk_today": {
+                "name": "আজকের হাইড্রোলিক ঝুঁকি"
+            },
+            "thunderstorm_risk_today": {
+                "name": "আজকের বজ্রঝড়ের ঝুঁকি"
+            },
+            "snow_risk_today": {
+                "name": "আজকের তুষারপাতের ঝুঁকি"
+            },
+            "avalanche_risk_today": {
+                "name": "আজকের তুষারধসের ঝুঁকি"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "আগামীকালের জলভূতাত্ত্বিক ঝুঁকি"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "আগামীকালের হাইড্রোলিক ঝুঁকি"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "আগামীকালের বজ্রঝড়ের ঝুঁকি"
+            },
+            "snow_risk_tomorrow": {
+                "name": "আগামীকালের তুষারপাতের ঝুঁকি"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "আগামীকালের তুষারধসের ঝুঁকি"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "ভূমিকম্প M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "মাত্রা"
+                    },
+                    "magnitude_type": {
+                        "name": "মাত্রার ধরন"
+                    },
+                    "time": {
+                        "name": "সময়"
+                    },
+                    "depth": {
+                        "name": "গভীরতা"
+                    },
+                    "district": {
+                        "name": "ভূকম্পীয় অঞ্চল"
+                    },
+                    "reviewed": {
+                        "name": "পর্যালোচিত"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "পানির স্তরের চার্ট"
+            },
+            "rain_chart": {
+                "name": "বৃষ্টির চার্ট"
+            },
+            "temperature_chart": {
+                "name": "তাপমাত্রার চার্ট"
+            },
+            "humidity_chart": {
+                "name": "আর্দ্রতার চার্ট"
+            },
+            "snow_chart": {
+                "name": "তুষারের চার্ট"
+            },
+            "wind_chart": {
+                "name": "বাতাসের চার্ট"
+            },
+            "pressure_chart": {
+                "name": "বায়ুচাপের চার্ট"
+            },
+            "radiation_chart": {
+                "name": "সৌর বিকিরণের চার্ট"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "পানির স্তর"
+            },
+            "temperature": {
+                "name": "তাপমাত্রা"
+            },
+            "humidity": {
+                "name": "আর্দ্রতা"
+            },
+            "rain_1h": {
+                "name": "1 ঘণ্টার বৃষ্টি"
+            },
+            "rain_3h": {
+                "name": "3 ঘণ্টার বৃষ্টি"
+            },
+            "rain_24h": {
+                "name": "24 ঘণ্টার বৃষ্টি"
+            },
+            "wind_speed": {
+                "name": "বাতাসের গতি"
+            },
+            "wind_direction": {
+                "name": "বাতাসের দিক"
+            },
+            "gust_speed": {
+                "name": "দমকা হাওয়ার গতি"
+            },
+            "gust_direction": {
+                "name": "দমকা হাওয়ার দিক"
+            },
+            "snow_depth": {
+                "name": "তুষারের গভীরতা"
+            },
+            "pressure": {
+                "name": "বায়ুমণ্ডলীয় চাপ"
+            },
+            "solar_radiation": {
+                "name": "সৌর বিকিরণ"
+            },
+            "level_status": {
+                "name": "পানির স্তরের অবস্থা",
+                "state": {
+                    "normal": "স্বাভাবিক",
+                    "pre_alarm": "প্রাক-অ্যালার্ম",
+                    "guard": "পাহারা",
+                    "danger": "বিপদ"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "প্রাক-অ্যালার্ম সীমা"
+            },
+            "guard_threshold": {
+                "name": "পাহারা সীমা"
+            },
+            "danger_threshold": {
+                "name": "বিপদসীমা"
+            },
+            "data_source": {
+                "name": "ডেটার উৎস",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Arpa ওয়েবসাইট",
+                    "arpa_realtime": "Arpa api_realtime"
+                }
+            },
+            "last_measurement": {
+                "name": "শেষ পরিমাপ"
+            },
+            "highest_alert": {
+                "name": "সর্বোচ্চ সতর্কতা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "current_danger": {
+                "name": "বর্তমান বিপদ",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "সবুজ",
+                    "yellow": "হলুদ",
+                    "orange": "কমলা",
+                    "red": "লাল"
+                }
+            },
+            "operational_phase": {
+                "name": "পৌরসভার কার্যক্রম পর্যায়",
+                "state": {
+                    "none": "কোনো কার্যক্রম পর্যায় নেই",
+                    "attention": "মনোযোগ",
+                    "pre_alarm": "প্রাক-অ্যালার্ম",
+                    "alarm": "অ্যালার্ম"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "আজকের জলভূতাত্ত্বিক ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "আজকের হাইড্রোলিক ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "আজকের বজ্রঝড়ের ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "আজকের তুষারপাতের ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "আজকের তুষারধসের ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "আগামীকালের জলভূতাত্ত্বিক ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "আগামীকালের হাইড্রোলিক ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "আগামীকালের বজ্রঝড়ের ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "আগামীকালের তুষারপাতের ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "আগামীকালের তুষারধসের ঝুঁকির মাত্রা",
+                "state": {
+                    "not_evaluated": "মূল্যায়ন করা হয়নি",
+                    "green": "কোনো সতর্কতা নেই",
+                    "yellow": "হলুদ সতর্কতা",
+                    "orange": "কমলা সতর্কতা",
+                    "red": "লাল সতর্কতা"
+                }
+            },
+            "alert_zone": {
+                "name": "সতর্কতা অঞ্চল"
+            },
+            "alert_bulletin": {
+                "name": "সতর্কতা বুলেটিন"
+            },
+            "next_alert_bulletin": {
+                "name": "পরবর্তী সতর্কতা বুলেটিন"
+            },
+            "nearby_earthquakes": {
+                "name": "নিকটবর্তী ভূমিকম্প"
+            },
+            "heat_wave_today": {
+                "name": "আজকের তাপপ্রবাহ",
+                "state": {
+                    "green": "কোনো অস্বস্তি নেই",
+                    "yellow": "অস্বস্তির মাত্রা 1",
+                    "orange": "অস্বস্তির মাত্রা 2",
+                    "red": "অস্বস্তির মাত্রা 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "আগামীকালের তাপপ্রবাহ",
+                "state": {
+                    "green": "কোনো অস্বস্তি নেই",
+                    "yellow": "অস্বস্তির মাত্রা 1",
+                    "orange": "অস্বস্তির মাত্রা 2",
+                    "red": "অস্বস্তির মাত্রা 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "তাপপ্রবাহের শহর"
+            },
+            "avalanche_danger_today": {
+                "name": "আজকের তুষারধসের বিপদ",
+                "state": {
+                    "no_snow": "তুষার নেই",
+                    "low": "1 – নিম্ন",
+                    "moderate": "2 – মাঝারি",
+                    "considerable": "3 – উল্লেখযোগ্য",
+                    "high": "4 – উচ্চ",
+                    "very_high": "5 – অতি উচ্চ"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "আগামীকালের তুষারধসের বিপদ",
+                "state": {
+                    "no_snow": "তুষার নেই",
+                    "low": "1 – নিম্ন",
+                    "moderate": "2 – মাঝারি",
+                    "considerable": "3 – উল্লেখযোগ্য",
+                    "high": "4 – উচ্চ",
+                    "very_high": "5 – অতি উচ্চ"
+                }
+            },
+            "avalanche_region": {
+                "name": "তুষারধসের মাইক্রো-অঞ্চল"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Arpa Piemonte-এর কোনো উৎস সাড়া দেয়নি: {error}"
+        },
+        "risks_update_failed": {
+            "message": "{municipality}-এর প্রাকৃতিক ঝুঁকি পাওয়া যাচ্ছে না: {error}"
+        }
+    }
+}
