@@ -858,7 +858,10 @@ describe("helpers", () => {
     assert.equal(textsIn("it-CH").station, "Stazione");
     assert.equal(textsIn("pt").station, "Estação");
     assert.equal(textsIn("pt-BR").station, "Estação");
-    assert.equal(textsIn("de").station, "Station");
+    assert.equal(textsIn("es-419").station, "Estación");
+    assert.equal(textsIn("de-CH").natural_risks, "Naturgefahren");
+    assert.equal(textsIn("fr").natural_risks, "Risques naturels");
+    assert.equal(textsIn("ja").station, "Station");
     assert.equal(textsIn(undefined).station, "Station");
   });
 

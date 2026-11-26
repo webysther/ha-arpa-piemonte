@@ -6,6 +6,11 @@ All notable changes to Arpa Piemonte are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Texts in French, Spanish and German: the setup, the options, the entities,
+  the dashboard and the card.
+
 ## [2026.11.2] - 2026-11-18
 
 ### Changed

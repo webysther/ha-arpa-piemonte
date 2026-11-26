@@ -1,0 +1,475 @@
+{
+    "title": "Arpa Piemonte",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Añadir una estación",
+                "description": "Las mediciones de las estaciones de Arpa Piemonte: nivel de los ríos, lluvia, temperatura, humedad, viento y nieve, según los sensores de cada estación, y los riesgos naturales de su municipio. No es una app oficial de Arpa Piemonte.",
+                "data": {
+                    "municipality": "Municipio"
+                },
+                "data_description": {
+                    "municipality": "Escribe para buscar entre los municipios del Piamonte con una estación. Sus estaciones se agrupan bajo él."
+                }
+            },
+            "station": {
+                "title": "Estaciones de {municipality}",
+                "description": "Primero los ríos, luego las estaciones meteorológicas.",
+                "data": {
+                    "station_code": "Estación"
+                },
+                "data_description": {
+                    "station_code": "El punto del río que te interesa, no necesariamente el más cercano."
+                }
+            },
+            "reconfigure": {
+                "title": "Volver a leer {municipality}",
+                "description": "Volver a leer de Arpa Piemonte los sensores, los umbrales y los identificadores de cada estación de {municipality}."
+            }
+        },
+        "error": {
+            "cannot_connect": "No se puede contactar con Arpa Piemonte. Inténtalo de nuevo más tarde.",
+            "municipality_not_listed": "Ninguna estación de Arpa Piemonte en este municipio. Elige uno de la lista."
+        },
+        "abort": {
+            "already_configured": "Todas las estaciones de este municipio ya están añadidas.",
+            "already_in_progress": "Ya se está añadiendo una estación de este municipio.",
+            "cannot_connect": "No se puede contactar con Arpa Piemonte. Inténtalo de nuevo más tarde.",
+            "reconfigure_successful": "Las estaciones se volvieron a leer.",
+            "station_added": "{station} se añadió a {municipality}."
+        }
+    },
+    "config_subentries": {
+        "station": {
+            "entry_type": "Estación",
+            "initiate_flow": {
+                "user": "Añadir estación",
+                "reconfigure": "Volver a leer la estación"
+            },
+            "step": {
+                "user": {
+                    "title": "Añadir una estación de {municipality}",
+                    "description": "Las estaciones de {municipality} aún no añadidas: primero los ríos.",
+                    "data": {
+                        "station_code": "Estación"
+                    },
+                    "data_description": {
+                        "station_code": "El punto del río que te interesa, no necesariamente el más cercano."
+                    }
+                },
+                "reconfigure": {
+                    "title": "Volver a leer {station}",
+                    "description": "Volver a leer de Arpa Piemonte los sensores, los umbrales y los identificadores de {station}."
+                }
+            },
+            "error": {
+                "cannot_connect": "No se puede contactar con Arpa Piemonte. Inténtalo de nuevo más tarde."
+            },
+            "abort": {
+                "already_configured": "Esta estación ya está añadida.",
+                "cannot_connect": "No se puede contactar con Arpa Piemonte. Inténtalo de nuevo más tarde.",
+                "no_other_station": "Todas las estaciones de {municipality} ya están añadidas.",
+                "reconfigure_successful": "La estación se volvió a leer."
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Riesgos naturales de {municipality}",
+                "description": "Las opciones de los riesgos naturales de {municipality}.",
+                "data": {
+                    "warning_level": "Nivel mínimo de alerta",
+                    "position": "Posición de los riesgos",
+                    "radius": "Radio de los terremotos",
+                    "heat_city": "Ciudad de la ola de calor"
+                },
+                "data_description": {
+                    "warning_level": "El sensor binario de cada riesgo, hoy y mañana, se activa a partir de este nivel: amarilla por defecto, el primer nivel de alerta.",
+                    "position": "Los terremotos, el peligro de aludes y la ciudad de la ola de calor más cercana a esta posición: las estaciones del municipio, o la casa de Home Assistant.",
+                    "radius": "Los terremotos de los últimos 30 días dentro de esta distancia de la posición, en km (50 por defecto).",
+                    "heat_city": "Arpa emite los boletines de ola de calor solo para las 8 capitales de provincia, del 15 de mayo hasta alrededor del 30 de septiembre."
+                }
+            }
+        }
+    },
+    "selector": {
+        "warning_level": {
+            "options": {
+                "yellow": "Alerta amarilla",
+                "orange": "Alerta naranja",
+                "red": "Alerta roja"
+            }
+        },
+        "position": {
+            "options": {
+                "stations": "Las estaciones del municipio",
+                "home": "La casa de Home Assistant"
+            }
+        },
+        "heat_city": {
+            "options": {
+                "province": "La capital de la provincia",
+                "nearest": "La capital más cercana"
+            }
+        }
+    },
+    "device": {
+        "risks": {
+            "name": "{municipality} · Riesgos naturales"
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "flood_risk": {
+                "name": "Riesgo de crecida"
+            },
+            "hydrogeological_risk_today": {
+                "name": "Riesgo hidrogeológico hoy"
+            },
+            "hydraulic_risk_today": {
+                "name": "Riesgo hidráulico hoy"
+            },
+            "thunderstorm_risk_today": {
+                "name": "Riesgo de tormentas hoy"
+            },
+            "snow_risk_today": {
+                "name": "Riesgo de nieve hoy"
+            },
+            "avalanche_risk_today": {
+                "name": "Riesgo de aludes hoy"
+            },
+            "hydrogeological_risk_tomorrow": {
+                "name": "Riesgo hidrogeológico mañana"
+            },
+            "hydraulic_risk_tomorrow": {
+                "name": "Riesgo hidráulico mañana"
+            },
+            "thunderstorm_risk_tomorrow": {
+                "name": "Riesgo de tormentas mañana"
+            },
+            "snow_risk_tomorrow": {
+                "name": "Riesgo de nieve mañana"
+            },
+            "avalanche_risk_tomorrow": {
+                "name": "Riesgo de aludes mañana"
+            }
+        },
+        "geo_location": {
+            "earthquake": {
+                "name": "Terremoto M {magnitude}",
+                "state_attributes": {
+                    "magnitude": {
+                        "name": "Magnitud"
+                    },
+                    "magnitude_type": {
+                        "name": "Tipo de magnitud"
+                    },
+                    "time": {
+                        "name": "Hora"
+                    },
+                    "depth": {
+                        "name": "Profundidad"
+                    },
+                    "district": {
+                        "name": "Distrito sísmico"
+                    },
+                    "reviewed": {
+                        "name": "Revisado"
+                    }
+                }
+            }
+        },
+        "image": {
+            "level_chart": {
+                "name": "Gráfico del nivel"
+            },
+            "rain_chart": {
+                "name": "Gráfico de la lluvia"
+            },
+            "temperature_chart": {
+                "name": "Gráfico de la temperatura"
+            },
+            "humidity_chart": {
+                "name": "Gráfico de la humedad"
+            },
+            "snow_chart": {
+                "name": "Gráfico de la nieve"
+            },
+            "wind_chart": {
+                "name": "Gráfico del viento"
+            },
+            "pressure_chart": {
+                "name": "Gráfico de la presión"
+            },
+            "radiation_chart": {
+                "name": "Gráfico de la radiación solar"
+            }
+        },
+        "sensor": {
+            "level": {
+                "name": "Nivel hidrométrico"
+            },
+            "temperature": {
+                "name": "Temperatura"
+            },
+            "humidity": {
+                "name": "Humedad"
+            },
+            "rain_1h": {
+                "name": "Lluvia 1 hora"
+            },
+            "rain_3h": {
+                "name": "Lluvia 3 horas"
+            },
+            "rain_24h": {
+                "name": "Lluvia 24 horas"
+            },
+            "wind_speed": {
+                "name": "Velocidad del viento"
+            },
+            "wind_direction": {
+                "name": "Dirección del viento"
+            },
+            "gust_speed": {
+                "name": "Velocidad de las ráfagas"
+            },
+            "gust_direction": {
+                "name": "Dirección de las ráfagas"
+            },
+            "snow_depth": {
+                "name": "Altura de la nieve"
+            },
+            "pressure": {
+                "name": "Presión atmosférica"
+            },
+            "solar_radiation": {
+                "name": "Radiación solar"
+            },
+            "level_status": {
+                "name": "Estado del nivel",
+                "state": {
+                    "normal": "Normal",
+                    "pre_alarm": "Prealarma",
+                    "guard": "Guardia",
+                    "danger": "Peligro"
+                }
+            },
+            "pre_alarm_threshold": {
+                "name": "Umbral de prealarma"
+            },
+            "guard_threshold": {
+                "name": "Umbral de guardia"
+            },
+            "danger_threshold": {
+                "name": "Umbral de peligro"
+            },
+            "data_source": {
+                "name": "Fuente de los datos",
+                "state": {
+                    "meteo3r": "Meteo 3R",
+                    "arpa_website": "Sitio web de Arpa",
+                    "arpa_realtime": "api_realtime de Arpa"
+                }
+            },
+            "last_measurement": {
+                "name": "Última medición"
+            },
+            "highest_alert": {
+                "name": "Alerta máxima",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "current_danger": {
+                "name": "Peligro actual",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Verde",
+                    "yellow": "Amarillo",
+                    "orange": "Naranja",
+                    "red": "Rojo"
+                }
+            },
+            "operational_phase": {
+                "name": "Fase operativa municipal",
+                "state": {
+                    "none": "Ninguna fase operativa",
+                    "attention": "Atención",
+                    "pre_alarm": "Prealarma",
+                    "alarm": "Alarma"
+                }
+            },
+            "hydrogeological_risk_level_today": {
+                "name": "Nivel de riesgo hidrogeológico hoy",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "hydraulic_risk_level_today": {
+                "name": "Nivel de riesgo hidráulico hoy",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "thunderstorm_risk_level_today": {
+                "name": "Nivel de riesgo de tormentas hoy",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "snow_risk_level_today": {
+                "name": "Nivel de riesgo de nieve hoy",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "avalanche_risk_level_today": {
+                "name": "Nivel de riesgo de aludes hoy",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "hydrogeological_risk_level_tomorrow": {
+                "name": "Nivel de riesgo hidrogeológico mañana",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "hydraulic_risk_level_tomorrow": {
+                "name": "Nivel de riesgo hidráulico mañana",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "thunderstorm_risk_level_tomorrow": {
+                "name": "Nivel de riesgo de tormentas mañana",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "snow_risk_level_tomorrow": {
+                "name": "Nivel de riesgo de nieve mañana",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "avalanche_risk_level_tomorrow": {
+                "name": "Nivel de riesgo de aludes mañana",
+                "state": {
+                    "not_evaluated": "No evaluado",
+                    "green": "Sin alerta",
+                    "yellow": "Alerta amarilla",
+                    "orange": "Alerta naranja",
+                    "red": "Alerta roja"
+                }
+            },
+            "alert_zone": {
+                "name": "Zona de alerta"
+            },
+            "alert_bulletin": {
+                "name": "Boletín de alerta"
+            },
+            "next_alert_bulletin": {
+                "name": "Próximo boletín de alerta"
+            },
+            "nearby_earthquakes": {
+                "name": "Terremotos cercanos"
+            },
+            "heat_wave_today": {
+                "name": "Ola de calor hoy",
+                "state": {
+                    "green": "Sin malestar",
+                    "yellow": "Malestar de nivel 1",
+                    "orange": "Malestar de nivel 2",
+                    "red": "Malestar de nivel 3"
+                }
+            },
+            "heat_wave_tomorrow": {
+                "name": "Ola de calor mañana",
+                "state": {
+                    "green": "Sin malestar",
+                    "yellow": "Malestar de nivel 1",
+                    "orange": "Malestar de nivel 2",
+                    "red": "Malestar de nivel 3"
+                }
+            },
+            "heat_wave_city": {
+                "name": "Ciudad de la ola de calor"
+            },
+            "avalanche_danger_today": {
+                "name": "Peligro de aludes hoy",
+                "state": {
+                    "no_snow": "Sin nieve",
+                    "low": "1 – Débil",
+                    "moderate": "2 – Limitado",
+                    "considerable": "3 – Notable",
+                    "high": "4 – Fuerte",
+                    "very_high": "5 – Muy fuerte"
+                }
+            },
+            "avalanche_danger_tomorrow": {
+                "name": "Peligro de aludes mañana",
+                "state": {
+                    "no_snow": "Sin nieve",
+                    "low": "1 – Débil",
+                    "moderate": "2 – Limitado",
+                    "considerable": "3 – Notable",
+                    "high": "4 – Fuerte",
+                    "very_high": "5 – Muy fuerte"
+                }
+            },
+            "avalanche_region": {
+                "name": "Microrregión de aludes"
+            }
+        }
+    },
+    "exceptions": {
+        "update_failed": {
+            "message": "Ninguna fuente de Arpa Piemonte respondió: {error}"
+        },
+        "risks_update_failed": {
+            "message": "Los riesgos naturales de {municipality} no están disponibles: {error}"
+        }
+    }
+}

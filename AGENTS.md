@@ -75,8 +75,8 @@ custom_components/arpa_piemonte/
                    card (arpa-piemonte-card.js): plain JavaScript, no build,
                    native cards only
   const.py         constants, each with the measurement behind it
-  strings.json, translations/ (en, it, pt-BR), icons.json, quality_scale.yaml,
-  manifest.json, version.py
+  strings.json, translations/ (en, it, fr, es, de, pt-BR), icons.json,
+  quality_scale.yaml, manifest.json, version.py
 tests/             pytest-homeassistant-custom-component; the sources served by
                    aioclient_mock with unmodified files in tests/fixtures
 tests/frontend/    node:test tests of the dashboard strategy and the card
