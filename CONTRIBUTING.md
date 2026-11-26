@@ -36,6 +36,8 @@ The tests never reach Arpa Piemonte: they serve unmodified files of it, in
 - A change to the data of the config entries needs a migration step.
 - The texts are in `strings.json`, equal to `translations/en.json`, and in
   every language of `translations/`.
+- The README is translated: a change to `README.md` changes `README.it.md`,
+  `README.fr.md`, `README.es.md` and `README.de.md` too.
 
 ## Using AI
 

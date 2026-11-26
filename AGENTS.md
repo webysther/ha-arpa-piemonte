@@ -218,6 +218,18 @@ Users' automations and dashboards depend on what the integration exposes.
   it true when a change affects a rule.
 - The README is the page users install from, through the Marketplace, and
   holds the sections the quality scale asks for: keep them current.
+- The README is translated: `README.<language>.md` at the root, with the tag
+  Home Assistant names the language with (`README.it.md`, `README.fr.md`,
+  `README.es.md`, `README.de.md`), and the same line of language links at the
+  top of each. A change to `README.md` changes every translation, in the same
+  commit. The translations name what the integration shows with its texts in
+  their language (`translations/<language>.json`), and the menus of Home
+  Assistant as its frontend does in that language; they keep the entity IDs,
+  the YAML keys, the URLs and the images of `README.md`. The Marketplace
+  shows `README.md`;
+  [home-assistant/core#189842](https://github.com/home-assistant/core/pull/189842),
+  merged on 2026-11-26, shows the translation of the language of the user, by
+  these names, once released.
 - Credit the data: every entity has the attribution of Arpa Piemonte, and the
   device links to the page of its station.
 - `brand/` holds the icon and logo of Arpa Piemonte, as Home Assistant 2026.3

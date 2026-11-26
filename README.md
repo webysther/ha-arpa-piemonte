@@ -16,6 +16,8 @@
   <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/LICENSE.md"><img alt="License" src="https://img.shields.io/github/license/webysther/ha-arpa-piemonte?color=41BDF5"></a>
 </p>
 
+<p align="center"><b>English</b> · <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/README.it.md">Italiano</a> · <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/README.fr.md">Français</a> · <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/README.es.md">Español</a> · <a href="https://github.com/webysther/ha-arpa-piemonte/blob/main/README.de.md">Deutsch</a></p>
+
 The readings of the stations of [Arpa Piemonte](https://www.arpa.piemonte.it)
 in Home Assistant: **river levels**, with the alert thresholds of each
 hydrometer, **rain**, temperature, humidity, wind and snow, for any of the 374

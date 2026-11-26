@@ -10,6 +10,8 @@ All notable changes to Arpa Piemonte are documented here. The format follows
 
 - Texts in French, Spanish and German: the setup, the options, the entities,
   the dashboard and the card.
+- The README in Italian, French, Spanish and German (`README.it.md`,
+  `README.fr.md`, `README.es.md`, `README.de.md`), linked at the top of each.
 
 ## [2026.11.2] - 2026-11-18
 
